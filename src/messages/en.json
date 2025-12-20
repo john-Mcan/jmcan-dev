@@ -1,0 +1,161 @@
+{
+  "metadata": {
+    "title": "John Moya Cantillana | Full Stack Developer",
+    "description": "Full Stack Developer specialized in Next.js, React and TypeScript. Builder of scalable web platforms with over 32,000 users."
+  },
+  "nav": {
+    "home": "Home",
+    "caseStudy": "Case Study",
+    "contact": "Contact"
+  },
+  "hero": {
+    "greeting": "Hi, I'm",
+    "name": "John Moya Cantillana",
+    "title": "Full Stack Developer",
+    "description": "I build scalable web platforms with Next.js and TypeScript. Specialized in social applications with robust authentication, real-time systems and optimized PostgreSQL databases.",
+    "cta": {
+      "projects": "View Projects",
+      "contact": "Get in Touch"
+    }
+  },
+  "about": {
+    "title": "About Me",
+    "description": "Full Stack Developer with experience building complex web platforms from scratch. My approach combines solid software architecture with practical product feature implementation.",
+    "highlights": {
+      "experience": "Proven experience with real users",
+      "fullstack": "End-to-end development: frontend, backend & infrastructure",
+      "modern": "Modern stack and best practices"
+    }
+  },
+  "skills": {
+    "title": "Tech Stack",
+    "frontend": "Frontend",
+    "backend": "Backend",
+    "infrastructure": "Infrastructure",
+    "tools": "Tools"
+  },
+  "project": {
+    "title": "Featured Project",
+    "fandoms": {
+      "name": "Fandoms.io",
+      "tagline": "Social platform for fan communities",
+      "description": "Designed and built a complete social platform for fan communities, taking it from concept to production with thousands of active users.",
+      "cta": "View Case Study"
+    },
+    "metrics": {
+      "users": "Users",
+      "posts": "Posts",
+      "comments": "Comments",
+      "interactions": "Interactions",
+      "messages": "Messages",
+      "pollVotes": "Poll Votes",
+      "communities": "Communities"
+    }
+  },
+  "caseStudy": {
+    "title": "Case Study",
+    "subtitle": "Fandoms.io",
+    "overview": {
+      "title": "Project Overview",
+      "description": "Fandoms.io is a complete social platform for fan communities, similar to Reddit with Discord-like features, developed from scratch as an individual project."
+    },
+    "problem": {
+      "title": "The Problem",
+      "description": "Fan communities needed a Spanish-language platform that combined Reddit's community structure with Discord's real-time interaction, without the configuration complexity."
+    },
+    "solution": {
+      "title": "The Solution",
+      "description": "A unified platform with community system, moderation, interactive content, real-time chat and gamification.",
+      "features": {
+        "communities": "Community system with hierarchical roles",
+        "content": "Content feed with posts, comments and voting",
+        "moderation": "Complete moderation panel",
+        "polls": "Interactive polling system",
+        "badges": "Badge and achievement system",
+        "realtime": "Real-time chat per community"
+      }
+    },
+    "architecture": {
+      "title": "Technical Architecture",
+      "description": "Modern stack optimized for performance and scalability."
+    },
+    "challenges": {
+      "title": "Technical Challenges",
+      "auth": {
+        "title": "Robust PWA Authentication",
+        "problem": "OAuth authentication and session handling had complex edge cases in PWA environments.",
+        "solution": "Hybrid session persistence system with fallbacks, multi-session conflict detection and adaptive timeouts."
+      },
+      "realtime": {
+        "title": "Scalable Real-time",
+        "problem": "Maintaining efficient WebSocket connections without degrading performance.",
+        "solution": "Reusable channel pattern with reference counting and real-time JWT updates."
+      },
+      "feed": {
+        "title": "Performant Feed",
+        "problem": "Loading feeds with complex data without N+1 queries.",
+        "solution": "Cursor pagination, optimized queries with selective JOINs and TanStack Query cache."
+      },
+      "roles": {
+        "title": "Granular Permission System",
+        "problem": "Different permissions based on context (admin, moderator, author).",
+        "solution": "Row Level Security with composite PostgreSQL policies and dual client-server verification."
+      }
+    },
+    "stack": {
+      "title": "Tech Stack"
+    },
+    "metrics": {
+      "title": "Code Metrics",
+      "components": "React Components",
+      "hooks": "Custom Hooks",
+      "endpoints": "API Endpoints",
+      "services": "Business Services",
+      "tables": "PostgreSQL Tables",
+      "policies": "RLS Policies",
+      "lines": "TypeScript Lines"
+    },
+    "learnings": {
+      "title": "Key Learnings",
+      "items": [
+        "Initial architecture matters: refactoring tables with data is complex",
+        "RLS is powerful but requires careful planning",
+        "Aggressive caching improves UX but complicates invalidation",
+        "PWA authentication edge cases require exhaustive testing",
+        "Real-time metrics help make product decisions"
+      ]
+    }
+  },
+  "contact": {
+    "title": "Contact",
+    "subtitle": "Interested in working together?",
+    "description": "I'm looking for opportunities where I can contribute solid technical solutions while continuing to learn from more experienced developers.",
+    "form": {
+      "name": "Name",
+      "email": "Email",
+      "message": "Message",
+      "submit": "Send Message",
+      "sending": "Sending...",
+      "success": "Message sent successfully!",
+      "error": "Error sending message. Please try again."
+    },
+    "availability": {
+      "title": "Availability",
+      "status": "Available for opportunities",
+      "location": "Remote / Hybrid"
+    },
+    "links": {
+      "title": "You can also find me on"
+    }
+  },
+  "footer": {
+    "rights": "All rights reserved",
+    "builtWith": "Built with"
+  },
+  "common": {
+    "viewMore": "View more",
+    "learnMore": "Learn more",
+    "goBack": "Go back"
+  }
+}
+

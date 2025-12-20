@@ -1,0 +1,161 @@
+{
+  "metadata": {
+    "title": "John Moya Cantillana | Desarrollador Full Stack",
+    "description": "Desarrollador Full Stack especializado en Next.js, React y TypeScript. Constructor de plataformas web escalables con más de 32,000 usuarios."
+  },
+  "nav": {
+    "home": "Inicio",
+    "caseStudy": "Caso de Estudio",
+    "contact": "Contacto"
+  },
+  "hero": {
+    "greeting": "Hola, soy",
+    "name": "John Moya Cantillana",
+    "title": "Desarrollador Full Stack",
+    "description": "Construyo plataformas web escalables con Next.js y TypeScript. Especializado en aplicaciones sociales con autenticación robusta, sistemas real-time y bases de datos PostgreSQL optimizadas.",
+    "cta": {
+      "projects": "Ver Proyectos",
+      "contact": "Contactar"
+    }
+  },
+  "about": {
+    "title": "Sobre Mí",
+    "description": "Desarrollador Full Stack con experiencia construyendo plataformas web complejas desde cero. Mi enfoque combina arquitectura de software sólida con implementación práctica de features de producto.",
+    "highlights": {
+      "experience": "Experiencia demostrable con usuarios reales",
+      "fullstack": "Desarrollo end-to-end: frontend, backend e infraestructura",
+      "modern": "Stack moderno y mejores prácticas"
+    }
+  },
+  "skills": {
+    "title": "Stack Tecnológico",
+    "frontend": "Frontend",
+    "backend": "Backend",
+    "infrastructure": "Infraestructura",
+    "tools": "Herramientas"
+  },
+  "project": {
+    "title": "Proyecto Destacado",
+    "fandoms": {
+      "name": "Fandoms.io",
+      "tagline": "Plataforma social para comunidades de fans",
+      "description": "Diseñé y construí una plataforma social completa para comunidades de fans, llevándola desde concepto hasta producción con miles de usuarios activos.",
+      "cta": "Ver Caso de Estudio"
+    },
+    "metrics": {
+      "users": "Usuarios",
+      "posts": "Posts",
+      "comments": "Comentarios",
+      "interactions": "Interacciones",
+      "messages": "Mensajes",
+      "pollVotes": "Votos en Encuestas",
+      "communities": "Comunidades"
+    }
+  },
+  "caseStudy": {
+    "title": "Caso de Estudio",
+    "subtitle": "Fandoms.io",
+    "overview": {
+      "title": "Resumen del Proyecto",
+      "description": "Fandoms.io es una plataforma social completa para comunidades de fans, similar a Reddit con funcionalidades de Discord, desarrollada desde cero como proyecto individual."
+    },
+    "problem": {
+      "title": "El Problema",
+      "description": "Las comunidades de fans necesitaban una plataforma en español que combinara la estructura de comunidades de Reddit con la interacción en tiempo real de Discord, sin la complejidad de configuración."
+    },
+    "solution": {
+      "title": "La Solución",
+      "description": "Una plataforma unificada con sistema de comunidades, moderación, contenido interactivo, chat en tiempo real y gamificación.",
+      "features": {
+        "communities": "Sistema de comunidades con roles jerárquicos",
+        "content": "Feed de contenido con posts, comentarios y votaciones",
+        "moderation": "Panel de moderación completo",
+        "polls": "Sistema de encuestas interactivas",
+        "badges": "Sistema de badges y logros",
+        "realtime": "Chat en tiempo real por comunidad"
+      }
+    },
+    "architecture": {
+      "title": "Arquitectura Técnica",
+      "description": "Stack moderno optimizado para rendimiento y escalabilidad."
+    },
+    "challenges": {
+      "title": "Desafíos Técnicos",
+      "auth": {
+        "title": "Autenticación Robusta en PWA",
+        "problem": "La autenticación OAuth y el manejo de sesiones presentaban edge cases complejos en entornos PWA.",
+        "solution": "Sistema híbrido de persistencia de sesión con fallbacks, detección de conflictos multi-sesión y timeouts adaptativos."
+      },
+      "realtime": {
+        "title": "Real-time Escalable",
+        "problem": "Mantener conexiones WebSocket eficientes sin degradar el rendimiento.",
+        "solution": "Patrón de canales reutilizables con reference counting y actualización de JWT en tiempo real."
+      },
+      "feed": {
+        "title": "Feed Performante",
+        "problem": "Cargar feeds con datos complejos sin queries N+1.",
+        "solution": "Paginación por cursor, queries optimizadas con JOINs selectivos y cache con TanStack Query."
+      },
+      "roles": {
+        "title": "Sistema de Permisos Granular",
+        "problem": "Diferentes permisos según el contexto (admin, moderador, autor).",
+        "solution": "Row Level Security con políticas compuestas en PostgreSQL y verificación dual cliente-servidor."
+      }
+    },
+    "stack": {
+      "title": "Stack Tecnológico"
+    },
+    "metrics": {
+      "title": "Métricas de Código",
+      "components": "Componentes React",
+      "hooks": "Custom Hooks",
+      "endpoints": "API Endpoints",
+      "services": "Servicios de Negocio",
+      "tables": "Tablas PostgreSQL",
+      "policies": "Políticas RLS",
+      "lines": "Líneas de TypeScript"
+    },
+    "learnings": {
+      "title": "Aprendizajes Clave",
+      "items": [
+        "La arquitectura inicial importa: refactorizar tablas con datos es complejo",
+        "RLS es poderoso pero requiere planificación cuidadosa",
+        "El caching agresivo mejora UX pero complica la invalidación",
+        "Los edge cases de autenticación en PWA requieren testing exhaustivo",
+        "Métricas en tiempo real ayudan a tomar decisiones de producto"
+      ]
+    }
+  },
+  "contact": {
+    "title": "Contacto",
+    "subtitle": "¿Interesado en trabajar juntos?",
+    "description": "Estoy buscando oportunidades donde pueda aportar soluciones técnicas sólidas mientras continúo aprendiendo de desarrolladores más experimentados.",
+    "form": {
+      "name": "Nombre",
+      "email": "Email",
+      "message": "Mensaje",
+      "submit": "Enviar Mensaje",
+      "sending": "Enviando...",
+      "success": "¡Mensaje enviado correctamente!",
+      "error": "Error al enviar el mensaje. Intenta de nuevo."
+    },
+    "availability": {
+      "title": "Disponibilidad",
+      "status": "Disponible para oportunidades",
+      "location": "Remoto / Híbrido"
+    },
+    "links": {
+      "title": "También puedes encontrarme en"
+    }
+  },
+  "footer": {
+    "rights": "Todos los derechos reservados",
+    "builtWith": "Construido con"
+  },
+  "common": {
+    "viewMore": "Ver más",
+    "learnMore": "Saber más",
+    "goBack": "Volver"
+  }
+}
+
