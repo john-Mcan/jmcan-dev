@@ -15,21 +15,23 @@ export function About() {
     <Section className="bg-card/30">
       <SectionHeader title={t("title")} />
       
-      <div className="grid md:grid-cols-2 gap-12 items-center">
+      <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-center">
         <div>
-          <p className="text-lg text-muted leading-relaxed">
+          <p className="text-base sm:text-lg text-muted leading-relaxed">
             {t("description")}
           </p>
         </div>
 
-        <div className="space-y-4">
+        <div className="space-y-3 sm:space-y-4">
           {highlights.map((highlight, index) => (
             <div
               key={index}
-              className="flex items-start gap-3 p-4 rounded-xl bg-secondary/30 border border-border"
+              className="group flex items-start gap-3 p-4 rounded-xl bg-secondary/30 border border-border hover:border-accent/30 hover:bg-secondary/50 transition-all duration-300"
             >
-              <CheckCircle className="h-5 w-5 text-accent flex-shrink-0 mt-0.5" />
-              <span className="text-foreground">{highlight}</span>
+              <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-accent/10 flex-shrink-0">
+                <CheckCircle className="h-4 w-4 text-accent" />
+              </div>
+              <span className="text-sm sm:text-base text-foreground pt-1">{highlight}</span>
             </div>
           ))}
         </div>

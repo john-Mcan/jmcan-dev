@@ -37,15 +37,15 @@ export function Hero() {
           </p>
 
           {/* CTAs */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in-up opacity-0 stagger-4">
-            <Button asChild size="lg" className="group">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 animate-fade-in-up opacity-0 stagger-4 w-full sm:w-auto">
+            <Button asChild size="lg" className="group w-full sm:w-auto">
               <Link href="/caso-de-estudio">
                 <FileCode className="h-5 w-5" />
-                {t("cta.projects")}
+                <span>{t("cta.projects")}</span>
                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
               </Link>
             </Button>
-            <Button asChild variant="outline" size="lg">
+            <Button asChild variant="outline" size="lg" className="w-full sm:w-auto">
               <Link href="/contacto">
                 {t("cta.contact")}
               </Link>

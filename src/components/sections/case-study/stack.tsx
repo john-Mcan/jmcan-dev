@@ -1,7 +1,6 @@
 import { useTranslations } from "next-intl";
 import { Section, SectionHeader } from "@/components/ui/section";
 import { Badge } from "@/components/ui/badge";
-import { fandomsProject } from "@/data/projects";
 
 const stackCategories = [
   {
@@ -29,16 +28,24 @@ export function CaseStudyStack() {
     <Section>
       <SectionHeader title={t("title")} centered />
 
-      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         {stackCategories.map((category) => (
           <div
             key={category.title}
-            className="p-6 rounded-xl border border-border bg-card/50"
+            className="group relative p-5 sm:p-6 rounded-xl border border-border bg-card/50 hover:bg-card hover:border-accent/30 transition-all duration-300"
           >
-            <h3 className="font-semibold text-accent mb-4">{category.title}</h3>
-            <div className="flex flex-wrap gap-2">
+            {/* Indicator line */}
+            <div className="absolute top-0 left-5 right-5 h-px bg-gradient-to-r from-transparent via-accent/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+            
+            {/* Category header */}
+            <div className="flex items-center gap-2 mb-4 pb-3 border-b border-border/50">
+              <div className="w-2 h-2 rounded-full bg-accent" />
+              <h3 className="font-semibold text-base sm:text-lg text-foreground">{category.title}</h3>
+            </div>
+            
+            <div className="flex flex-wrap gap-1.5 sm:gap-2">
               {category.items.map((item) => (
-                <Badge key={item} variant="secondary">
+                <Badge key={item} variant="secondary" className="text-xs sm:text-sm">
                   {item}
                 </Badge>
               ))}
@@ -47,10 +54,10 @@ export function CaseStudyStack() {
         ))}
       </div>
 
-      {/* Architecture Diagram Placeholder */}
-      <div className="mt-12 p-8 rounded-xl border border-border bg-card/30">
-        <div className="text-center text-muted font-mono text-sm">
-          <pre className="overflow-x-auto">
+      {/* Architecture Diagram */}
+      <div className="mt-8 sm:mt-12 p-4 sm:p-8 rounded-xl border border-border bg-card/30 overflow-hidden">
+        <div className="text-center text-muted font-mono text-[10px] sm:text-xs md:text-sm">
+          <pre className="overflow-x-auto whitespace-pre">
 {`[Usuario] ──▶ [Vercel Edge] ──▶ [Next.js App]
                                       │
                     ┌─────────────────┼─────────────────┐

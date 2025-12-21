@@ -71,9 +71,9 @@ export function ProjectHighlight() {
                 )}
               </div>
 
-              <Button asChild className="w-fit group">
+              <Button asChild className="w-full sm:w-fit group">
                 <Link href="/caso-de-estudio">
-                  {t("fandoms.cta")}
+                  <span>{t("fandoms.cta")}</span>
                   <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                 </Link>
               </Button>
