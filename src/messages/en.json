@@ -12,7 +12,7 @@
     "greeting": "Hi, I'm",
     "name": "John Moya Cantillana",
     "title": "Full Stack Developer",
-    "description": "I build scalable web platforms with Next.js and TypeScript. Specialized in social applications with robust authentication, real-time systems and optimized PostgreSQL databases.",
+    "description": "I design, build, and deploy production-ready web applications with a strong focus on architecture, scalability, and product needs.",
     "cta": {
       "projects": "View Projects",
       "contact": "Get in Touch"

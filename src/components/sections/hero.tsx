@@ -52,7 +52,7 @@ export function Hero() {
           </h2>
 
           {/* Description */}
-          <p className="text-muted text-lg md:text-xl max-w-2xl mx-auto mb-10 text-balance animate-fade-in-up opacity-0 stagger-3">
+          <p className="text-muted text-base md:text-lg max-w-2xl mx-auto mb-10 text-balance animate-fade-in-up opacity-0 stagger-3">
             {t("description")}
           </p>
 

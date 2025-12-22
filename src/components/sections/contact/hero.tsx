@@ -5,7 +5,7 @@ export function ContactHero() {
   const t = useTranslations("contact");
 
   return (
-    <section className="relative py-20 md:py-32 overflow-hidden">
+    <section className="relative pt-28 pb-20 sm:pt-32 md:pt-36 md:pb-32 overflow-hidden">
       {/* Background */}
       <div className="absolute inset-0 grid-pattern opacity-20" />
       <div className="gradient-blur gradient-blur-accent top-0 left-1/4" />

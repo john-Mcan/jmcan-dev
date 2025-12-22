@@ -60,7 +60,7 @@ export function Header() {
     <>
       {/* Header unificado: Navbar flotante con tarjeta */}
       <header className="fixed top-0 left-0 right-0 z-50">
-        <div className="pt-3 px-3 sm:pt-4 sm:px-4 lg:px-8">
+        <div className="pt-3 px-4 sm:pt-4 sm:px-4 lg:px-8">
           {/* Tarjeta del navbar */}
           <nav 
             className={cn(
@@ -69,14 +69,14 @@ export function Header() {
               "shadow-sm"
             )}
           >
-            <div className="flex h-14 sm:h-16 items-center justify-between gap-3 px-3 sm:px-4 lg:px-6">
+            <div className="flex h-14 sm:h-16 items-center justify-between gap-3 px-4 sm:px-4 lg:px-6">
               
               {/* Left: Logo */}
               <Link
                 href="/"
                 onClick={closeMobileMenu}
                 className={cn(
-                  "flex items-center gap-2 text-base sm:text-lg font-bold tracking-tight",
+                  "inline-flex items-center text-base sm:text-lg font-bold tracking-tight",
                   "transition-all duration-200",
                   "hover:text-accent",
                   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background",
@@ -173,7 +173,7 @@ export function Header() {
         {/* Menu Panel - Aparece debajo del header */}
         <div
           className={cn(
-            "absolute top-[68px] sm:top-[84px] left-3 right-3 sm:left-4 sm:right-4",
+            "absolute top-[76px] sm:top-[92px] left-4 right-4 sm:left-4 sm:right-4",
             "bg-background/95 backdrop-blur-md rounded-2xl border border-border/50",
             "shadow-lg",
             "transition-all duration-300 ease-out",

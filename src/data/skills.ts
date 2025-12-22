@@ -30,6 +30,7 @@ export const skills: Skill[] = [
   { name: "Git", icon: "git", category: "tools" },
   { name: "VS Code", icon: "vscode", category: "tools" },
   { name: "Figma", icon: "figma", category: "tools" },
+  { name: "Cursor", icon: "cursor", category: "tools" },
 ];
 
 export const skillsByCategory = {
