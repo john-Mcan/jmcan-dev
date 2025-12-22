@@ -65,7 +65,7 @@ export function Header() {
           <nav 
             className={cn(
               "mx-auto max-w-5xl rounded-2xl border border-border/50",
-              "bg-background/75 backdrop-blur-md",
+              "bg-background/30 backdrop-blur-md",
               "shadow-sm"
             )}
           >

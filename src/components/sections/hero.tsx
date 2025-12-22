@@ -1,18 +1,38 @@
+"use client";
+
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { ArrowRight, FileCode } from "lucide-react";
+import { useTheme } from "next-themes";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
+import { DarkVeil } from "@/components/ui/dark-veil";
 
 export function Hero() {
   const t = useTranslations("hero");
+  const { resolvedTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const isLight = mounted && resolvedTheme === "light";
 
   return (
     <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
-      {/* Background Effects */}
-      <div className="absolute inset-0 grid-pattern opacity-30" />
-      <div className="gradient-blur gradient-blur-accent -top-20 -right-20" />
-      <div className="gradient-blur gradient-blur-purple -bottom-40 -left-40" />
+      {/* DarkVeil Background */}
+      <div className="absolute inset-0">
+        <DarkVeil 
+          speed={1} 
+          hueShift={26} 
+          warpAmount={1} 
+          invert={isLight}
+        />
+      </div>
+      {/* Overlay for better text readability */}
+      <div className={`absolute inset-0 ${isLight ? "bg-white/30" : "bg-background/40"}`} />
 
       <Container className="relative z-10">
         <div className="max-w-3xl mx-auto text-center">
@@ -63,4 +83,3 @@ export function Hero() {
     </section>
   );
 }
-
