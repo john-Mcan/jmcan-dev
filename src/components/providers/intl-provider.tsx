@@ -26,25 +26,20 @@ export function useAppIntl() {
 }
 
 export function AppIntlProvider({ children }: { children: React.ReactNode }) {
-  // Default: español. Persistimos sólo la preferencia explícita del usuario.
   const [locale, setLocale] = useState<Locale>("es");
 
-  // next-intl tipa messages como AbstractIntlMessages, pero nuestro JSON incluye arrays
-  // (ej. learnings.items). Runtime funciona, así que casteamos de forma explícita.
   const messages = useMemo(() => {
     return (locale === "en" ? enMessages : esMessages) as unknown as AbstractIntlMessages;
   }, [locale]);
 
   const toggleLocale = () => setLocale((prev) => (prev === "es" ? "en" : "es"));
 
-  // Aplicar preferencia persistida DESPUÉS de hidratar para evitar mismatch de HTML traducido.
   useEffect(() => {
     const persisted = readLocalePref();
     if (persisted && persisted !== locale) setLocale(persisted);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Mantener el atributo lang alineado con el locale actual (solo cliente).
   useEffect(() => {
     document.documentElement.lang = locale;
     writeLocalePref(locale);
@@ -63,5 +58,4 @@ export function AppIntlProvider({ children }: { children: React.ReactNode }) {
     </IntlContext.Provider>
   );
 }
-
 

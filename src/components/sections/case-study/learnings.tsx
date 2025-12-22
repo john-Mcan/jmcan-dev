@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 
 export function CaseStudyLearnings() {
   const t = useTranslations("caseStudy.learnings");
+  const tContact = useTranslations("contact");
   const items = t.raw("items") as string[];
 
   return (
@@ -29,14 +30,13 @@ export function CaseStudyLearnings() {
           ))}
         </div>
 
-        {/* CTA */}
         <div className="text-center">
           <p className="text-sm sm:text-base text-muted mb-4 sm:mb-6">
-            ¿Interesado en saber más sobre este proyecto?
+            {tContact("subtitle")}
           </p>
           <Button asChild size="lg" className="group w-full sm:w-auto">
             <Link href="/contacto">
-              <span>Hablemos</span>
+              <span>{tContact("title")}</span>
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
             </Link>
           </Button>

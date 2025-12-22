@@ -72,7 +72,6 @@ void main(){
     float scanline_val=sin(gl_FragCoord.y*uScanFreq)*0.5+0.5;
     col.rgb*=1.-(scanline_val*scanline_val)*uScan;
     col.rgb+=(rand(gl_FragCoord.xy+uTime)-0.5)*uNoise;
-    // Invert colors for light mode
     col.rgb=mix(col.rgb,vec3(1.0)-col.rgb,uInvert);
     gl_FragColor=vec4(clamp(col.rgb,0.0,1.0),1.0);
 }
@@ -107,7 +106,7 @@ export function DarkVeil({
   const meshRef = useRef<Mesh | null>(null);
   const parentRef = useRef<HTMLElement | null>(null);
 
-  // Props “live” para el loop (evita re-inicializar WebGL cuando cambian).
+  // Refs para props reactivos sin reinicializar WebGL
   const paramsRef = useRef({
     hueShift,
     noiseIntensity,
@@ -136,7 +135,6 @@ export function DarkVeil({
 
     parentRef.current = parent;
 
-    // Init WebGL una sola vez
     const renderer = new Renderer({
       dpr: Math.min(window.devicePixelRatio, 2),
       canvas,
@@ -175,9 +173,6 @@ export function DarkVeil({
       const h = p.clientHeight;
       if (w <= 0 || h <= 0) return;
 
-      // Importante:
-      // - Mantener el canvas al 100% del contenedor (CSS)
-      // - Bajar/ subir el costo de render ajustando el DPR efectivo (buffer interno)
       const scaleRaw = paramsRef.current.resolutionScale;
       const scale = Number.isFinite(scaleRaw)
         ? Math.max(0.25, Math.min(2, scaleRaw))
@@ -187,19 +182,16 @@ export function DarkVeil({
       r.dpr = baseDpr * scale;
       r.setSize(w, h);
 
-      // uResolution debe coincidir con el tamaño real del framebuffer (gl_FragCoord)
       prog.uniforms.uResolution.value.set(
         r.gl.canvas.width,
         r.gl.canvas.height
       );
     };
 
-    // ResizeObserver: reacciona a cambios reales de layout (incluye variaciones por dvh/UI móvil)
     const ro = new ResizeObserver(() => resize());
     ro.observe(parent);
     resizeObserverRef.current = ro;
 
-    // Primer resize inmediato
     resize();
 
     const start = performance.now();
@@ -222,7 +214,6 @@ export function DarkVeil({
       frameRef.current = requestAnimationFrame(loop);
     };
 
-    // Render inmediato (reduce el “blank” inicial) y luego animación por rAF.
     loop();
 
     return () => {
@@ -238,4 +229,3 @@ export function DarkVeil({
 
   return <canvas ref={ref} className="w-full h-full block" />;
 }
-

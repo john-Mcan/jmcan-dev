@@ -20,11 +20,8 @@ export function Header() {
   const pathname = usePathname();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  // Helper para determinar si un link está activo
   const isActive = (path: string) => {
-    if (path === "/") {
-      return pathname === "/";
-    }
+    if (path === "/") return pathname === "/";
     return pathname === path || pathname.startsWith(`${path}/`);
   };
 
@@ -34,7 +31,6 @@ export function Header() {
 
   useEffect(() => {
     const handleScroll = () => {
-      // Cerrar menú al hacer scroll
       if (isMobileMenuOpen && window.scrollY > 50) {
         closeMobileMenu();
       }
@@ -44,13 +40,8 @@ export function Header() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [isMobileMenuOpen, closeMobileMenu]);
 
-  // Bloquear scroll del body cuando el menú está abierto
   useEffect(() => {
-    if (isMobileMenuOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
+    document.body.style.overflow = isMobileMenuOpen ? "hidden" : "";
     return () => {
       document.body.style.overflow = "";
     };
@@ -58,10 +49,8 @@ export function Header() {
 
   return (
     <>
-      {/* Header unificado: Navbar flotante con tarjeta */}
       <header className="fixed top-0 left-0 right-0 z-50">
         <div className="pt-3 px-4 sm:pt-4 sm:px-4 lg:px-8">
-          {/* Tarjeta del navbar */}
           <nav 
             className={cn(
               "mx-auto max-w-5xl rounded-2xl border border-border/50",
@@ -70,8 +59,6 @@ export function Header() {
             )}
           >
             <div className="flex h-14 sm:h-16 items-center justify-between gap-3 px-4 sm:px-4 lg:px-6">
-              
-              {/* Left: Logo */}
               <Link
                 href="/"
                 onClick={closeMobileMenu}
@@ -86,10 +73,8 @@ export function Header() {
                 johnmcan<span className="text-accent">.dev</span>
               </Link>
 
-              {/* Right: Navigation + Actions */}
               <div className="flex items-center gap-2 sm:gap-4">
-                {/* Navigation Links - Hidden on mobile */}
-                <nav className="hidden md:flex items-center gap-1" role="navigation" aria-label="Navegación principal">
+                <nav className="hidden md:flex items-center gap-1" role="navigation" aria-label="Navegacion principal">
                   {navigation.map((item) => {
                     const Icon = item.icon;
                     return (
@@ -106,22 +91,18 @@ export function Header() {
                             : "text-muted hover:text-foreground hover:bg-secondary/60"
                         )}
                       >
-                        {/* Icono para tamaños < lg */}
                         <Icon className="w-4 h-4 lg:hidden" />
-                        {/* Texto para tamaños >= lg */}
                         <span className="hidden lg:inline">{t(item.key)}</span>
                       </Link>
                     );
                   })}
                 </nav>
 
-                {/* Actions - Hidden on mobile */}
                 <div className="hidden md:flex items-center gap-2">
                   <LanguageToggle />
                   <ThemeToggle />
                 </div>
 
-                {/* Mobile Menu Button */}
                 <button
                   onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                   className={cn(
@@ -151,16 +132,12 @@ export function Header() {
         </div>
       </header>
 
-      {/* Mobile Menu Overlay */}
       <div
         className={cn(
           "fixed inset-0 z-40 md:hidden",
-          isMobileMenuOpen
-            ? "pointer-events-auto"
-            : "pointer-events-none"
+          isMobileMenuOpen ? "pointer-events-auto" : "pointer-events-none"
         )}
       >
-        {/* Backdrop */}
         <div
           className={cn(
             "absolute inset-0 bg-background/70 backdrop-blur-sm",
@@ -170,7 +147,6 @@ export function Header() {
           onClick={closeMobileMenu}
         />
 
-        {/* Menu Panel - Aparece debajo del header */}
         <div
           className={cn(
             "absolute top-[76px] sm:top-[92px] left-4 right-4 sm:left-4 sm:right-4",
@@ -183,7 +159,6 @@ export function Header() {
           )}
         >
           <div className="p-2">
-            {/* Navigation Links */}
             <nav className="flex flex-col">
               {navigation.map((item) => {
                 const Icon = item.icon;
@@ -217,7 +192,6 @@ export function Header() {
               })}
             </nav>
 
-            {/* Mobile Actions */}
             <div className="flex items-center justify-center gap-3 mt-2 pt-3 border-t border-border/50">
               <LanguageToggle />
               <ThemeToggle />

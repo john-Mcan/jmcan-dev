@@ -21,8 +21,6 @@ const geistMono = Geist_Mono({
 
 export const viewport: Viewport = {
   themeColor: [
-    // Safari (iOS/macOS) usa theme-color para teñir UI (barra de direcciones).
-    // Requisito: siempre negro.
     { media: "(prefers-color-scheme: light)", color: "#000000" },
     { media: "(prefers-color-scheme: dark)", color: "#000000" },
   ],

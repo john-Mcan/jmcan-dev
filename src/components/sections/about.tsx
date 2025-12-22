@@ -18,11 +18,9 @@ export function About() {
       <SectionHeader title={t("title")} />
       
       <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-center">
-        <div>
-          <p className="text-base sm:text-lg text-muted leading-relaxed">
-            {t("description")}
-          </p>
-        </div>
+        <p className="text-base sm:text-lg text-muted leading-relaxed">
+          {t("description")}
+        </p>
 
         <div className="space-y-3 sm:space-y-4">
           {highlights.map((highlight, index) => (
@@ -41,4 +39,3 @@ export function About() {
     </Section>
   );
 }
-

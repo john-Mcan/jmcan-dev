@@ -7,24 +7,9 @@ import { Section } from "@/components/ui/section";
 import { personal } from "@/data/personal";
 
 const socialLinks = [
-  {
-    name: "GitHub",
-    href: personal.social.github,
-    icon: Github,
-    username: "@johnmcan",
-  },
-  {
-    name: "LinkedIn",
-    href: personal.social.linkedin,
-    icon: Linkedin,
-    username: "johnmcan",
-  },
-  {
-    name: "Email",
-    href: `mailto:${personal.email}`,
-    icon: Mail,
-    username: personal.email,
-  },
+  { name: "GitHub", href: personal.social.github, icon: Github, username: "@johnmcan" },
+  { name: "LinkedIn", href: personal.social.linkedin, icon: Linkedin, username: "johnmcan" },
+  { name: "Email", href: `mailto:${personal.email}`, icon: Mail, username: personal.email },
 ];
 
 export function ContactLinks() {
@@ -34,9 +19,7 @@ export function ContactLinks() {
     <Section className="bg-card/30">
       <div className="max-w-3xl mx-auto">
         <div className="grid md:grid-cols-2 gap-4 sm:gap-6">
-          {/* Availability */}
           <div className="group p-5 sm:p-6 rounded-xl border border-border bg-card/50 hover:bg-card hover:border-accent/30 transition-all duration-300">
-            {/* Header */}
             <div className="flex items-center gap-2 mb-4 pb-3 border-b border-border/50">
               <div className="w-2 h-2 rounded-full bg-accent" />
               <h3 className="text-base sm:text-lg font-semibold">
@@ -44,7 +27,6 @@ export function ContactLinks() {
               </h3>
             </div>
             
-            {/* Content */}
             <div className="space-y-4">
               <div className="flex items-center gap-3">
                 <div className="relative flex-shrink-0">
@@ -60,9 +42,7 @@ export function ContactLinks() {
             </div>
           </div>
 
-          {/* Social Links */}
           <div className="group p-5 sm:p-6 rounded-xl border border-border bg-card/50 hover:bg-card hover:border-accent/30 transition-all duration-300">
-            {/* Header */}
             <div className="flex items-center gap-2 mb-4 pb-3 border-b border-border/50">
               <div className="w-2 h-2 rounded-full bg-accent" />
               <h3 className="text-base sm:text-lg font-semibold">
@@ -70,7 +50,6 @@ export function ContactLinks() {
               </h3>
             </div>
             
-            {/* Links */}
             <div className="space-y-2">
               {socialLinks.map((link) => (
                 <Link
@@ -94,4 +73,3 @@ export function ContactLinks() {
     </Section>
   );
 }
-

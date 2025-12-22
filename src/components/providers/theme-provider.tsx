@@ -22,7 +22,6 @@ export function useAppTheme() {
 }
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  // Default: dark. Si el usuario eligió un tema antes, lo respetamos (sin auto-detección).
   const [theme, setTheme] = useState<Theme>(() => readThemePref() ?? "dark");
 
   const toggleTheme = () => setTheme((prev) => (prev === "dark" ? "light" : "dark"));

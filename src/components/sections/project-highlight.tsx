@@ -22,8 +22,6 @@ const metricIcons: Record<string, React.ElementType> = {
 export function ProjectHighlight() {
   const t = useTranslations("project");
   const project = fandomsProject;
-
-  // Show main 4 metrics
   const displayMetrics = project.metrics.slice(0, 4);
 
   return (
@@ -33,7 +31,6 @@ export function ProjectHighlight() {
       <Card className="overflow-hidden hover:border-accent/50 transition-colors">
         <CardContent className="p-0">
           <div className="grid lg:grid-cols-2 gap-0">
-            {/* Project Info */}
             <div className="p-8 lg:p-12 flex flex-col justify-center">
               <div className="flex items-center gap-3 mb-4">
                 <h3 className="text-2xl sm:text-3xl font-bold">
@@ -59,7 +56,6 @@ export function ProjectHighlight() {
                 {t("fandoms.description")}
               </p>
 
-              {/* Stack preview */}
               <div className="flex flex-wrap gap-2 mb-8">
                 {project.stack.slice(0, 6).map((tech) => (
                   <Badge key={tech} variant="outline">
@@ -81,7 +77,6 @@ export function ProjectHighlight() {
               </Button>
             </div>
 
-            {/* Metrics */}
             <div className="bg-secondary/30 p-8 lg:p-12 flex flex-col justify-center">
               <div className="grid grid-cols-2 gap-6">
                 {displayMetrics.map((metric) => {

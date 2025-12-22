@@ -7,21 +7,9 @@ import { Container } from "@/components/ui/container";
 import { personal } from "@/data/personal";
 
 const socialLinks = [
-  {
-    name: "GitHub",
-    href: personal.social.github,
-    icon: Github,
-  },
-  {
-    name: "LinkedIn",
-    href: personal.social.linkedin,
-    icon: Linkedin,
-  },
-  {
-    name: "Email",
-    href: `mailto:${personal.email}`,
-    icon: Mail,
-  },
+  { name: "GitHub", href: personal.social.github, icon: Github },
+  { name: "LinkedIn", href: personal.social.linkedin, icon: Linkedin },
+  { name: "Email", href: `mailto:${personal.email}`, icon: Mail },
 ];
 
 export function Footer() {
@@ -32,9 +20,7 @@ export function Footer() {
     <footer className="border-t border-border bg-card/50">
       <Container>
         <div className="py-8 md:py-6">
-          {/* Mobile Layout */}
           <div className="flex flex-col items-center gap-6 md:hidden">
-            {/* Social Links - First on mobile */}
             <div className="flex items-center gap-1">
               {socialLinks.map((link) => (
                 <Link
@@ -50,7 +36,6 @@ export function Footer() {
               ))}
             </div>
 
-            {/* Built with */}
             <div className="flex items-center gap-1.5 text-sm text-muted">
               <span>{t("builtWith")}</span>
               <Link
@@ -72,22 +57,18 @@ export function Footer() {
               </Link>
             </div>
 
-            {/* Copyright */}
             <div className="flex flex-col items-center gap-1 text-sm text-muted">
-              <span>© {currentYear} {personal.name}</span>
+              <span>{currentYear} {personal.name}</span>
               <span>{t("rights")}</span>
             </div>
           </div>
 
-          {/* Desktop Layout */}
           <div className="hidden md:flex items-center justify-between">
-            {/* Copyright */}
             <div className="flex items-center gap-2 text-sm text-muted">
-              <span>© {currentYear} {personal.name}.</span>
+              <span>{currentYear} {personal.name}.</span>
               <span>{t("rights")}.</span>
             </div>
 
-            {/* Built with */}
             <div className="flex items-center gap-1.5 text-sm text-muted">
               <span>{t("builtWith")}</span>
               <Link
@@ -109,7 +90,6 @@ export function Footer() {
               </Link>
             </div>
 
-            {/* Social Links */}
             <div className="flex items-center gap-1">
               {socialLinks.map((link) => (
                 <Link
@@ -130,4 +110,3 @@ export function Footer() {
     </footer>
   );
 }
-

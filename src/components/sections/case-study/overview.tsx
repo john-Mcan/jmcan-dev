@@ -23,7 +23,6 @@ export function CaseStudyOverview() {
   return (
     <Section className="bg-card/30">
       <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
-        {/* Text */}
         <div>
           <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6">{t("overview.title")}</h2>
           <p className="text-base sm:text-lg text-muted leading-relaxed">
@@ -31,7 +30,6 @@ export function CaseStudyOverview() {
           </p>
         </div>
 
-        {/* Metrics Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
           {project.metrics.map((metric) => {
             const Icon = metricIcons[metric.key] || BarChart3;
@@ -40,7 +38,6 @@ export function CaseStudyOverview() {
                 key={metric.key}
                 className="group relative p-4 sm:p-5 rounded-xl border border-border bg-card/50 text-center hover:bg-card hover:border-accent/30 transition-all duration-300"
               >
-                {/* Icon container */}
                 <div className="inline-flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-accent/10 mb-3">
                   <Icon className="h-4 w-4 sm:h-5 sm:w-5 text-accent" />
                 </div>

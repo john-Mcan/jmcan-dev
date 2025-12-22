@@ -3,7 +3,6 @@ import { ContactHero } from "@/components/sections/contact/hero";
 import { ContactForm } from "@/components/sections/contact/form";
 import { ContactLinks } from "@/components/sections/contact/links";
 
-// Contenido estático: cache largo en Edge (ISR). 6 meses (en segundos).
 export const revalidate = 15552000;
 
 export const metadata: Metadata = {

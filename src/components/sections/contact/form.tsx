@@ -57,12 +57,8 @@ export function ContactForm() {
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
-          {/* Name */}
           <div className="space-y-2">
-            <label
-              htmlFor="name"
-              className="block text-sm font-medium"
-            >
+            <label htmlFor="name" className="block text-sm font-medium">
               {t("name")}
             </label>
             <input
@@ -74,12 +70,8 @@ export function ContactForm() {
             />
           </div>
 
-          {/* Email */}
           <div className="space-y-2">
-            <label
-              htmlFor="email"
-              className="block text-sm font-medium"
-            >
+            <label htmlFor="email" className="block text-sm font-medium">
               {t("email")}
             </label>
             <input
@@ -91,12 +83,8 @@ export function ContactForm() {
             />
           </div>
 
-          {/* Message */}
           <div className="space-y-2">
-            <label
-              htmlFor="message"
-              className="block text-sm font-medium"
-            >
+            <label htmlFor="message" className="block text-sm font-medium">
               {t("message")}
             </label>
             <textarea
@@ -108,7 +96,6 @@ export function ContactForm() {
             />
           </div>
 
-          {/* Submit Button */}
           <Button
             type="submit"
             size="lg"
@@ -133,7 +120,6 @@ export function ContactForm() {
             )}
           </Button>
 
-          {/* Error Message */}
           {status === "error" && (
             <div className="flex items-center justify-center gap-2 text-destructive text-sm p-3 rounded-lg bg-destructive/10 border border-destructive/20">
               <AlertCircle className="h-4 w-4 flex-shrink-0" />

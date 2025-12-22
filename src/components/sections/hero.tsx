@@ -15,7 +15,6 @@ export function Hero() {
 
   return (
     <section className="relative min-h-[90vh] min-h-[90dvh] flex items-center justify-center overflow-hidden">
-      {/* DarkVeil Background */}
       <div className="absolute inset-0">
         <DarkVeil 
           speed={1} 
@@ -25,32 +24,26 @@ export function Hero() {
           invert={isLight}
         />
       </div>
-      {/* Overlay for better text readability */}
       <div className={`absolute inset-0 ${isLight ? "bg-white/30" : "bg-background/40"}`} />
 
       <Container className="relative z-10">
         <div className="max-w-3xl mx-auto text-center">
-          {/* Greeting */}
           <p className="text-muted text-lg mb-4 animate-fade-in opacity-0">
             {t("greeting")}
           </p>
 
-          {/* Name */}
           <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-4 animate-fade-in-up opacity-0 stagger-1">
             {t("name")}
           </h1>
 
-          {/* Title */}
           <h2 className="text-xl sm:text-2xl md:text-3xl font-medium text-accent mb-6 animate-fade-in-up opacity-0 stagger-2">
             {t("title")}
           </h2>
 
-          {/* Description */}
           <p className="text-muted text-base md:text-lg max-w-2xl mx-auto mb-10 text-balance animate-fade-in-up opacity-0 stagger-3">
             {t("description")}
           </p>
 
-          {/* CTAs */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 animate-fade-in-up opacity-0 stagger-4 w-full sm:w-auto">
             <Button asChild size="lg" className="group w-full sm:w-auto">
               <Link href="/caso-de-estudio">
@@ -68,7 +61,6 @@ export function Hero() {
         </div>
       </Container>
 
-      {/* Scroll indicator */}
       <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
         <div className="w-6 h-10 rounded-full border-2 border-muted flex items-start justify-center p-2">
           <div className="w-1 h-2 bg-muted rounded-full" />

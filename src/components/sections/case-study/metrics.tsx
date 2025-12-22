@@ -27,7 +27,6 @@ export function CaseStudyMetrics() {
             key={metric.key}
             className="group relative p-4 sm:p-5 rounded-xl border border-border bg-card/50 text-center hover:bg-card hover:border-accent/30 transition-all duration-300"
           >
-            {/* Top accent line */}
             <div className="absolute top-0 left-1/4 right-1/4 h-0.5 bg-accent/50 rounded-b opacity-0 group-hover:opacity-100 transition-opacity" />
             
             <div className="text-xl sm:text-2xl font-bold text-accent mb-1">

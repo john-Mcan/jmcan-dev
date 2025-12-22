@@ -13,12 +13,10 @@ export function CaseStudyHero() {
 
   return (
     <section className="relative pt-28 pb-20 sm:pt-32 md:pb-32 overflow-hidden">
-      {/* Background */}
       <div className="absolute inset-0 grid-pattern opacity-20" />
       <div className="gradient-blur gradient-blur-accent top-0 right-1/4" />
 
       <Container className="relative z-10">
-        {/* Back link */}
         <Link
           href="/"
           className="inline-flex items-center gap-2 text-muted hover:text-foreground transition-colors mb-8"
@@ -28,20 +26,16 @@ export function CaseStudyHero() {
         </Link>
 
         <div className="max-w-3xl">
-          {/* Subtitle */}
           <p className="text-accent font-medium mb-4">{t("title")}</p>
 
-          {/* Title */}
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight mb-6">
             {project.name}
           </h1>
 
-          {/* Tagline */}
           <p className="text-xl md:text-2xl text-muted mb-8">
             {t("subtitle")}
           </p>
 
-          {/* CTA */}
           {project.url && (
             <Button asChild variant="outline" size="lg">
               <Link
@@ -59,4 +53,3 @@ export function CaseStudyHero() {
     </section>
   );
 }
-

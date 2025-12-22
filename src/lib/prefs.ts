@@ -25,7 +25,7 @@ export function writeThemePref(theme: Theme): void {
   try {
     window.localStorage.setItem(PREFS_KEYS.theme, theme);
   } catch {
-    // ignore (private mode / storage blocked)
+    // Ignorar errores de storage (modo privado)
   }
 }
 
@@ -44,7 +44,7 @@ export function writeLocalePref(locale: Locale): void {
   try {
     window.localStorage.setItem(PREFS_KEYS.locale, locale);
   } catch {
-    // ignore (private mode / storage blocked)
+    // Ignorar errores de storage (modo privado)
   }
 }
 
