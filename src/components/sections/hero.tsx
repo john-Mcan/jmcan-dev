@@ -14,13 +14,14 @@ export function Hero() {
   const isLight = theme === "light";
 
   return (
-    <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
+    <section className="relative min-h-[90vh] min-h-[90dvh] flex items-center justify-center overflow-hidden">
       {/* DarkVeil Background */}
       <div className="absolute inset-0">
         <DarkVeil 
           speed={1} 
           hueShift={26} 
           warpAmount={1} 
+          resolutionScale={0.85}
           invert={isLight}
         />
       </div>

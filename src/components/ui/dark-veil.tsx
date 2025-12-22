@@ -1,6 +1,7 @@
 "use client";
 
-import { useRef, useEffect } from "react";
+import { useEffect, useRef } from "react";
+import { Mesh, Program, Renderer, Triangle, Vec2 } from "ogl";
 
 const vertex = `
 attribute vec2 position;
@@ -99,81 +100,15 @@ export function DarkVeil({
   invert = false,
 }: DarkVeilProps) {
   const ref = useRef<HTMLCanvasElement>(null);
+  const frameRef = useRef<number>(0);
+  const resizeObserverRef = useRef<ResizeObserver | null>(null);
+  const rendererRef = useRef<Renderer | null>(null);
+  const programRef = useRef<Program | null>(null);
+  const meshRef = useRef<Mesh | null>(null);
+  const parentRef = useRef<HTMLElement | null>(null);
 
-  useEffect(() => {
-    let cancelled = false;
-    let frame = 0;
-    let removeResizeListener: (() => void) | null = null;
-
-    // Import dinámico para evitar ejecutar `ogl` durante SSR/SSG.
-    void (async () => {
-      const canvas = ref.current;
-      const parent = canvas?.parentElement;
-      if (!canvas || !parent) return;
-
-      const { Renderer, Program, Mesh, Triangle, Vec2 } = await import("ogl");
-      if (cancelled) return;
-
-      const renderer = new Renderer({
-        dpr: Math.min(window.devicePixelRatio, 2),
-        canvas,
-      });
-
-      const gl = renderer.gl;
-      const geometry = new Triangle(gl);
-
-      const program = new Program(gl, {
-        vertex,
-        fragment,
-        uniforms: {
-          uTime: { value: 0 },
-          uResolution: { value: new Vec2() },
-          uHueShift: { value: hueShift },
-          uNoise: { value: noiseIntensity },
-          uScan: { value: scanlineIntensity },
-          uScanFreq: { value: scanlineFrequency },
-          uWarp: { value: warpAmount },
-          uInvert: { value: invert ? 1.0 : 0.0 },
-        },
-      });
-
-      const mesh = new Mesh(gl, { geometry, program });
-
-      const resize = () => {
-        const w = parent.clientWidth;
-        const h = parent.clientHeight;
-        renderer.setSize(w * resolutionScale, h * resolutionScale);
-        program.uniforms.uResolution.value.set(w, h);
-      };
-
-      window.addEventListener("resize", resize);
-      removeResizeListener = () => window.removeEventListener("resize", resize);
-      resize();
-
-      const start = performance.now();
-
-      const loop = () => {
-        program.uniforms.uTime.value =
-          ((performance.now() - start) / 1000) * speed;
-        program.uniforms.uHueShift.value = hueShift;
-        program.uniforms.uNoise.value = noiseIntensity;
-        program.uniforms.uScan.value = scanlineIntensity;
-        program.uniforms.uScanFreq.value = scanlineFrequency;
-        program.uniforms.uWarp.value = warpAmount;
-        program.uniforms.uInvert.value = invert ? 1.0 : 0.0;
-        renderer.render({ scene: mesh });
-        frame = requestAnimationFrame(loop);
-      };
-
-      loop();
-    })();
-
-    return () => {
-      cancelled = true;
-      cancelAnimationFrame(frame);
-      removeResizeListener?.();
-    };
-  }, [
+  // Props “live” para el loop (evita re-inicializar WebGL cuando cambian).
+  const paramsRef = useRef({
     hueShift,
     noiseIntensity,
     scanlineIntensity,
@@ -182,7 +117,124 @@ export function DarkVeil({
     warpAmount,
     resolutionScale,
     invert,
-  ]);
+  });
+  paramsRef.current = {
+    hueShift,
+    noiseIntensity,
+    scanlineIntensity,
+    speed,
+    scanlineFrequency,
+    warpAmount,
+    resolutionScale,
+    invert,
+  };
+
+  useEffect(() => {
+    const canvas = ref.current;
+    const parent = canvas?.parentElement;
+    if (!canvas || !parent) return;
+
+    parentRef.current = parent;
+
+    // Init WebGL una sola vez
+    const renderer = new Renderer({
+      dpr: Math.min(window.devicePixelRatio, 2),
+      canvas,
+    });
+    rendererRef.current = renderer;
+
+    const gl = renderer.gl;
+    const geometry = new Triangle(gl);
+
+    const program = new Program(gl, {
+      vertex,
+      fragment,
+      uniforms: {
+        uTime: { value: 0 },
+        uResolution: { value: new Vec2() },
+        uHueShift: { value: 0 },
+        uNoise: { value: 0 },
+        uScan: { value: 0 },
+        uScanFreq: { value: 0 },
+        uWarp: { value: 0 },
+        uInvert: { value: 0 },
+      },
+    });
+    programRef.current = program;
+
+    const mesh = new Mesh(gl, { geometry, program });
+    meshRef.current = mesh;
+
+    const resize = () => {
+      const p = parentRef.current;
+      const r = rendererRef.current;
+      const prog = programRef.current;
+      if (!p || !r || !prog) return;
+
+      const w = p.clientWidth;
+      const h = p.clientHeight;
+      if (w <= 0 || h <= 0) return;
+
+      // Importante:
+      // - Mantener el canvas al 100% del contenedor (CSS)
+      // - Bajar/ subir el costo de render ajustando el DPR efectivo (buffer interno)
+      const scaleRaw = paramsRef.current.resolutionScale;
+      const scale = Number.isFinite(scaleRaw)
+        ? Math.max(0.25, Math.min(2, scaleRaw))
+        : 1;
+
+      const baseDpr = Math.min(window.devicePixelRatio, 2);
+      r.dpr = baseDpr * scale;
+      r.setSize(w, h);
+
+      // uResolution debe coincidir con el tamaño real del framebuffer (gl_FragCoord)
+      prog.uniforms.uResolution.value.set(
+        r.gl.canvas.width,
+        r.gl.canvas.height
+      );
+    };
+
+    // ResizeObserver: reacciona a cambios reales de layout (incluye variaciones por dvh/UI móvil)
+    const ro = new ResizeObserver(() => resize());
+    ro.observe(parent);
+    resizeObserverRef.current = ro;
+
+    // Primer resize inmediato
+    resize();
+
+    const start = performance.now();
+    const loop = () => {
+      const r = rendererRef.current;
+      const prog = programRef.current;
+      const scene = meshRef.current;
+      if (!r || !prog || !scene) return;
+
+      const p = paramsRef.current;
+      prog.uniforms.uTime.value = ((performance.now() - start) / 1000) * p.speed;
+      prog.uniforms.uHueShift.value = p.hueShift;
+      prog.uniforms.uNoise.value = p.noiseIntensity;
+      prog.uniforms.uScan.value = p.scanlineIntensity;
+      prog.uniforms.uScanFreq.value = p.scanlineFrequency;
+      prog.uniforms.uWarp.value = p.warpAmount;
+      prog.uniforms.uInvert.value = p.invert ? 1.0 : 0.0;
+
+      r.render({ scene });
+      frameRef.current = requestAnimationFrame(loop);
+    };
+
+    // Render inmediato (reduce el “blank” inicial) y luego animación por rAF.
+    loop();
+
+    return () => {
+      cancelAnimationFrame(frameRef.current);
+      resizeObserverRef.current?.disconnect();
+      resizeObserverRef.current = null;
+      rendererRef.current = null;
+      programRef.current = null;
+      meshRef.current = null;
+      parentRef.current = null;
+    };
+  }, []);
 
   return <canvas ref={ref} className="w-full h-full block" />;
 }

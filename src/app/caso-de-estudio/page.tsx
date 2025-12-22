@@ -8,6 +8,9 @@ import { CaseStudyChallenges } from "@/components/sections/case-study/challenges
 import { CaseStudyMetrics } from "@/components/sections/case-study/metrics";
 import { CaseStudyLearnings } from "@/components/sections/case-study/learnings";
 
+// Contenido estático: cache largo en Edge (ISR). 6 meses (en segundos).
+export const revalidate = 15552000;
+
 export const metadata: Metadata = {
   title: "Caso de Estudio - Fandoms.io",
   description:
