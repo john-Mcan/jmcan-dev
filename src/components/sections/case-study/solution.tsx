@@ -1,3 +1,5 @@
+"use client";
+
 import { useTranslations } from "next-intl";
 import { CheckCircle, Users, MessageSquare, Shield, BarChart3, Award, Radio } from "lucide-react";
 import { Section, SectionHeader } from "@/components/ui/section";

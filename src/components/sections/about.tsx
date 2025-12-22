@@ -1,3 +1,5 @@
+"use client";
+
 import { useTranslations } from "next-intl";
 import { CheckCircle } from "lucide-react";
 import { Section, SectionHeader } from "@/components/ui/section";

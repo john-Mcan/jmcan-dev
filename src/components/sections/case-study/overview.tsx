@@ -1,3 +1,5 @@
+"use client";
+
 import { useTranslations } from "next-intl";
 import { Users, MessageSquare, ThumbsUp, BarChart3, MessagesSquare, Vote } from "lucide-react";
 import { Section } from "@/components/ui/section";

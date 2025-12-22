@@ -1,3 +1,5 @@
+"use client";
+
 import { useTranslations } from "next-intl";
 import { AlertCircle } from "lucide-react";
 import { Section } from "@/components/ui/section";

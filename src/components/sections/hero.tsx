@@ -3,22 +3,15 @@
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { ArrowRight, FileCode } from "lucide-react";
-import { useTheme } from "next-themes";
-import { useEffect, useState } from "react";
+import { useAppTheme } from "@/components/providers/theme-provider";
 import { Button } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
 import { DarkVeil } from "@/components/ui/dark-veil";
 
 export function Hero() {
   const t = useTranslations("hero");
-  const { resolvedTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  const isLight = mounted && resolvedTheme === "light";
+  const { theme } = useAppTheme();
+  const isLight = theme === "light";
 
   return (
     <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">

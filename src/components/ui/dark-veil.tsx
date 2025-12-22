@@ -1,7 +1,6 @@
 "use client";
 
 import { useRef, useEffect } from "react";
-import { Renderer, Program, Mesh, Triangle, Vec2 } from "ogl";
 
 const vertex = `
 attribute vec2 position;
@@ -102,65 +101,77 @@ export function DarkVeil({
   const ref = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
-    const canvas = ref.current as HTMLCanvasElement;
-    const parent = canvas.parentElement as HTMLElement;
-
-    const renderer = new Renderer({
-      dpr: Math.min(window.devicePixelRatio, 2),
-      canvas,
-    });
-
-    const gl = renderer.gl;
-    const geometry = new Triangle(gl);
-
-    const program = new Program(gl, {
-      vertex,
-      fragment,
-      uniforms: {
-        uTime: { value: 0 },
-        uResolution: { value: new Vec2() },
-        uHueShift: { value: hueShift },
-        uNoise: { value: noiseIntensity },
-        uScan: { value: scanlineIntensity },
-        uScanFreq: { value: scanlineFrequency },
-        uWarp: { value: warpAmount },
-        uInvert: { value: invert ? 1.0 : 0.0 },
-      },
-    });
-
-    const mesh = new Mesh(gl, { geometry, program });
-
-    const resize = () => {
-      const w = parent.clientWidth,
-        h = parent.clientHeight;
-      renderer.setSize(w * resolutionScale, h * resolutionScale);
-      program.uniforms.uResolution.value.set(w, h);
-    };
-
-    window.addEventListener("resize", resize);
-    resize();
-
-    const start = performance.now();
+    let cancelled = false;
     let frame = 0;
+    let removeResizeListener: (() => void) | null = null;
 
-    const loop = () => {
-      program.uniforms.uTime.value =
-        ((performance.now() - start) / 1000) * speed;
-      program.uniforms.uHueShift.value = hueShift;
-      program.uniforms.uNoise.value = noiseIntensity;
-      program.uniforms.uScan.value = scanlineIntensity;
-      program.uniforms.uScanFreq.value = scanlineFrequency;
-      program.uniforms.uWarp.value = warpAmount;
-      program.uniforms.uInvert.value = invert ? 1.0 : 0.0;
-      renderer.render({ scene: mesh });
-      frame = requestAnimationFrame(loop);
-    };
+    // Import dinámico para evitar ejecutar `ogl` durante SSR/SSG.
+    void (async () => {
+      const canvas = ref.current;
+      const parent = canvas?.parentElement;
+      if (!canvas || !parent) return;
 
-    loop();
+      const { Renderer, Program, Mesh, Triangle, Vec2 } = await import("ogl");
+      if (cancelled) return;
+
+      const renderer = new Renderer({
+        dpr: Math.min(window.devicePixelRatio, 2),
+        canvas,
+      });
+
+      const gl = renderer.gl;
+      const geometry = new Triangle(gl);
+
+      const program = new Program(gl, {
+        vertex,
+        fragment,
+        uniforms: {
+          uTime: { value: 0 },
+          uResolution: { value: new Vec2() },
+          uHueShift: { value: hueShift },
+          uNoise: { value: noiseIntensity },
+          uScan: { value: scanlineIntensity },
+          uScanFreq: { value: scanlineFrequency },
+          uWarp: { value: warpAmount },
+          uInvert: { value: invert ? 1.0 : 0.0 },
+        },
+      });
+
+      const mesh = new Mesh(gl, { geometry, program });
+
+      const resize = () => {
+        const w = parent.clientWidth;
+        const h = parent.clientHeight;
+        renderer.setSize(w * resolutionScale, h * resolutionScale);
+        program.uniforms.uResolution.value.set(w, h);
+      };
+
+      window.addEventListener("resize", resize);
+      removeResizeListener = () => window.removeEventListener("resize", resize);
+      resize();
+
+      const start = performance.now();
+
+      const loop = () => {
+        program.uniforms.uTime.value =
+          ((performance.now() - start) / 1000) * speed;
+        program.uniforms.uHueShift.value = hueShift;
+        program.uniforms.uNoise.value = noiseIntensity;
+        program.uniforms.uScan.value = scanlineIntensity;
+        program.uniforms.uScanFreq.value = scanlineFrequency;
+        program.uniforms.uWarp.value = warpAmount;
+        program.uniforms.uInvert.value = invert ? 1.0 : 0.0;
+        renderer.render({ scene: mesh });
+        frame = requestAnimationFrame(loop);
+      };
+
+      loop();
+    })();
 
     return () => {
+      cancelled = true;
       cancelAnimationFrame(frame);
-      window.removeEventListener("resize", resize);
+      removeResizeListener?.();
     };
   }, [
     hueShift,

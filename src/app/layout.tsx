@@ -1,8 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { NextIntlClientProvider } from "next-intl";
-import { getLocale, getMessages } from "next-intl/server";
+import Script from "next/script";
 import { ThemeProvider } from "@/components/providers/theme-provider";
+import { AppIntlProvider } from "@/components/providers/intl-provider";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
 import "./globals.css";
@@ -21,7 +21,9 @@ const geistMono = Geist_Mono({
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    // Safari (iOS/macOS) usa theme-color para teñir UI (barra de direcciones).
+    // Requisito: siempre negro.
+    { media: "(prefers-color-scheme: light)", color: "#000000" },
     { media: "(prefers-color-scheme: dark)", color: "#000000" },
   ],
   width: "device-width",
@@ -77,25 +79,34 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const locale = await getLocale();
-  const messages = await getMessages();
-
   return (
-    <html lang={locale} suppressHydrationWarning data-scroll-behavior="smooth">
+    <html
+      lang="es"
+      className="dark"
+      suppressHydrationWarning
+      data-scroll-behavior="smooth"
+    >
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col`}
       >
+        <Script
+          id="prefs-bootstrap"
+          strategy="beforeInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem('jmcan:theme');if(t==='light'){document.documentElement.classList.remove('dark');document.documentElement.style.colorScheme='light';}else if(t==='dark'){document.documentElement.classList.add('dark');document.documentElement.style.colorScheme='dark';}var l=localStorage.getItem('jmcan:locale');if(l==='en'||l==='es'){document.documentElement.lang=l;}}catch(e){}})();`,
+          }}
+        />
         <ThemeProvider>
-          <NextIntlClientProvider messages={messages}>
+          <AppIntlProvider>
             <Header />
-            <main className="flex-1">{children}</main>
+            <main className="flex-1 pb-12 md:pb-16">{children}</main>
             <Footer />
-          </NextIntlClientProvider>
+          </AppIntlProvider>
         </ThemeProvider>
       </body>
     </html>

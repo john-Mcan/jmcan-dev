@@ -1,3 +1,5 @@
+"use client";
+
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { ArrowRight, ExternalLink, Users, MessageSquare, ThumbsUp, BarChart3 } from "lucide-react";

@@ -23,7 +23,7 @@ export function Header() {
   // Helper para determinar si un link está activo
   const isActive = (path: string) => {
     if (path === "/") {
-      return pathname === "/" || pathname === "/es" || pathname === "/en";
+      return pathname === "/";
     }
     return pathname === path || pathname.startsWith(`${path}/`);
   };
