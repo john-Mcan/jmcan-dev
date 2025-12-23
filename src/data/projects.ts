@@ -42,7 +42,6 @@ export const fandomsProject: Project = {
     { key: "comments", value: "41,000", suffix: "+" },
     { key: "interactions", value: "273,000", suffix: "+" },
     { key: "messages", value: "19,000", suffix: "+" },
-    { key: "pollVotes", value: "448,000", suffix: "+" },
     { key: "communities", value: "21" },
   ],
   stack: [

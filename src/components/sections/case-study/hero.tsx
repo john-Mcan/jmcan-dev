@@ -9,6 +9,7 @@ import { fandomsProject } from "@/data/projects";
 
 export function CaseStudyHero() {
   const t = useTranslations("caseStudy");
+  const tNav = useTranslations("nav");
   const project = fandomsProject;
 
   return (
@@ -22,7 +23,7 @@ export function CaseStudyHero() {
           className="inline-flex items-center gap-2 text-muted hover:text-foreground transition-colors mb-8"
         >
           <ArrowLeft className="h-4 w-4" />
-          <span>{t("title")}</span>
+          <span>{tNav("home")}</span>
         </Link>
 
         <div className="max-w-3xl">
@@ -32,7 +33,7 @@ export function CaseStudyHero() {
             {project.name}
           </h1>
 
-          <p className="text-xl md:text-2xl text-muted mb-8">
+          <p className="text-base sm:text-lg text-muted leading-relaxed mb-8">
             {t("subtitle")}
           </p>
 

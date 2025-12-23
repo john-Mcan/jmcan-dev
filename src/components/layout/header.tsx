@@ -50,11 +50,11 @@ export function Header() {
   return (
     <>
       <header className="fixed top-0 left-0 right-0 z-50">
-        <div className="pt-3 px-4 sm:pt-4 sm:px-4 lg:px-8">
+        <div className="pt-3 px-4 sm:pt-4 sm:px-6 lg:px-8">
           <nav 
             className={cn(
-              "mx-auto max-w-5xl rounded-2xl border border-border/50",
-              "bg-background/30 backdrop-blur-md",
+              "mx-auto max-w-6xl rounded-2xl border border-border/50",
+              "bg-background/30 backdrop-blur",
               "shadow-sm"
             )}
           >
@@ -87,7 +87,7 @@ export function Header() {
                           "transition-all duration-200",
                           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50",
                           isActive(item.href)
-                            ? "text-accent bg-accent/10"
+                            ? "text-foreground bg-accent/10 dark:bg-accent/20"
                             : "text-muted hover:text-foreground hover:bg-secondary/60"
                         )}
                       >
@@ -172,7 +172,7 @@ export function Header() {
                       "text-base font-medium",
                       "transition-all duration-200",
                       isActive(item.href)
-                        ? "text-accent bg-accent/10"
+                        ? "text-foreground bg-accent/10 dark:bg-accent/20"
                         : "text-foreground hover:bg-secondary active:bg-secondary/80"
                     )}
                   >
@@ -185,7 +185,7 @@ export function Header() {
                     </div>
                     <ChevronRight className={cn(
                       "h-4 w-4 transition-all group-hover:translate-x-1",
-                      isActive(item.href) ? "text-accent" : "text-muted group-hover:text-accent"
+                      isActive(item.href) ? "text-foreground" : "text-muted group-hover:text-accent"
                     )} />
                   </Link>
                 );

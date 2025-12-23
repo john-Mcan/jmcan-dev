@@ -15,12 +15,21 @@ export function About() {
 
   return (
     <Section className="bg-card/30">
-      <SectionHeader title={t("title")} />
+      {/* Mobile: Header arriba */}
+      <div className="md:hidden">
+        <SectionHeader title={t("title")} />
+      </div>
       
-      <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-center">
-        <p className="text-base sm:text-lg text-muted leading-relaxed">
-          {t("description")}
-        </p>
+      <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-start">
+        {/* Desktop: Header integrado en la columna izquierda */}
+        <div className="space-y-6">
+          <div className="hidden md:block">
+            <SectionHeader title={t("title")} />
+          </div>
+          <p className="text-base sm:text-lg text-muted leading-relaxed">
+            {t("description")}
+          </p>
+        </div>
 
         <div className="space-y-3 sm:space-y-4">
           {highlights.map((highlight, index) => (

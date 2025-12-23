@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { Users, MessageSquare, ThumbsUp, BarChart3, MessagesSquare, Vote } from "lucide-react";
+import { Users, MessageSquare, ThumbsUp, BarChart3, MessagesSquare } from "lucide-react";
 import { Section } from "@/components/ui/section";
 import { fandomsProject } from "@/data/projects";
 
@@ -11,7 +11,6 @@ const metricIcons: Record<string, React.ElementType> = {
   comments: MessagesSquare,
   interactions: ThumbsUp,
   messages: MessageSquare,
-  pollVotes: Vote,
   communities: Users,
 };
 
