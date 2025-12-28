@@ -149,6 +149,31 @@ El proyecto implementa un sistema de temas personalizado usando React Context (`
 
 El sistema aplica las clases CSS y `color-scheme` automáticamente al elemento raíz del documento, y las preferencias se mantienen entre sesiones.
 
+### Correos (Resend SMTP)
+
+El formulario de contacto envía correos usando **SMTP de Resend** (via `nodemailer`) desde el endpoint:
+
+- **Endpoint**: `POST /api/contact`
+- **Payload**: `{ name: string, email: string, message: string }`
+- **Destino**: se envía a `mcanempresa@gmail.com` (configurado en `src/app/api/contact/route.ts`)
+- **Reply-To**: se configura con el correo ingresado por el usuario para poder responder directamente
+
+#### Variables de entorno
+
+Configura estas variables (server-side):
+
+- **`RESEND_API_KEY`**: API key de Resend (se usa como password SMTP). **No se debe commitear.**
+- **`RESEND_FROM_EMAIL`** (recomendado): remitente (por ejemplo `contacto@tudominio.com`). Debe estar verificado en Resend. Si no se define, se usa un fallback para desarrollo.
+
+Ejemplo para desarrollo local (`.env.local`, no se commitea):
+
+```bash
+RESEND_API_KEY=tu_api_key_de_resend
+RESEND_FROM_EMAIL=contacto@tudominio.com
+```
+
+En Vercel: agrega las variables en **Project Settings → Environment Variables** (Production/Preview según corresponda) y luego **redeploy** para que apliquen.
+
 ### Optimizaciones de Rendimiento
 
 - **Revalidación**: Páginas estáticas con revalidación estratégica (15552000 segundos)
