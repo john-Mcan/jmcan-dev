@@ -71,7 +71,7 @@ export function Header() {
           <nav
             aria-label="Navegación principal"
             className={cn(
-              "mx-auto max-w-6xl rounded-2xl border border-border/50",
+              "mx-auto max-w-6xl rounded-2xl border border-border/25",
               "bg-background/30 backdrop-blur",
               "shadow-sm"
             )}

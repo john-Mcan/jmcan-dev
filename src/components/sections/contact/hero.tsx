@@ -7,7 +7,7 @@ export function ContactHero() {
   const t = useTranslations("contact");
 
   return (
-    <PageHero accentBlur="left">
+    <PageHero accentBlur="left" className="pt-36 sm:pt-32">
       <div className="max-w-2xl mx-auto text-center">
         <h1 className="text-4xl sm:text-5xl font-bold tracking-tight mb-6">
           {t("title")}

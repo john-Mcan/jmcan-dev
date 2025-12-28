@@ -4,9 +4,11 @@ import { useTranslations } from "next-intl";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { ArrowRight, FileCode } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useAppTheme } from "@/components/providers/theme-provider";
 import { Button } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
+import { cn } from "@/lib/utils";
 
 type DarkVeilProps = {
   hueShift?: number;
@@ -19,13 +21,26 @@ type DarkVeilProps = {
   invert?: boolean;
 };
 
+type DarkVeilModule = typeof import("@/components/ui/dark-veil");
+let darkVeilPromise: Promise<DarkVeilModule> | null = null;
+
+function preloadDarkVeil() {
+  if (!darkVeilPromise) {
+    darkVeilPromise = import("@/components/ui/dark-veil");
+  }
+  return darkVeilPromise;
+}
+
+// Precarga ASAP en cliente para reducir el tiempo en fallback.
+if (typeof window !== "undefined") {
+  void preloadDarkVeil();
+}
+
 const DarkVeil = dynamic<DarkVeilProps>(
-  () => import("@/components/ui/dark-veil").then((m) => m.DarkVeil),
+  () => preloadDarkVeil().then((m) => m.DarkVeil),
   {
     ssr: false,
-    loading: () => (
-      <div className="h-full w-full bg-[radial-gradient(1200px_800px_at_50%_40%,rgba(0,112,243,0.25),transparent_60%),radial-gradient(800px_600px_at_20%_70%,rgba(139,92,246,0.18),transparent_55%)]" />
-    ),
+    loading: () => null,
   }
 );
 
@@ -33,17 +48,54 @@ export function Hero() {
   const t = useTranslations("hero");
   const { theme } = useAppTheme();
   const isLight = theme === "light";
+  const [isVeilReady, setIsVeilReady] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    preloadDarkVeil()
+      .then(() => {
+        // Deja al menos un frame para que React pinte el componente dinámico
+        // antes de empezar el crossfade del fallback.
+        requestAnimationFrame(() => {
+          if (!cancelled) setIsVeilReady(true);
+        });
+      })
+      .catch(() => {
+        // Si falla, mantenemos el fallback (negro) sin romper la UI.
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   return (
     <section className="relative min-h-[90vh] min-h-[90dvh] flex items-center justify-center overflow-hidden">
       <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
-        <DarkVeil 
-          speed={1} 
-          hueShift={26} 
-          warpAmount={1} 
-          resolutionScale={0.85}
-          invert={isLight}
+        {/* Fallback (negro) + crossfade rápido para evitar “pestañeo” */}
+        <div
+          className={cn(
+            "absolute inset-0 z-10 bg-black",
+            "transition-opacity duration-200 ease-out motion-reduce:transition-none",
+            isVeilReady ? "opacity-0" : "opacity-100"
+          )}
         />
+        <div
+          className={cn(
+            "absolute inset-0 z-0",
+            "transition-opacity duration-900 ease-out motion-reduce:transition-none",
+            isVeilReady ? "opacity-100" : "opacity-0"
+          )}
+        >
+          <DarkVeil
+            speed={1}
+            hueShift={26}
+            warpAmount={1}
+            resolutionScale={0.85}
+            invert={isLight}
+          />
+        </div>
       </div>
       <div className={`absolute inset-0 ${isLight ? "bg-white/30" : "bg-background/40"}`} />
 
@@ -66,7 +118,11 @@ export function Hero() {
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 animate-fade-in-up opacity-0 stagger-4 w-full sm:w-auto">
-            <Button asChild size="lg" className="group w-full sm:w-auto">
+            <Button
+              asChild
+              size="lg"
+              className="group w-full sm:w-auto border-2 border-transparent"
+            >
               <Link href="/caso-de-estudio">
                 <FileCode className="h-5 w-5" />
                 <span>{t("cta.projects")}</span>
