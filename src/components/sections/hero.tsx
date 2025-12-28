@@ -123,14 +123,14 @@ export function Hero() {
               size="lg"
               className="group w-full sm:w-auto border-2 border-transparent"
             >
-              <Link href="/caso-de-estudio">
+              <Link href="/caso-de-estudio" prefetch={true}>
                 <FileCode className="h-5 w-5" />
                 <span>{t("cta.projects")}</span>
                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
               </Link>
             </Button>
             <Button asChild variant="outline" size="lg" className="w-full sm:w-auto">
-              <Link href="/contacto">
+              <Link href="/contacto" prefetch={true}>
                 {t("cta.contact")}
               </Link>
             </Button>

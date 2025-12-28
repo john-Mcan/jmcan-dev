@@ -46,7 +46,7 @@ export function ContactForm() {
     "text-foreground placeholder:text-muted-foreground",
     "focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent",
     "transition-all duration-200",
-    "text-sm sm:text-base"
+    "text-base"
   );
 
   return (
