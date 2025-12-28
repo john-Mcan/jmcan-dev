@@ -32,7 +32,7 @@ export function CaseStudyMetrics() {
             <div className="text-xl sm:text-2xl font-bold text-accent mb-1">
               {metric.value}
             </div>
-            <div className="text-[10px] sm:text-xs text-muted uppercase tracking-wide">
+            <div className="text-xs text-muted uppercase tracking-wide">
               {t(metric.key)}
             </div>
           </div>

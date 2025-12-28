@@ -19,7 +19,7 @@ export function CaseStudyLearnings() {
         <div className="space-y-3 sm:space-y-4 mb-8 sm:mb-12">
           {items.map((item, index) => (
             <div
-              key={index}
+              key={item}
               className="group flex items-start gap-3 sm:gap-4 p-4 rounded-xl border border-border bg-card/50 hover:border-accent/30 hover:bg-card transition-all duration-300"
             >
               <div className="flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-accent/10 text-accent text-sm font-bold flex-shrink-0">

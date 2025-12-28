@@ -1,14 +1,13 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import Link from "next/link";
 import { Github, Linkedin, Mail, MapPin, ChevronRight } from "lucide-react";
 import { Section } from "@/components/ui/section";
 import { personal } from "@/data/personal";
 
 const socialLinks = [
-  { name: "GitHub", href: personal.social.github, icon: Github, username: "@johnmcan" },
-  { name: "LinkedIn", href: personal.social.linkedin, icon: Linkedin, username: "johnmcan" },
+  { name: "GitHub", href: personal.social.github, icon: Github, username: "@john-Mcan" },
+  { name: "LinkedIn", href: personal.social.linkedin, icon: Linkedin, username: "John Moya Cantillana" },
   { name: "Email", href: `mailto:${personal.email}`, icon: Mail, username: personal.email },
 ];
 
@@ -52,7 +51,7 @@ export function ContactLinks() {
             
             <div className="space-y-2">
               {socialLinks.map((link) => (
-                <Link
+                <a
                   key={link.name}
                   href={link.href}
                   target="_blank"
@@ -64,7 +63,7 @@ export function ContactLinks() {
                     <span className="text-sm sm:text-base truncate">{link.username}</span>
                   </div>
                   <ChevronRight className="h-4 w-4 flex-shrink-0 opacity-0 -translate-x-1 group-hover/link:opacity-100 group-hover/link:translate-x-0 transition-all" />
-                </Link>
+                </a>
               ))}
             </div>
           </div>

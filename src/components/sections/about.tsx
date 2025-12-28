@@ -32,9 +32,9 @@ export function About() {
         </div>
 
         <div className="space-y-3 sm:space-y-4">
-          {highlights.map((highlight, index) => (
+          {highlights.map((highlight) => (
             <div
-              key={index}
+              key={highlight}
               className="group flex items-start gap-3 p-4 rounded-xl bg-secondary/30 border border-border hover:border-accent/30 hover:bg-secondary/50 transition-all duration-300"
             >
               <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-accent/10 flex-shrink-0">

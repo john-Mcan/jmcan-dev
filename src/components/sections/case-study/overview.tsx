@@ -47,7 +47,7 @@ export function CaseStudyOverview() {
                     <span className="text-accent">{metric.suffix}</span>
                   )}
                 </div>
-                <div className="text-[10px] sm:text-xs text-muted mt-1 uppercase tracking-wide">
+                <div className="text-xs text-muted mt-1 uppercase tracking-wide">
                   {tMetrics(metric.key)}
                 </div>
               </div>

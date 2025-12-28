@@ -55,7 +55,7 @@ export function CaseStudyStack() {
       </div>
 
       <div className="mt-8 sm:mt-12 p-4 sm:p-8 rounded-xl border border-border bg-card/30 overflow-hidden">
-        <div className="text-center text-muted font-mono text-[10px] sm:text-xs md:text-sm">
+        <div className="text-center text-muted font-mono text-xs md:text-sm">
           <pre className="overflow-x-auto whitespace-pre">
 {`[Usuario] ──▶ [Vercel Edge] ──▶ [Next.js App]
                                       │

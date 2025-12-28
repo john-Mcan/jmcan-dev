@@ -1,7 +1,6 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import Link from "next/link";
 import { Github, Linkedin, Mail } from "lucide-react";
 import { Container } from "@/components/ui/container";
 import { personal } from "@/data/personal";
@@ -19,11 +18,11 @@ export function Footer() {
   return (
     <footer className="border-t border-border bg-card/50">
       <Container>
-        <div className="py-8 md:py-6">
+        <div className="py-8">
           <div className="flex flex-col items-center gap-6 md:hidden">
             <div className="flex items-center gap-1">
               {socialLinks.map((link) => (
-                <Link
+                <a
                   key={link.name}
                   href={link.href}
                   target="_blank"
@@ -32,29 +31,29 @@ export function Footer() {
                   aria-label={link.name}
                 >
                   <link.icon className="h-5 w-5" />
-                </Link>
+                </a>
               ))}
             </div>
 
             <div className="flex items-center gap-1.5 text-sm text-muted">
               <span>{t("builtWith")}</span>
-              <Link
+              <a
                 href="https://nextjs.org"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="font-medium text-foreground hover:text-accent transition-colors"
               >
                 Next.js
-              </Link>
+              </a>
               <span>&</span>
-              <Link
+              <a
                 href="https://vercel.com"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="font-medium text-foreground hover:text-accent transition-colors"
               >
                 Vercel
-              </Link>
+              </a>
             </div>
 
             <div className="flex flex-col items-center gap-1 text-sm text-muted">
@@ -71,28 +70,28 @@ export function Footer() {
 
             <div className="flex items-center gap-1.5 text-sm text-muted">
               <span>{t("builtWith")}</span>
-              <Link
+              <a
                 href="https://nextjs.org"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="font-medium text-foreground hover:text-accent transition-colors"
               >
                 Next.js
-              </Link>
+              </a>
               <span>&</span>
-              <Link
+              <a
                 href="https://vercel.com"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="font-medium text-foreground hover:text-accent transition-colors"
               >
                 Vercel
-              </Link>
+              </a>
             </div>
 
             <div className="flex items-center gap-1">
               {socialLinks.map((link) => (
-                <Link
+                <a
                   key={link.name}
                   href={link.href}
                   target="_blank"
@@ -101,7 +100,7 @@ export function Footer() {
                   aria-label={link.name}
                 >
                   <link.icon className="h-4 w-4" />
-                </Link>
+                </a>
               ))}
             </div>
           </div>

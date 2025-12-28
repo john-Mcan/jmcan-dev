@@ -6,6 +6,11 @@ const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 const nextConfig: NextConfig = {
   // Performance optimizations
   poweredByHeader: false,
+
+  experimental: {
+    // Reduce client bundle size for icon-heavy components (tree-shaking isn't always enough).
+    optimizePackageImports: ["lucide-react"],
+  },
   
   // Image optimization
   images: {

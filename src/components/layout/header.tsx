@@ -41,6 +41,23 @@ export function Header() {
   }, [isMobileMenuOpen, closeMobileMenu]);
 
   useEffect(() => {
+    // Cierra el menú si el usuario navega (back/forward o navegación externa).
+    if (isMobileMenuOpen) closeMobileMenu();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname]);
+
+  useEffect(() => {
+    if (!isMobileMenuOpen) return;
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") closeMobileMenu();
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [isMobileMenuOpen, closeMobileMenu]);
+
+  useEffect(() => {
     document.body.style.overflow = isMobileMenuOpen ? "hidden" : "";
     return () => {
       document.body.style.overflow = "";
@@ -51,7 +68,8 @@ export function Header() {
     <>
       <header className="fixed top-0 left-0 right-0 z-50">
         <div className="pt-3 px-4 sm:pt-4 sm:px-6 lg:px-8">
-          <nav 
+          <nav
+            aria-label="Navegación principal"
             className={cn(
               "mx-auto max-w-6xl rounded-2xl border border-border/50",
               "bg-background/30 backdrop-blur",
@@ -74,7 +92,7 @@ export function Header() {
               </Link>
 
               <div className="flex items-center gap-2 sm:gap-4">
-                <nav className="hidden md:flex items-center gap-1" role="navigation" aria-label="Navegacion principal">
+                <div className="hidden md:flex items-center gap-1">
                   {navigation.map((item) => {
                     const Icon = item.icon;
                     return (
@@ -82,6 +100,7 @@ export function Header() {
                         key={item.key}
                         href={item.href}
                         title={t(item.key)}
+                        aria-current={isActive(item.href) ? "page" : undefined}
                         className={cn(
                           "px-2 lg:px-4 py-2 text-sm font-medium rounded-lg",
                           "transition-all duration-200",
@@ -96,7 +115,7 @@ export function Header() {
                       </Link>
                     );
                   })}
-                </nav>
+                </div>
 
                 <div className="hidden md:flex items-center gap-2">
                   <LanguageToggle />
@@ -104,14 +123,16 @@ export function Header() {
                 </div>
 
                 <button
-                  onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                  type="button"
+                  onClick={() => setIsMobileMenuOpen((prev) => !prev)}
                   className={cn(
                     "md:hidden relative flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-lg border border-border",
                     "bg-secondary/50 transition-all duration-200 hover:bg-secondary",
                     isMobileMenuOpen && "bg-secondary"
                   )}
-                  aria-label="Toggle menu"
+                  aria-label={isMobileMenuOpen ? "Cerrar menú" : "Abrir menú"}
                   aria-expanded={isMobileMenuOpen}
+                  aria-controls="mobile-menu"
                 >
                   <span className={cn(
                     "absolute transition-all duration-200",
@@ -137,6 +158,7 @@ export function Header() {
           "fixed inset-0 z-40 md:hidden",
           isMobileMenuOpen ? "pointer-events-auto" : "pointer-events-none"
         )}
+        aria-hidden={!isMobileMenuOpen}
       >
         <div
           className={cn(
@@ -148,6 +170,10 @@ export function Header() {
         />
 
         <div
+          id="mobile-menu"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Menú"
           className={cn(
             "absolute top-[76px] sm:top-[92px] left-4 right-4 sm:left-4 sm:right-4",
             "bg-background/95 backdrop-blur-md rounded-2xl border border-border/50",
@@ -167,6 +193,7 @@ export function Header() {
                     key={item.key}
                     href={item.href}
                     onClick={closeMobileMenu}
+                    aria-current={isActive(item.href) ? "page" : undefined}
                     className={cn(
                       "group flex items-center justify-between px-4 py-3 rounded-xl",
                       "text-base font-medium",

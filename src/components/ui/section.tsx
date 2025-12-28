@@ -37,17 +37,22 @@ export function SectionHeader({
   return (
     <div
       className={cn(
-        "mb-12",
+        "mb-8 sm:mb-10 md:mb-12",
         centered && "text-center",
         className
       )}
       {...props}
     >
-      <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
+      <h2 className="text-3xl font-bold tracking-tight leading-tight sm:text-4xl text-balance">
         {title}
       </h2>
       {description && (
-        <p className="mt-4 text-lg text-muted max-w-2xl">
+        <p
+          className={cn(
+            "mt-4 text-base sm:text-lg text-muted leading-relaxed max-w-2xl",
+            centered && "mx-auto"
+          )}
+        >
           {description}
         </p>
       )}

@@ -37,14 +37,14 @@ export function ProjectHighlight() {
                   {project.name}
                 </h3>
                 {project.url && (
-                  <Link
+                  <a
                     href={project.url}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-muted hover:text-accent transition-colors"
                   >
                     <ExternalLink className="h-5 w-5" />
-                  </Link>
+                  </a>
                 )}
               </div>
 

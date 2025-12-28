@@ -2,11 +2,32 @@
 
 import { useTranslations } from "next-intl";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { ArrowRight, FileCode } from "lucide-react";
 import { useAppTheme } from "@/components/providers/theme-provider";
 import { Button } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
-import { DarkVeil } from "@/components/ui/dark-veil";
+
+type DarkVeilProps = {
+  hueShift?: number;
+  noiseIntensity?: number;
+  scanlineIntensity?: number;
+  speed?: number;
+  scanlineFrequency?: number;
+  warpAmount?: number;
+  resolutionScale?: number;
+  invert?: boolean;
+};
+
+const DarkVeil = dynamic<DarkVeilProps>(
+  () => import("@/components/ui/dark-veil").then((m) => m.DarkVeil),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-full w-full bg-[radial-gradient(1200px_800px_at_50%_40%,rgba(0,112,243,0.25),transparent_60%),radial-gradient(800px_600px_at_20%_70%,rgba(139,92,246,0.18),transparent_55%)]" />
+    ),
+  }
+);
 
 export function Hero() {
   const t = useTranslations("hero");
@@ -15,7 +36,7 @@ export function Hero() {
 
   return (
     <section className="relative min-h-[90vh] min-h-[90dvh] flex items-center justify-center overflow-hidden">
-      <div className="absolute inset-0">
+      <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
         <DarkVeil 
           speed={1} 
           hueShift={26} 
@@ -32,7 +53,7 @@ export function Hero() {
             {t("greeting")}
           </p>
 
-          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-4 animate-fade-in-up opacity-0 stagger-1">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-4">
             {t("name")}
           </h1>
 

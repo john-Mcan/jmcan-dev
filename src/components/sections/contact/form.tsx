@@ -52,7 +52,7 @@ export function ContactForm() {
   return (
     <Section containerSize="sm">
       <div className="max-w-xl mx-auto">
-        <p className="text-sm sm:text-base text-muted text-center mb-6 sm:mb-8">
+        <p className="text-sm sm:text-base text-muted text-center mb-6 sm:mb-8 leading-relaxed">
           {tContact("description")}
         </p>
 
