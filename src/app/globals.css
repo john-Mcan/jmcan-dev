@@ -17,8 +17,19 @@
   --secondary: #f4f4f5;
   --secondary-foreground: #0a0a0a;
   --destructive: #ef4444;
+  --success: #22c55e;
   --ring: #0070f3;
   --radius: 0.5rem;
+
+  /* UI layout */
+  /* Header is fixed; this value lets pages (e.g. 404) offset content correctly. */
+  --header-offset: 68px; /* pt-3 (12px) + h-14 (56px) */
+}
+
+@media (min-width: 640px) {
+  :root {
+    --header-offset: 80px; /* pt-4 (16px) + h-16 (64px) */
+  }
 }
 
 .dark {
@@ -37,6 +48,7 @@
   --secondary: #18181b;
   --secondary-foreground: #ededed;
   --destructive: #ef4444;
+  --success: #22c55e;
   --ring: #0070f3;
 }
 
@@ -56,6 +68,7 @@
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
   --color-destructive: var(--destructive);
+  --color-success: var(--success);
   --color-ring: var(--ring);
   --radius-lg: var(--radius);
   --font-sans: var(--font-geist-sans);

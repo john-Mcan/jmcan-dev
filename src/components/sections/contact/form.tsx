@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Send, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
 import { Section } from "@/components/ui/section";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,16 @@ export function ContactForm() {
   const t = useTranslations("contact.form");
   const tContact = useTranslations("contact");
   const [status, setStatus] = useState<FormStatus>("idle");
+
+  useEffect(() => {
+    if (status !== "success") return;
+
+    const timeoutId = setTimeout(() => {
+      setStatus("idle");
+    }, 1500);
+
+    return () => clearTimeout(timeoutId);
+  }, [status]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -119,6 +129,13 @@ export function ContactForm() {
               </>
             )}
           </Button>
+
+          {status === "success" && (
+            <div className="flex items-center justify-center gap-2 text-success text-sm p-3 rounded-lg bg-success/10 border border-success/20">
+              <CheckCircle className="h-4 w-4 flex-shrink-0" />
+              <span>{t("success")}</span>
+            </div>
+          )}
 
           {status === "error" && (
             <div className="flex items-center justify-center gap-2 text-destructive text-sm p-3 rounded-lg bg-destructive/10 border border-destructive/20">

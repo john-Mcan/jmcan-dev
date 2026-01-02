@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Script from "next/script";
+import { personal } from "@/data/personal";
+import { FAVICON_SVG_PATH, OG_IMAGE_PATH, SITE_URL } from "@/lib/seo";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { AppIntlProvider } from "@/components/providers/intl-provider";
 import { Header } from "@/components/layout/header";
@@ -29,14 +31,16 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://johnmcan.dev"),
+  metadataBase: new URL(SITE_URL),
   title: {
     default: "John Moya Cantillana | Desarrollador Full Stack",
     template: "%s | John Moya Cantillana",
   },
   description:
-    "Desarrollador Full Stack especializado en Next.js, React y TypeScript. Constructor de plataformas web escalables con más de 32,000 usuarios.",
+    "Portfolio de John Moya Cantillana. Desarrollador Full Stack especializado en Next.js, React y TypeScript. Diseño, construyo y despliego aplicaciones web listas para producción.",
   keywords: [
+    "portfolio",
+    "portafolio",
     "desarrollador full stack",
     "full stack developer",
     "next.js",
@@ -48,21 +52,37 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: "John Moya Cantillana" }],
   creator: "John Moya Cantillana",
+  icons: {
+    icon: [
+      { url: FAVICON_SVG_PATH, type: "image/svg+xml", sizes: "any" },
+    ],
+    shortcut: [{ url: FAVICON_SVG_PATH, type: "image/svg+xml", sizes: "any" }],
+    apple: [{ url: OG_IMAGE_PATH }],
+  },
   openGraph: {
     type: "website",
     locale: "es_ES",
     alternateLocale: "en_US",
-    url: "https://johnmcan.dev",
+    url: SITE_URL,
     siteName: "John Moya Cantillana",
     title: "John Moya Cantillana | Desarrollador Full Stack",
     description:
       "Desarrollador Full Stack especializado en Next.js, React y TypeScript.",
+    images: [
+      {
+        url: OG_IMAGE_PATH,
+        alt: `${personal.name} — Portfolio`,
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "John Moya Cantillana | Desarrollador Full Stack",
     description:
       "Desarrollador Full Stack especializado en Next.js, React y TypeScript.",
+    images: [OG_IMAGE_PATH],
+    creator: "@johnmcan",
+    site: "@johnmcan",
   },
   robots: {
     index: true,
@@ -82,6 +102,34 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebSite",
+        "@id": `${SITE_URL}/#website`,
+        url: SITE_URL,
+        name: personal.name,
+        description: metadata.description,
+        inLanguage: ["es", "en"],
+      },
+      {
+        "@type": "Person",
+        "@id": `${SITE_URL}/#person`,
+        name: personal.name,
+        url: SITE_URL,
+        jobTitle: personal.title,
+        email: `mailto:${personal.email}`,
+        sameAs: [
+          personal.social.github,
+          personal.social.linkedin,
+          personal.social.twitter,
+        ],
+        image: new URL(OG_IMAGE_PATH, SITE_URL).toString(),
+      },
+    ],
+  } as const;
+
   return (
     <html
       lang="es"
@@ -98,6 +146,10 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{
             __html: `(function(){try{var t=localStorage.getItem('jmcan:theme');if(t==='light'){document.documentElement.classList.remove('dark');document.documentElement.style.colorScheme='light';}else if(t==='dark'){document.documentElement.classList.add('dark');document.documentElement.style.colorScheme='dark';}var l=localStorage.getItem('jmcan:locale');if(l==='en'||l==='es'){document.documentElement.lang=l;}}catch(e){}})();`,
           }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
         />
         <ThemeProvider>
           <AppIntlProvider>

@@ -117,7 +117,19 @@ export function DarkVeil({
     resolutionScale,
     invert,
   });
-  paramsRef.current = {
+
+  useEffect(() => {
+    paramsRef.current = {
+      hueShift,
+      noiseIntensity,
+      scanlineIntensity,
+      speed,
+      scanlineFrequency,
+      warpAmount,
+      resolutionScale,
+      invert,
+    };
+  }, [
     hueShift,
     noiseIntensity,
     scanlineIntensity,
@@ -126,7 +138,7 @@ export function DarkVeil({
     warpAmount,
     resolutionScale,
     invert,
-  };
+  ]);
 
   useEffect(() => {
     const canvas = ref.current;
