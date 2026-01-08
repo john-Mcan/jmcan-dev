@@ -27,7 +27,7 @@ export function CaseStudyStack() {
   const t = useTranslations("caseStudy.stack");
 
   return (
-    <Section>
+    <Section className="bg-card/30">
       <SectionHeader title={t("title")} centered />
 
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
@@ -52,26 +52,6 @@ export function CaseStudyStack() {
             </div>
           </div>
         ))}
-      </div>
-
-      <div className="mt-8 sm:mt-12 p-4 sm:p-8 rounded-xl border border-border bg-card/30 overflow-hidden">
-        <div className="text-center text-muted font-mono text-xs md:text-sm">
-          <pre className="overflow-x-auto whitespace-pre">
-{`[Usuario] ──▶ [Vercel Edge] ──▶ [Next.js App]
-                                      │
-                    ┌─────────────────┼─────────────────┐
-                    │                 │                 │
-              [API Routes]    [Server Components]   [Client]
-                    │                 │                 │
-                    └────────┬────────┘                 │
-                             │                          │
-                       [Supabase]                       │
-                      /    │    \\                       │
-            [PostgreSQL] [Auth] [Realtime] ◀───────────┘
-                             │
-                      [Cloudflare R2]`}
-          </pre>
-        </div>
       </div>
     </Section>
   );

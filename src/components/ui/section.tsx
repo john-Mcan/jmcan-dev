@@ -49,7 +49,7 @@ export function SectionHeader({
       {description && (
         <p
           className={cn(
-            "mt-4 text-base sm:text-lg text-muted leading-relaxed max-w-2xl",
+            "mt-4 text-base sm:text-lg text-muted leading-relaxed text-justify max-w-2xl",
             centered && "mx-auto"
           )}
         >

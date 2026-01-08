@@ -55,29 +55,69 @@
   "caseStudy": {
     "title": "Caso de Estudio",
     "subtitle": "Plataforma social completa para comunidades de fans • 32,000+ usuarios activos",
+    "visitProject": "Ver Proyecto en Vivo",
     "overview": {
-      "title": "Resumen del Proyecto",
-      "description": "Fandoms.io es una plataforma social completa para comunidades de fans, similar a Reddit con funcionalidades de Discord, desarrollada desde cero como proyecto individual."
+      "title": "Resumen y resultados",
+      "description": "Fandoms.io es una plataforma social para comunidades de fans, desarrollada desde cero como proyecto individual. Diseñada para soportar alto volumen de contenido, interacciones frecuentes y rendimiento escalable."
+    },
+    "roleScope": {
+      "title": "Rol y Alcance",
+      "role": {
+        "title": "Mi Rol",
+        "description": "Fui responsable del ciclo de desarrollo completo del proyecto, incluyendo diseño de arquitectura, implementación frontend y backend, autenticación, modelado de datos y despliegue en producción."
+      },
+      "scope": {
+        "title": "Alcance",
+        "items": {
+          "architecture": "Diseño de arquitectura del sistema",
+          "frontend": "Implementación completa del frontend",
+          "backend": "Desarrollo de backend y API",
+          "data": "Modelado de datos y seguridad",
+          "deployment": "Configuración de infraestructura y despliegue"
+        }
+      }
     },
     "problem": {
       "title": "El Problema",
-      "description": "Las comunidades de fans necesitaban una plataforma en español que combinara la estructura de comunidades de Reddit con la interacción en tiempo real de Discord, sin la complejidad de configuración."
-    },
-    "solution": {
-      "title": "La Solución",
-      "description": "Una plataforma unificada con sistema de comunidades, moderación, contenido interactivo, chat en tiempo real y gamificación.",
-      "features": {
-        "communities": "Sistema de comunidades con roles jerárquicos",
-        "content": "Feed de contenido con posts, comentarios y votaciones",
-        "moderation": "Panel de moderación completo",
-        "polls": "Sistema de encuestas interactivas",
-        "badges": "Sistema de badges y logros",
-        "realtime": "Chat en tiempo real por comunidad"
-      }
+      "description": "El principal desafío fue diseñar una plataforma capaz de manejar contenido dinámico, interacciones generadas por usuarios y páginas optimizadas para SEO, manteniendo el sistema mantenible y seguro. Las comunidades de fans necesitaban una solución en español que combinara la estructura de Reddit con la interacción en tiempo real de Discord."
     },
     "architecture": {
-      "title": "Arquitectura Técnica",
-      "description": "Stack moderno optimizado para rendimiento y escalabilidad."
+      "title": "Arquitectura",
+      "description": "La plataforma está construida con Next.js 15 (App Router) y React 19, con una estructura modular que separa UI (src/components), lógica de negocio/estado (src/hooks, src/contexts, src/store) y acceso a datos/servicios (src/lib).",
+      "backend": "El backend de datos se apoya en Supabase (PostgreSQL + Auth + RPC), usando Row Level Security (RLS) para aplicar permisos a nivel de base de datos y reducir lógica de permisos en la app.",
+      "rendering": "A nivel de rendering, el proyecto usa un enfoque híbrido: páginas públicas/SEO aprovechan Server Components + SSG/ISR (revalidate/metadata), mientras que flujos altamente interactivos (feed, mensajes, moderación) se implementan con Client Components y consumen Supabase desde el navegador cuando aplica.",
+      "media": "Para media, se usa Cloudflare R2 con URLs presignadas (generadas por Route Handlers en Node.js) y subida directa desde el cliente a R2; la app guarda las URLs en Postgres y gestiona borrados cuando corresponde."
+    },
+    "solution": {
+      "title": "Funcionalidades Principales",
+      "description": "Una plataforma unificada con sistema de comunidades, moderación, contenido interactivo, chat en tiempo real y gamificación.",
+      "features": {
+        "communities": "Sistema de comunidades con roles jerárquicos y control de acceso basado en roles",
+        "content": "Sistema de contenido basado en comunidades con posts, comentarios y votaciones",
+        "moderation": "Panel de moderación completo con políticas a nivel de base de datos",
+        "polls": "Sistema de votaciones interactivas con soporte para modo clásico y multi-voto",
+        "badges": "Sistema de badges y logros con gamificación",
+        "realtime": "Chat en tiempo real por comunidad y mensajería directa vía Supabase Realtime"
+      }
+    },
+    "decisions": {
+      "title": "Decisiones Técnicas",
+      "nextjs": {
+        "title": "Next.js 15 + React 19",
+        "reason": "Elegido para aprovechar App Router, Server Components y las últimas optimizaciones de React 19, manteniendo la aplicación escalable y con mejor DX."
+      },
+      "supabase": {
+        "title": "Supabase (PostgreSQL + RLS)",
+        "reason": "Seleccionado para reducir overhead de backend, aprovechando PostgreSQL con Row Level Security para aplicar permisos a nivel de base de datos."
+      },
+      "serverComponents": {
+        "title": "Rendering Híbrido",
+        "reason": "Server Components + SSG/ISR para páginas públicas/SEO, Client Components para flujos interactivos (feed, mensajes, moderación)."
+      },
+      "seo": {
+        "title": "SEO desde el Diseño",
+        "reason": "Las consideraciones de SEO se incorporaron temprano, usando revalidate y metadata para páginas dinámicas indexables."
+      }
     },
     "challenges": {
       "title": "Desafíos Técnicos",
@@ -88,13 +128,13 @@
       },
       "realtime": {
         "title": "Real-time Escalable",
-        "problem": "Mantener conexiones WebSocket eficientes sin degradar el rendimiento.",
-        "solution": "Patrón de canales reutilizables con reference counting y actualización de JWT en tiempo real."
+        "problem": "Mantener conexiones Realtime eficientes sin degradar el rendimiento.",
+        "solution": "Patrón de canales broadcast reutilizables con reference counting y cleanup automático."
       },
       "feed": {
         "title": "Feed Performante",
         "problem": "Cargar feeds con datos complejos sin queries N+1.",
-        "solution": "Paginación por cursor, queries optimizadas con JOINs selectivos y cache con TanStack Query."
+        "solution": "Paginación eficiente con scroll infinito, queries optimizadas con JOINs selectivos y cache con TanStack Query."
       },
       "roles": {
         "title": "Sistema de Permisos Granular",
@@ -115,8 +155,19 @@
       "policies": "Políticas RLS",
       "lines": "Líneas de TypeScript"
     },
+    "tradeOffs": {
+      "title": "Trade-offs y Mejoras Futuras",
+      "description": "Aunque la arquitectura actual soporta los objetivos del proyecto, hay mejoras identificadas para el futuro:",
+      "improvements": [
+        "Background jobs para tareas de procesamiento intensivo",
+        "Capas adicionales de caching para endpoints de alto tráfico",
+        "Mayor optimización de queries de base de datos conforme crezca el uso",
+        "Internacionalización completa para expandir a otros mercados"
+      ]
+    },
     "learnings": {
       "title": "Aprendizajes Clave",
+      "description": "Lecciones técnicas y de producto aprendidas durante el desarrollo de la plataforma.",
       "items": [
         "La arquitectura inicial importa: refactorizar tablas con datos es complejo",
         "RLS es poderoso pero requiere planificación cuidadosa",
@@ -124,6 +175,12 @@
         "Los edge cases de autenticación en PWA requieren testing exhaustivo",
         "Métricas en tiempo real ayudan a tomar decisiones de producto"
       ]
+    },
+    "links": {
+      "title": "Enlaces",
+      "demo": "Demo en Vivo",
+      "repo": "Repositorio",
+      "repoNote": "Privado (disponible bajo solicitud)"
     }
   },
   "contact": {

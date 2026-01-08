@@ -29,7 +29,7 @@ export function CaseStudyHero() {
           {project.name}
         </h1>
 
-        <p className="text-base sm:text-lg text-muted leading-relaxed mb-8">
+        <p className="text-base sm:text-lg text-muted leading-relaxed text-justify mb-8">
           {t("subtitle")}
         </p>
 
@@ -37,7 +37,7 @@ export function CaseStudyHero() {
           <Button asChild variant="outline" size="lg">
             <a href={project.url} target="_blank" rel="noopener noreferrer">
               <ExternalLink className="h-4 w-4" />
-              Visitar Proyecto
+              {t("visitProject")}
             </a>
           </Button>
         )}

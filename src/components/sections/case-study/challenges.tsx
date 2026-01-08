@@ -31,14 +31,14 @@ export function CaseStudyChallenges() {
             <div className="mb-3 sm:mb-4 p-3 sm:p-4 rounded-lg bg-destructive/5 border border-destructive/20">
               <div className="flex items-start gap-2 sm:gap-3">
                 <AlertTriangle className="h-4 w-4 text-destructive flex-shrink-0 mt-0.5" />
-                <p className="text-xs sm:text-sm text-muted">{t(`${key}.problem`)}</p>
+                <p className="text-xs sm:text-sm text-muted text-justify">{t(`${key}.problem`)}</p>
               </div>
             </div>
 
             <div className="p-3 sm:p-4 rounded-lg bg-accent/5 border border-accent/20">
               <div className="flex items-start gap-2 sm:gap-3">
                 <CheckCircle className="h-4 w-4 text-accent flex-shrink-0 mt-0.5" />
-                <p className="text-xs sm:text-sm text-foreground">{t(`${key}.solution`)}</p>
+                <p className="text-xs sm:text-sm text-foreground text-justify">{t(`${key}.solution`)}</p>
               </div>
             </div>
           </div>

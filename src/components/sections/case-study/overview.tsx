@@ -24,7 +24,7 @@ export function CaseStudyOverview() {
       <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
         <div>
           <h2 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6">{t("overview.title")}</h2>
-          <p className="text-base sm:text-lg text-muted leading-relaxed">
+          <p className="text-base sm:text-lg text-muted leading-relaxed text-justify">
             {t("overview.description")}
           </p>
         </div>
