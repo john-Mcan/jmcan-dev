@@ -32,6 +32,9 @@ esa guía sin contrastarlo con este documento.
 | `components/fx/GridField.astro`     | El `<canvas>` fijo, persistente entre navegaciones                                             | —                         |
 | `components/fx/Stage.astro`         | Caja vacía con marcas en las esquinas donde se imprime un sprite                               | —                         |
 | `styles/global.css`                 | `--grid-field-rgb`, `--grid-field-accent-rgb`, `--grid-field-spread` y CSS de view transitions | —                         |
+| `lib/grid-field/live.ts`            | Escenarios vivos: contrato (`LiveSource`, `LiveContext`) y utilidades compartidas              | No                        |
+| `lib/grid-field/live-*.ts`          | Los patrones vivos (moho, enjambre, corrientes, escarcha, Julia) y su registro                 | No                        |
+| `lib/grid-field/physarum.ts`        | Simulación del moho (Physarum) que usa `live-mold.ts`                                          | No                        |
 | `lib/grid-field/grid-field.test.ts` | Tests de los módulos puros (`pnpm test`)                                                       | —                         |
 
 Solo `runner.ts` y `scripts/grid-field.ts` tocan `window`/`document`. Todo lo demás se testea en
@@ -188,6 +191,18 @@ Para elegir la forma del efecto, según de qué dependa:
 | Un hash estable por celda          | Precalcula un `Uint8Array`/`Float32Array` en `measure()`       | Disolución por tramado |
 | Desplazar la lectura de la máscara | Cambia `lc`/`lr` por banda de filas                            | Glitch de sprite       |
 
+### 3.7 Un escenario vivo
+
+Un programa `live`: una simulación que escribe su máscara en cada cuadro, en vez de cuadros
+rasterizados. Se declara con `data-grid-stage="live:<patrón>"` y `data-grid-cursor`. El contexto, las
+reglas (islas, cursor sin rastro, cuadro quieto que se asienta una vez), los patrones y su peso
+están en `docs/sesion-2026-10-02-hero-vivo.md`, sección 5. Para uno nuevo:
+
+1. Implementa `LiveSource` (`frame` y `still`) en un `live-<nombre>.ts`, a media resolución, con
+   las utilidades de `live.ts`.
+2. Regístralo en `live-patterns.ts` y agrégalo a los tests de «patrones vivos».
+3. Pruébalo en `/lab`: una entrada en `src/lab/variants.ts`.
+
 ## 4. Reglas que no se negocian
 
 - **Cero asignaciones por cuadro.** Los buffers se reservan en `measure()`. Nada de arrays nuevos,
@@ -205,7 +220,8 @@ Para elegir la forma del efecto, según de qué dependa:
   que no era halo oscurecía la pantalla entera. Tampoco hay brillo bajo el cursor (se quitó a
   propósito).
 - **Color.** El ámbar significa estado, foco o interacción. Un sprite decorativo va en `base`.
-- **Contraste.** Un sprite llega a 0,92 de opacidad: nunca lo pongas detrás de texto.
+- **Contraste.** Un sprite llega a 0,92 de opacidad: nunca lo pongas detrás de texto. La única
+  excepción, pedida, es el patrón Julia: pasa por debajo de las letras al 30 % de su luz.
 - **Sin frameworks.** El motor es TypeScript plano; no lo envuelvas en React.
 
 ## 5. Parámetros

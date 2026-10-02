@@ -24,6 +24,7 @@ proyectos, detalle de proyecto, contacto y 404, en español e inglés.
 - **Movimiento.**
   - Vive en la grilla de fondo; el contenido HTML queda quieto (sin fade-in por sección).
   - Sin velo ni brillo bajo el cursor: la grilla suma luz donde marca y nunca atenúa el resto.
+  - El cursor no deja rastro: un patrón reacciona a su posición y se relaja cuando se va.
   - Respeta `prefers-reduced-motion`.
 - **Accesibilidad.** Lo que dibuja la grilla es decoración (`aria-hidden`): toda información debe
   existir en HTML. Foco visible en ámbar e inputs de ≥ 16 px (iOS).
@@ -44,6 +45,10 @@ Las páginas declaran qué imprime la grilla con atributos:
 - `data-grid-stage="hero|contact|sent|404|glyph:<clave>"`: caja donde se imprime un sprite
   (componente `Stage.astro`).
 - `data-grid-projects` + `data-grid-row`: lista de proyectos con panel narrador.
+- `data-grid-stage="live:<patrón>"` + `data-grid-cursor="attract|repel|off"`: escenario vivo (una
+  simulación en vez de un sprite: moho, enjambre, corrientes, escarcha, Julia). El contenido dentro
+  de su caja es isla (`data-grid-shape` o `data-grid-island`): el patrón no imprime ahí. Hoy solo lo
+  usan los heroes de `/lab`; ver `docs/sesion-2026-10-02-hero-vivo.md`.
 
 ## Estructura
 
@@ -66,9 +71,15 @@ entrada en `src/i18n/routes.ts`.
 
 ## Pendientes
 
-Estado al 2026-10-02: la base y la landing están listas en `main2`. Falta, en este orden:
+Estado al 2026-10-02: la base y la landing están listas en `main2`, y hay candidatos para un hero
+vivo en `/lab` (solo en `pnpm dev`). Falta, en este orden:
 
-1. **Contenido real** (hoy es de ejemplo):
+1. **Hero vivo:** elegir el candidato, o cómo usar más de uno a la vez, y pasarlo a producción.
+   Candidatos, decisiones y pasos: `docs/sesion-2026-10-02-hero-vivo.md` (secciones 3, 6 y 8).
+2. **Header sticky:** diseño acordado y sin implementar. Va el logo como prompt `jm ~/<ruta>▮`,
+   compacto en escritorio, escondido al bajar en móvil y sin blur. Detalle en la sección 7 del
+   mismo documento.
+3. **Contenido real** (hoy es de ejemplo):
    - `src/data/site.ts`: nombre ("John Mcan" salió del dominio), correo (`hola@johnmcan.dev` es
      inventado), cargo y redes (falta LinkedIn).
    - `src/data/experience.ts`: trayectoria.
@@ -76,23 +87,26 @@ Estado al 2026-10-02: la base y la landing están listas en `main2`. Falta, en e
      ejemplo.
    - En `src/i18n/ui/*.ts`, los textos de disponibilidad ("desde noviembre") y de tiempo de
      respuesta ("48 horas").
-2. **Resend:**
+   - La voz: el hero nuevo habla en «nosotros» (la persona y la IA); el resto del sitio, todavía en
+     primera persona singular.
+4. **Resend:**
    - verificar el dominio en Resend;
    - cargar `RESEND_API_KEY`, `CONTACT_TO_EMAIL` y `CONTACT_FROM_EMAIL` (`.dev.vars` en local,
      `wrangler secret put` en producción);
    - probar un envío real, que nunca se probó.
-3. **Deploy:** `wrangler login`, primer `pnpm deploy` y el dominio `johnmcan.dev` apuntando al
+5. **Deploy:** `wrangler login`, primer `pnpm deploy` y el dominio `johnmcan.dev` apuntando al
    Worker.
-4. **Sin verificar aún:** Safari, Firefox y el rendimiento en un móvil de gama baja (si no da el
-   ancho, ver la sección 5 de `docs/grid-field-extending.md`).
-5. **Opcional:** imagen OG para compartir en redes, la ruta `/lab` para afinar sprites y efectos, y
-   el resto de las ideas de la sección 6 de `docs/grid-field-extending.md`.
+6. **Sin verificar aún:** Safari, Firefox y el rendimiento en un móvil de gama baja, también el de
+   los patrones vivos (si no da el ancho, ver la sección 5 de `docs/grid-field-extending.md`).
+7. **Opcional:** imagen OG para compartir en redes, sumar a `/lab` vistas para afinar sprites y
+   efectos (hoy solo compara heroes), y el resto de las ideas de la sección 6 de
+   `docs/grid-field-extending.md`.
 
 ## Comandos
 
 | Comando                       | Qué hace                                                                       |
 | ----------------------------- | ------------------------------------------------------------------------------ |
-| `pnpm dev`                    | Desarrollo (corre sobre workerd)                                               |
+| `pnpm dev`                    | Desarrollo (corre sobre workerd); los heroes candidatos, en `/lab/<variante>`  |
 | `pnpm build` / `pnpm preview` | Build y preview local; para detener el preview: `pnpm exec astro preview stop` |
 | `pnpm check`                  | Tipos, incluidos los `.astro`                                                  |
 | `pnpm lint` / `pnpm format`   | ESLint / Prettier                                                              |
@@ -118,6 +132,9 @@ Interna:
 - `docs/grid-field-extending.md`: cómo funciona y cómo extender la grilla (lectura obligada para
   efectos y sprites).
 - `docs/grid-field.md`: la guía original del fondo (histórica; el código ya divergió).
+- `docs/sesion-2026-10-02-hero-vivo.md`: la sesión del hero vivo, con los escenarios vivos del
+  motor, los candidatos en `/lab`, lo descartado, el diseño acordado del header y los pasos para
+  pasar a producción.
 - `README.md`: puesta en marcha, Resend y contenido de ejemplo.
 
 Externa:
