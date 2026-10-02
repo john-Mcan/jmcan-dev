@@ -1,0 +1,70 @@
+---
+import { render } from 'astro:content'
+import Stage from '@/components/fx/Stage.astro'
+import { SITE } from '@/data/site'
+import { getDictionary, pathFor, type Locale } from '@/i18n'
+import BaseLayout from '@/layouts/BaseLayout.astro'
+import type { Project } from '@/lib/projects'
+
+interface Props {
+  locale: Locale
+  project: Project
+}
+
+const { locale, project } = Astro.props
+const t = getDictionary(locale)
+const data = project.entry.data
+const { Content } = await render(project.entry)
+---
+
+<BaseLayout
+  locale={locale}
+  route={{ key: 'project', slug: project.slug }}
+  title={`${data.title} | ${SITE.name}`}
+  description={data.summary}
+>
+  <article class="container-site grid gap-y-10 pt-12 md:grid-cols-12 md:gap-x-12 md:pt-20">
+    <aside class="md:col-span-5">
+      <div class="md:sticky md:top-[14svh]">
+        <Stage stage={`glyph:${data.glyph}`} class="aspect-[16/10] w-full md:aspect-square" />
+        <dl class="mt-6 grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-sm">
+          <dt class="text-muted">{t.projects.role}</dt>
+          <dd>{data.role}</dd>
+          <dt class="text-muted">{t.projects.year}</dt>
+          <dd class="tabular-nums">{data.year}</dd>
+          <dt class="text-muted">{t.projects.stack}</dt>
+          <dd>{data.stack.join(', ')}</dd>
+        </dl>
+        {(data.links.live ?? data.links.repo) && (
+          <p class="mt-6 flex gap-6 text-sm">
+            {data.links.live && (
+              <a class="link" href={data.links.live} rel="noopener" target="_blank">
+                {t.projects.live}
+              </a>
+            )}
+            {data.links.repo && (
+              <a class="link" href={data.links.repo} rel="noopener" target="_blank">
+                {t.projects.repo}
+              </a>
+            )}
+          </p>
+        )}
+      </div>
+    </aside>
+
+    <div class="md:col-span-7">
+      <a class="link text-muted hover:text-fg text-sm" href={pathFor(locale, 'projects')}>
+        {t.projects.back}
+      </a>
+      <h1 class="font-pixel text-d3 md:text-d4 mt-6">
+        <span class="inline-block" data-grid-shape>
+          {data.title}
+        </span>
+      </h1>
+      <p class="text-lead mt-6 max-w-[34ch]">{data.summary}</p>
+      <div class="prose-case mt-12">
+        <Content />
+      </div>
+    </div>
+  </article>
+</BaseLayout>

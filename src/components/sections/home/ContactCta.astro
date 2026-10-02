@@ -1,0 +1,36 @@
+---
+import Stage from '@/components/fx/Stage.astro'
+import Button from '@/components/ui/Button.astro'
+import EmailCopy from '@/components/ui/EmailCopy.astro'
+import { getDictionary, pathFor, type Locale } from '@/i18n'
+
+interface Props {
+  locale: Locale
+}
+
+const { locale } = Astro.props
+const t = getDictionary(locale)
+---
+
+<section class="container-site py-20 md:py-28" aria-labelledby="cta-title">
+  <div class="grid items-center gap-y-12 md:grid-cols-12 md:gap-x-10">
+    <div class="md:col-span-7">
+      <h2 id="cta-title" class="font-pixel text-d2 lg:text-d3">
+        <span class="inline-block" data-grid-shape>
+          {t.contactCta.title}
+        </span>
+      </h2>
+      <p class="text-lead text-muted mt-6 max-w-[34ch]">{t.contactCta.body}</p>
+      <div class="mt-10 flex flex-wrap items-center gap-x-8 gap-y-6">
+        <Button href={pathFor(locale, 'contact')} variant="primary">
+          {t.contactCta.cta}
+        </Button>
+        <EmailCopy locale={locale} />
+      </div>
+    </div>
+    <Stage
+      stage="contact"
+      class="aspect-[16/10] w-full md:col-span-4 md:col-start-9 md:aspect-square"
+    />
+  </div>
+</section>

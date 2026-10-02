@@ -1,0 +1,7 @@
+# Copia este archivo como .dev.vars para desarrollo local (astro dev corre en workerd).
+# En producción: pnpm wrangler secret put RESEND_API_KEY (y lo mismo con las otras dos).
+RESEND_API_KEY=re_xxxxxxxxxxxxxxxx
+# A dónde llegan los mensajes del formulario.
+CONTACT_TO_EMAIL=tu-correo@ejemplo.com
+# Remitente verificado en Resend (dominio johnmcan.dev verificado).
+CONTACT_FROM_EMAIL=Portafolio <contacto@johnmcan.dev>

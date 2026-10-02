@@ -1,0 +1,16 @@
+# build
+dist/
+.astro/
+.wrangler/
+
+# deps
+node_modules/
+
+# secretos locales (ver .dev.vars.example)
+.dev.vars
+.env
+.env.*
+
+# varios
+.DS_Store
+*.log

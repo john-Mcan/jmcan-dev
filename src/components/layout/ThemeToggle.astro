@@ -1,0 +1,85 @@
+---
+import { getDictionary, type Locale } from '@/i18n'
+
+interface Props {
+  locale: Locale
+}
+
+const t = getDictionary(Astro.props.locale)
+---
+
+<button
+  type="button"
+  class="theme-toggle"
+  data-theme-toggle
+  data-label-light={t.a11y.themeToLight}
+  data-label-dark={t.a11y.themeToDark}
+  aria-label={t.a11y.themeToLight}
+>
+  <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
+    <rect
+      x="1.5"
+      y="1.5"
+      width="13"
+      height="13"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.5"
+    ></rect>
+    <rect x="8" y="1.5" width="6.5" height="13" fill="currentColor"></rect>
+  </svg>
+</button>
+
+<style>
+  .theme-toggle {
+    display: grid;
+    width: 2.25rem;
+    height: 2.25rem;
+    place-items: center;
+    color: var(--muted);
+    cursor: pointer;
+  }
+  .theme-toggle:hover {
+    color: var(--fg);
+  }
+</style>
+
+<script>
+  type Theme = 'dark' | 'light'
+
+  function current(): Theme {
+    return document.documentElement.dataset.theme === 'light' ? 'light' : 'dark'
+  }
+
+  function label(button: HTMLElement): void {
+    const next = current() === 'dark' ? button.dataset.labelLight : button.dataset.labelDark
+    if (next) button.setAttribute('aria-label', next)
+  }
+
+  function apply(theme: Theme): void {
+    document.documentElement.dataset.theme = theme
+    try {
+      localStorage.setItem('theme', theme)
+    } catch {
+      // Sin almacenamiento (modo privado): el tema dura lo que dure la pestaña.
+    }
+  }
+
+  function init(): void {
+    for (const button of document.querySelectorAll<HTMLElement>('[data-theme-toggle]')) {
+      label(button)
+      button.addEventListener('click', () => {
+        const next: Theme = current() === 'dark' ? 'light' : 'dark'
+        const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches
+        if (!reduced && 'startViewTransition' in document) {
+          document.startViewTransition(() => apply(next))
+        } else {
+          apply(next)
+        }
+        label(button)
+      })
+    }
+  }
+
+  document.addEventListener('astro:page-load', init)
+</script>

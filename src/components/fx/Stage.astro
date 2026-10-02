@@ -1,0 +1,14 @@
+---
+/**
+ * Pantalla donde la grilla imprime un escenario (ver src/scripts/grid-field.ts).
+ * Está vacía a propósito: lo que se ve es el fondo encendiéndose en esta caja.
+ */
+interface Props {
+  stage: string
+  class?: string
+}
+
+const { stage, class: className } = Astro.props
+---
+
+<div class:list={['frame', className]} data-grid-stage={stage} aria-hidden="true"></div>

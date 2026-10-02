@@ -1,0 +1,39 @@
+---
+import ContactForm from '@/components/contact/ContactForm.astro'
+import Stage from '@/components/fx/Stage.astro'
+import EmailCopy from '@/components/ui/EmailCopy.astro'
+import { SITE } from '@/data/site'
+import { getDictionary, type Locale } from '@/i18n'
+import BaseLayout from '@/layouts/BaseLayout.astro'
+
+interface Props {
+  locale: Locale
+}
+
+const { locale } = Astro.props
+const t = getDictionary(locale)
+---
+
+<BaseLayout
+  locale={locale}
+  route={{ key: 'contact' }}
+  title={`${t.meta.contactTitle} | ${SITE.name}`}
+  description={t.meta.contactDescription}
+>
+  <section class="container-site grid gap-y-12 pt-16 md:grid-cols-12 md:gap-x-12 md:pt-24">
+    <div class="md:col-span-5">
+      <h1 class="font-pixel text-d3 md:text-d4">
+        <span class="inline-block" data-grid-shape>
+          {t.contact.title}
+        </span>
+      </h1>
+      <p class="text-lead text-muted mt-6 max-w-[30ch]">{t.contact.lead}</p>
+      <p class="text-muted mt-10 text-sm">{t.contact.direct}</p>
+      <EmailCopy locale={locale} class="mt-2" />
+      <Stage stage="contact" class="mt-12 hidden aspect-[4/3] w-full md:block" />
+    </div>
+    <div class="md:col-span-7">
+      <ContactForm locale={locale} />
+    </div>
+  </section>
+</BaseLayout>

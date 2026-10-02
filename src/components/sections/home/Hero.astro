@@ -1,0 +1,37 @@
+---
+import Stage from '@/components/fx/Stage.astro'
+import Button from '@/components/ui/Button.astro'
+import { SITE } from '@/data/site'
+import { getDictionary, pathFor, type Locale } from '@/i18n'
+
+interface Props {
+  locale: Locale
+}
+
+const { locale } = Astro.props
+const t = getDictionary(locale)
+---
+
+<section class="container-site">
+  <div class="grid min-h-[calc(100svh-var(--header-h))] content-center gap-y-12 py-12 md:grid-cols-12 md:items-center md:gap-x-10">
+    <div class="md:col-span-7">
+      <h1 class="font-pixel text-d3 sm:text-d4 lg:text-d5 xl:text-d6">
+        <span class="inline-block" data-grid-shape>
+          {SITE.name}
+        </span>
+      </h1>
+      <p class="text-lead mt-6 max-w-[30ch]">{t.hero.lead}</p>
+      <div class="mt-10 flex flex-wrap gap-3">
+        <Button href={pathFor(locale, 'projects')} variant="primary">
+          {t.hero.ctaProjects}
+        </Button>
+        <Button href={pathFor(locale, 'contact')}>{t.hero.ctaContact}</Button>
+      </div>
+      <p class="text-muted mt-10 flex items-center gap-3 text-sm">
+        <span class="signal-dot" aria-hidden="true"></span>
+        {t.hero.status}
+      </p>
+    </div>
+    <Stage stage="hero" class="aspect-[16/10] w-full md:col-span-5 md:aspect-square" />
+  </div>
+</section>

@@ -1,5 +1,10 @@
 # Grid Field: fondo animado de grilla para Next.js / React
 
+> **Referencia histórica.** Esta es la guía original con la que arrancó el fondo del sitio. El
+> código actual (`src/lib/grid-field/`) ya divergió: es TypeScript plano sin React, con escenarios,
+> paleta de señal y transiciones de página. Para trabajar en el sitio, lee
+> [`grid-field-extending.md`](./grid-field-extending.md).
+
 Guía para reproducir en otro sitio el loader de pantalla completa del dashboard de zxen
 (`apps/console/src/components/loading/`), adaptado para usarse **principalmente como fondo
 decorativo** y, además, **como loader**.

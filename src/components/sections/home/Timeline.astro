@@ -1,0 +1,70 @@
+---
+import { EXPERIENCE } from '@/data/experience'
+import { getDictionary, type Locale } from '@/i18n'
+
+interface Props {
+  locale: Locale
+}
+
+const { locale } = Astro.props
+const t = getDictionary(locale)
+---
+
+<section class="container-site py-20 md:py-28" aria-labelledby="timeline-title">
+  <div class="grid gap-y-10 md:grid-cols-12 md:gap-x-12">
+    <h2 id="timeline-title" class="font-pixel text-d1 sm:text-d2 md:col-span-5">
+      <span class="inline-block" data-grid-shape>
+        {t.timeline.title}
+      </span>
+    </h2>
+    <ol class="timeline md:col-span-7">
+      {EXPERIENCE.map((entry, i) => (
+        <li class="timeline-item" data-current={i === 0 ? '' : undefined}>
+          <span class="font-pixel text-d1 text-muted tabular-nums">{entry.year}</span>
+          <span class="timeline-node" aria-hidden="true" />
+          <div>
+            <h3 class="font-semibold">{entry.role[locale]}</h3>
+            <p class="text-muted">{entry.org}</p>
+            <p class="mt-2 max-w-[48ch]">{entry.summary[locale]}</p>
+          </div>
+        </li>
+      ))}
+    </ol>
+  </div>
+</section>
+
+<style>
+  .timeline-item {
+    position: relative;
+    display: grid;
+    grid-template-columns: 4.5rem 1.5rem 1fr;
+    align-items: start;
+    padding-bottom: 2.5rem;
+  }
+  .timeline-item:last-child {
+    padding-bottom: 0;
+  }
+  /* Línea vertical que une los nodos. */
+  .timeline-item::before {
+    content: '';
+    position: absolute;
+    top: 0.9rem;
+    bottom: -0.4rem;
+    left: calc(4.5rem + 0.75rem - 0.5px);
+    width: 1px;
+    background: var(--line-strong);
+  }
+  .timeline-item:last-child::before {
+    display: none;
+  }
+  .timeline-node {
+    width: 0.5625rem;
+    height: 0.5625rem;
+    margin: 0.55rem auto 0;
+    background: var(--fg);
+  }
+  /* El rol actual es un estado: va en señal. */
+  .timeline-item[data-current] .timeline-node {
+    background: var(--signal);
+  }
+</style>

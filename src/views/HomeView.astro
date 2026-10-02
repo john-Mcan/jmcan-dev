@@ -1,0 +1,42 @@
+---
+import ContactCta from '@/components/sections/home/ContactCta.astro'
+import FeaturedProjects from '@/components/sections/home/FeaturedProjects.astro'
+import Hero from '@/components/sections/home/Hero.astro'
+import Timeline from '@/components/sections/home/Timeline.astro'
+import { SITE } from '@/data/site'
+import { getDictionary, type Locale } from '@/i18n'
+import BaseLayout from '@/layouts/BaseLayout.astro'
+import { getProjects } from '@/lib/projects'
+
+interface Props {
+  locale: Locale
+}
+
+const { locale } = Astro.props
+const t = getDictionary(locale)
+const projects = await getProjects(locale)
+const featured = projects.filter((project) => project.entry.data.featured)
+
+const person = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: SITE.name,
+  url: SITE.url,
+  email: `mailto:${SITE.email}`,
+  jobTitle: SITE.jobTitle[locale],
+  sameAs: SITE.socials.map((social) => social.href),
+}
+---
+
+<BaseLayout
+  locale={locale}
+  route={{ key: 'home' }}
+  title={t.meta.homeTitle}
+  description={t.meta.homeDescription}
+  jsonLd={person}
+>
+  <Hero locale={locale} />
+  <FeaturedProjects locale={locale} projects={featured} total={projects.length} />
+  <Timeline locale={locale} />
+  <ContactCta locale={locale} />
+</BaseLayout>

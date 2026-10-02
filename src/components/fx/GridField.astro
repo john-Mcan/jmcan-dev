@@ -1,0 +1,40 @@
+---
+/**
+ * El fondo del sitio. Persiste entre navegaciones (ClientRouter): la grilla nunca
+ * se reinicia, se disuelve y se re-condensa sobre la página nueva.
+ */
+---
+
+<div
+  id="grid-field"
+  class="grid-field"
+  aria-hidden="true"
+  transition:persist="grid-field"
+  transition:name="grid-field"
+  transition:animate="none"
+>
+  <canvas></canvas>
+</div>
+
+<style>
+  .grid-field {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+    contain: strict;
+  }
+  canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+</style>
+
+<script>
+  import { mountGridField } from '@/scripts/grid-field'
+
+  mountGridField()
+</script>

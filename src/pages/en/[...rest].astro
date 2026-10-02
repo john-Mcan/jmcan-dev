@@ -1,0 +1,12 @@
+---
+/**
+ * Cualquier ruta inexistente bajo /en/ responde el 404 en inglés (con estado 404).
+ * Corre en el Worker solo para esas rutas: las que existen son archivos estáticos.
+ */
+import NotFoundView from '@/views/NotFoundView.astro'
+
+export const prerender = false
+Astro.response.status = 404
+---
+
+<NotFoundView locale="en" />

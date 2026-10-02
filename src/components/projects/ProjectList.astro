@@ -1,0 +1,78 @@
+---
+/**
+ * Lista de proyectos con panel narrador: en escritorio, una pantalla sticky a la
+ * izquierda donde la grilla imprime el glifo de la fila activa; en móvil, cada
+ * fila tiene su propia caja. La lógica vive en src/scripts/grid-field.ts.
+ */
+import { pathFor, type Locale } from '@/i18n'
+import type { Project } from '@/lib/projects'
+
+interface Props {
+  locale: Locale
+  projects: Project[]
+  headingLevel?: 'h2' | 'h3'
+}
+
+const { locale, projects, headingLevel: Heading = 'h3' } = Astro.props
+const first = projects[0]?.entry.data
+---
+
+<div class="grid gap-x-12 md:grid-cols-12" data-grid-projects>
+  <div class="hidden md:col-span-5 md:block">
+    <div class="sticky top-[18svh]">
+      <div class="frame aspect-square w-full" data-grid-panel aria-hidden="true"></div>
+      <p class="text-muted mt-4 text-sm" aria-hidden="true" data-grid-panel-caption>
+        {first ? `${first.title}, ${first.year}` : ''}
+      </p>
+    </div>
+  </div>
+
+  <ol class="border-line border-t md:col-span-7">
+    {projects.map(({ slug, entry }) => {
+      const project = entry.data
+      return (
+        <li class="border-line border-b">
+          <a
+            href={pathFor(locale, { key: 'project', slug })}
+            class="project-row group grid grid-cols-[1fr_auto] gap-x-6 py-7 md:block"
+            data-grid-row
+            data-grid-glyph={project.glyph}
+            data-caption={`${project.title}, ${project.year}`}
+          >
+            <div>
+              <Heading class="font-pixel text-d1 md:text-d2">
+                <span class="inline-block" data-grid-row-title>
+                  {project.title}
+                </span>
+              </Heading>
+              <p class="text-fg mt-3 max-w-[44ch]">{project.summary}</p>
+              <p class="text-muted mt-4 flex flex-wrap gap-x-4 gap-y-1 text-sm">
+                <span class="tabular-nums">{project.year}</span>
+                {project.stack.map((item) => (
+                  <span>{item}</span>
+                ))}
+              </p>
+            </div>
+            <div class="frame size-28 md:hidden" data-grid-glyph-box aria-hidden="true" />
+          </a>
+        </li>
+      )
+    })}
+  </ol>
+</div>
+
+<style>
+  .project-row [data-grid-row-title] {
+    transition: color 120ms steps(3, end);
+  }
+  .project-row[data-active] [data-grid-row-title] {
+    color: var(--signal);
+  }
+  /* En móvil solo la fila activa muestra su pantalla: un marco vacío se lee como imagen rota. */
+  .project-row:not([data-active]) [data-grid-glyph-box] {
+    --tick-color: transparent;
+  }
+  .project-row:focus-visible {
+    outline-offset: 6px;
+  }
+</style>

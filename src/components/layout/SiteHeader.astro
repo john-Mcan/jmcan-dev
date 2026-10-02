@@ -1,0 +1,65 @@
+---
+import LangSwitch from '@/components/layout/LangSwitch.astro'
+import ThemeToggle from '@/components/layout/ThemeToggle.astro'
+import { SITE } from '@/data/site'
+import { getDictionary, pathFor, type Locale, type RouteKey, type RouteRef } from '@/i18n'
+
+interface Props {
+  locale: Locale
+  route: RouteRef
+}
+
+const { locale, route } = Astro.props
+const t = getDictionary(locale)
+
+const items: { key: RouteKey; label: string; active: boolean }[] = [
+  {
+    key: 'projects',
+    label: t.nav.projects,
+    active: route.key === 'projects' || route.key === 'project',
+  },
+  { key: 'contact', label: t.nav.contact, active: route.key === 'contact' },
+]
+---
+
+<header class="site-layer" transition:name="site-header" transition:animate="none">
+  <div class="container-site flex h-(--header-h) items-center justify-between gap-4">
+    <a
+      href={pathFor(locale, 'home')}
+      class="font-pixel text-d1"
+      aria-label={`${SITE.name}, ${t.nav.home}`}
+    >
+      jm
+    </a>
+    <div class="flex items-center gap-5 sm:gap-8">
+      <nav aria-label={t.a11y.mainNav}>
+        <ul class="flex gap-4 text-[0.9375rem] sm:gap-6">
+          {items.map((item) => (
+            <li>
+              <a
+                href={pathFor(locale, item.key)}
+                aria-current={item.active ? 'page' : undefined}
+                class:list={['nav-link py-2', item.active ? 'text-fg' : 'text-muted hover:text-fg']}
+              >
+                {item.label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
+      <div class="flex items-center gap-3">
+        <LangSwitch locale={locale} route={route} />
+        <ThemeToggle locale={locale} />
+      </div>
+    </div>
+  </div>
+</header>
+
+<style>
+  .nav-link[aria-current='page'] {
+    text-decoration: underline;
+    text-decoration-color: var(--signal);
+    text-decoration-thickness: 2px;
+    text-underline-offset: 0.5em;
+  }
+</style>

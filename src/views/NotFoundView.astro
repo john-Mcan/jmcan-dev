@@ -1,0 +1,39 @@
+---
+import Stage from '@/components/fx/Stage.astro'
+import Button from '@/components/ui/Button.astro'
+import { SITE } from '@/data/site'
+import { getDictionary, pathFor, type Locale } from '@/i18n'
+import BaseLayout from '@/layouts/BaseLayout.astro'
+
+interface Props {
+  locale: Locale
+}
+
+const { locale } = Astro.props
+const t = getDictionary(locale)
+---
+
+<BaseLayout
+  locale={locale}
+  route={{ key: 'notFound' }}
+  title={`${t.meta.notFoundTitle} | ${SITE.name}`}
+  description={t.notFound.body}
+  noindex
+>
+  <section class="container-site grid gap-y-10 pt-12 md:grid-cols-12 md:items-center md:gap-x-10 md:pt-20">
+    <Stage stage="404" class="aspect-[16/10] w-full md:col-span-6" />
+    <div class="md:col-span-5 md:col-start-8">
+      <h1 class="font-pixel text-d2 md:text-d3">
+        <span class="inline-block" data-grid-shape>
+          {t.notFound.title}
+        </span>
+      </h1>
+      <p class="text-lead text-muted mt-6 max-w-[30ch]">{t.notFound.body}</p>
+      <div class="mt-10">
+        <Button href={pathFor(locale, 'home')} variant="primary">
+          {t.notFound.home}
+        </Button>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

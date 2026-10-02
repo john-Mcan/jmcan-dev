@@ -1,0 +1,33 @@
+---
+import { SITE } from '@/data/site'
+import { getDictionary, type Locale } from '@/i18n'
+
+interface Props {
+  locale: Locale
+}
+
+const t = getDictionary(Astro.props.locale)
+const year = new Date().getFullYear()
+---
+
+<footer class="site-layer border-line mt-24 border-t">
+  <div class="container-site text-muted flex flex-col gap-4 py-8 text-sm sm:flex-row sm:items-center sm:justify-between">
+    <p>
+      © {year} {SITE.name}. {t.footer.rights}
+    </p>
+    <ul class="flex gap-6">
+      <li>
+        <a class="hover:text-fg" href={`mailto:${SITE.email}`}>
+          {SITE.email}
+        </a>
+      </li>
+      {SITE.socials.map((social) => (
+        <li>
+          <a class="hover:text-fg" href={social.href} rel="me noopener" target="_blank">
+            {social.label}
+          </a>
+        </li>
+      ))}
+    </ul>
+  </div>
+</footer>

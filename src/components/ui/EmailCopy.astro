@@ -1,0 +1,53 @@
+---
+import { SITE } from '@/data/site'
+import { getDictionary, type Locale } from '@/i18n'
+
+interface Props {
+  locale: Locale
+  class?: string
+}
+
+const { locale, class: className } = Astro.props
+const t = getDictionary(locale)
+---
+
+<div class:list={['flex flex-wrap items-center gap-x-4 gap-y-2', className]}>
+  <a class="link" href={`mailto:${SITE.email}`}>
+    {SITE.email}
+  </a>
+  <button
+    type="button"
+    class="text-muted hover:text-fg cursor-pointer text-sm underline-offset-4 hover:underline"
+    data-copy-email={SITE.email}
+    data-label={t.email.copy}
+    data-done={t.email.copied}
+  >
+    {t.email.copy}
+  </button>
+  <span class="sr-only" role="status" data-copy-status></span>
+</div>
+
+<script>
+  function init(): void {
+    for (const button of document.querySelectorAll<HTMLButtonElement>('[data-copy-email]')) {
+      button.addEventListener('click', async () => {
+        const { copyEmail = '', label = '', done = '' } = button.dataset
+        try {
+          await navigator.clipboard.writeText(copyEmail)
+        } catch {
+          // Sin permiso de portapapeles: el enlace mailto sigue a mano.
+          return
+        }
+        button.textContent = done
+        const status = button.parentElement?.querySelector('[data-copy-status]')
+        if (status) status.textContent = done
+        window.setTimeout(() => {
+          button.textContent = label
+          if (status) status.textContent = ''
+        }, 2000)
+      })
+    }
+  }
+
+  document.addEventListener('astro:page-load', init)
+</script>

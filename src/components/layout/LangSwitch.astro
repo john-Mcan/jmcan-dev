@@ -1,0 +1,32 @@
+---
+import { getDictionary, LOCALES, pathFor, type Locale, type RouteRef } from '@/i18n'
+
+interface Props {
+  locale: Locale
+  route: RouteRef
+}
+
+const { locale, route } = Astro.props
+const t = getDictionary(locale)
+---
+
+<div role="group" aria-label={t.a11y.language} class="flex items-center text-[0.9375rem]">
+  {LOCALES.map((code, i) => (
+    <>
+      {i > 0 && (
+        <span class="text-line-strong px-1.5" aria-hidden="true">
+          /
+        </span>
+      )}
+      {code === locale ? (
+        <span class="text-fg" aria-current="true">
+          {code}
+        </span>
+      ) : (
+        <a href={pathFor(code, route)} hreflang={code} lang={code} class="text-muted hover:text-fg">
+          {code}
+        </a>
+      )}
+    </>
+  ))}
+</div>

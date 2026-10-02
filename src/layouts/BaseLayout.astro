@@ -1,0 +1,100 @@
+---
+import { Font } from 'astro:assets'
+import { ClientRouter } from 'astro:transitions'
+import GridField from '@/components/fx/GridField.astro'
+import SiteFooter from '@/components/layout/SiteFooter.astro'
+import SiteHeader from '@/components/layout/SiteHeader.astro'
+import { SITE } from '@/data/site'
+import {
+  alternates,
+  DEFAULT_LOCALE,
+  getDictionary,
+  pathFor,
+  type Locale,
+  type RouteRef,
+} from '@/i18n'
+import { OG_LOCALES } from '@/i18n/config'
+import { pageTransition } from '@/lib/transitions'
+import '@/styles/global.css'
+
+interface Props {
+  locale: Locale
+  route: RouteRef
+  title: string
+  description: string
+  noindex?: boolean
+  jsonLd?: Record<string, unknown>
+}
+
+const { locale, route, title, description, noindex = false, jsonLd } = Astro.props
+const t = getDictionary(locale)
+const site = Astro.site ?? new URL(SITE.url)
+const canonical = new URL(pathFor(locale, route), site)
+---
+
+<!doctype html>
+<html lang={locale} data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    {noindex ? (
+      <meta name="robots" content="noindex" />
+    ) : (
+      <>
+        <link rel="canonical" href={canonical} />
+        {alternates(route).map((alt) => (
+          <link rel="alternate" hreflang={alt.locale} href={new URL(alt.path, site)} />
+        ))}
+        <link
+          rel="alternate"
+          hreflang="x-default"
+          href={new URL(pathFor(DEFAULT_LOCALE, route), site)}
+        />
+      </>
+    )}
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={SITE.name} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:locale" content={OG_LOCALES[locale]} />
+    <meta name="twitter:card" content="summary" />
+    <meta name="color-scheme" content="dark light" />
+    <meta name="theme-color" content="#000000" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    <Font cssVariable="--font-departure" preload />
+    <Font cssVariable="--font-instrument" />
+    {/* Bloqueante a propósito: el tema guardado se aplica antes del primer pintado. */}
+    <script is:inline>
+      ;(() => {
+        const apply = () => {
+          let theme = 'dark'
+          try {
+            if (localStorage.getItem('theme') === 'light') theme = 'light'
+          } catch {
+            // Sin almacenamiento disponible: queda el oscuro por defecto.
+          }
+          document.documentElement.dataset.theme = theme
+        }
+        apply()
+        document.addEventListener('astro:after-swap', apply)
+      })()
+    </script>
+    {jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
+    <ClientRouter />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">
+      {t.a11y.skip}
+    </a>
+    <GridField />
+    <SiteHeader locale={locale} route={route} />
+    <main id="main" class="site-layer" transition:name="page" transition:animate={pageTransition}>
+      <slot />
+    </main>
+    <SiteFooter locale={locale} />
+  </body>
+</html>
