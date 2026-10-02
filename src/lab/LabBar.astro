@@ -1,0 +1,96 @@
+---
+/**
+ * Barra del laboratorio: cambia de variante y de reacción al puntero en vivo
+ * (`data-grid-cursor` en la caja del escenario vivo, que el motor lee en cada cuadro).
+ */
+import { LAB_VARIANTS, type LabVariant } from '@/lab/variants'
+
+interface Props {
+  current: LabVariant
+}
+
+const { current } = Astro.props
+const variant = LAB_VARIANTS.find((candidate) => candidate.slug === current) ?? LAB_VARIANTS[0]
+const modes = [
+  { value: 'attract', label: variant.attract },
+  { value: 'repel', label: variant.repel },
+  { value: 'off', label: 'nada' },
+]
+---
+
+<nav class="lab-bar" aria-label="Laboratorio">
+  <span class="font-semibold">lab</span>
+  {LAB_VARIANTS.map((item) => (
+    <a
+      href={`/lab/${item.slug}`}
+      aria-current={item.slug === current ? 'page' : undefined}
+      class="lab-chip"
+    >
+      {item.label}
+    </a>
+  ))}
+  <span class="text-muted">cursor</span>
+  {modes.map((mode) => (
+    <button type="button" class="lab-chip" data-lab-cursor={mode.value}>
+      {mode.label}
+    </button>
+  ))}
+</nav>
+
+<style>
+  .lab-bar {
+    /* Arriba, bajo el header: abajo tapaba el llamado de los heros. */
+    position: fixed;
+    left: 1rem;
+    top: calc(var(--header-h) + 0.25rem);
+    z-index: 30;
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    max-width: calc(100vw - 2rem);
+    overflow-x: auto;
+    white-space: nowrap;
+    padding: 0.375rem 0.5rem;
+    border: 1px solid var(--line-strong);
+    background: var(--surface);
+    font-size: 0.75rem;
+  }
+  .lab-chip {
+    padding: 0.125rem 0.5rem;
+    border: 1px solid var(--line);
+    color: var(--muted);
+  }
+  .lab-chip:hover {
+    color: var(--fg);
+  }
+  .lab-chip[aria-current='page'],
+  .lab-chip[aria-pressed='true'] {
+    border-color: var(--signal);
+    color: var(--fg);
+  }
+</style>
+
+<script>
+  /**
+   * Cada candidato llega con el cursor con que se eligió (`data-grid-cursor` en su
+   * caja); los botones lo cambian en vivo, solo mientras dure la página.
+   */
+  function apply(mode: string): void {
+    // Por el atributo y no por el nombre del escenario: así no se rompe si el prefijo cambia.
+    for (const stage of document.querySelectorAll('[data-grid-cursor]')) {
+      stage.setAttribute('data-grid-cursor', mode)
+    }
+    for (const button of document.querySelectorAll<HTMLElement>('[data-lab-cursor]')) {
+      button.setAttribute('aria-pressed', String(button.dataset['labCursor'] === mode))
+    }
+  }
+
+  document.addEventListener('astro:page-load', () => {
+    apply(
+      document.querySelector('[data-grid-cursor]')?.getAttribute('data-grid-cursor') ?? 'attract',
+    )
+    for (const button of document.querySelectorAll<HTMLElement>('[data-lab-cursor]')) {
+      button.addEventListener('click', () => apply(button.dataset['labCursor'] ?? 'attract'))
+    }
+  })
+</script>

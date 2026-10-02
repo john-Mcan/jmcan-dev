@@ -116,6 +116,10 @@ const errorSend = fill(t.contact.errorSend, { email: SITE.email })
     if (!form) return
     const started = form.querySelector<HTMLInputElement>('input[name="started"]')
     if (started) started.value = String(Date.now())
+    // Un mensaje empezado en otra página (el input del hero) llega como `?m=`.
+    const draft = new URLSearchParams(window.location.search).get('m')
+    const message = form.querySelector<HTMLTextAreaElement>('textarea[name="message"]')
+    if (draft && message && !message.value) message.value = draft
     const status = form.querySelector<HTMLElement>('[data-form-status]')
     const button = form.querySelector<HTMLButtonElement>('button[type="submit"]')
 

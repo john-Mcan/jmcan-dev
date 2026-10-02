@@ -1,6 +1,7 @@
 import {
   createField,
   createPaintBuffers,
+  fieldStep,
   fieldGeometryFor,
   flickerCells,
   levelStyles,
@@ -15,6 +16,7 @@ import {
   type SpriteMask,
   type SpritePlacement,
 } from './grid-field'
+import type { CellRect, LiveContext, LiveSource } from './live'
 import { boxOnField, rasteriseFrame, spriteBoxFor, type SpriteFont } from './sprite-raster'
 import { randomSpriteIndex, type Sprite } from './sprites'
 import {
@@ -32,6 +34,12 @@ import {
 export const SHAPE_ATTRIBUTE = 'data-grid-shape'
 
 /**
+ * Islas de un escenario vivo: el contenido dentro de su caja, donde la grilla no
+ * imprime (un sprite detrás de texto le quita contraste). Las formas también lo son.
+ */
+const ISLAND_SELECTOR = '[data-grid-island], [' + SHAPE_ATTRIBUTE + ']'
+
+/**
  * Dónde y qué imprime el campo. La caja es el rect de `target`, re-medido cada
  * cuadro: el sprite sigue al elemento cuando hay scroll o es sticky.
  */
@@ -40,6 +48,7 @@ export interface Stage {
   program:
     | { kind: 'loop'; pool: readonly Sprite[]; timeline: LoopTimeline }
     | { kind: 'hold'; sprite: Sprite }
+    | { kind: 'live'; source: LiveSource }
   /** Pinta el sprite con la paleta de señal. */
   accent: boolean
 }
@@ -95,6 +104,9 @@ export interface GridFieldRunner {
   destroy(): void
 }
 
+/** Un escenario vivo no tiene cuadros: suena como un sprite sostenido de uno solo. */
+const LIVE_CLOCK = { frameCount: 1, frameMs: 0 }
+
 const FALLBACK_RGB: Rgb = [255, 255, 255]
 const FALLBACK_ACCENT: Rgb = [255, 176, 0]
 
@@ -146,6 +158,20 @@ export function createGridFieldRunner(
   const masks = new Map<number, SpriteMask>()
   let maskCols = 0
   let maskRows = 0
+
+  // Escenarios vivos: lo que el runner les cuenta en cada cuadro (un solo objeto).
+  const islands: CellRect[] = []
+  let islandsDirty = true
+  let islandsKey = ''
+  const live: LiveContext = {
+    dt: 0,
+    pointerCol: Number.NaN,
+    pointerRow: Number.NaN,
+    islands,
+    islandsVersion: 0,
+  }
+  let pointerX = Number.NaN
+  let pointerY = Number.NaN
 
   let raf = 0
   let running = false
@@ -223,6 +249,7 @@ export function createGridFieldRunner(
     }
     markShapes(field, rects)
     hasShapes = rects.length > 0
+    islandsDirty = true
   }
 
   function condenseAt(now: number): number {
@@ -244,6 +271,7 @@ export function createGridFieldRunner(
   function currentSprite(): Sprite | null {
     if (!stage) return null
     const program = stage.program
+    if (program.kind === 'live') return null
     return program.kind === 'hold' ? program.sprite : (program.pool[spriteIndex] ?? null)
   }
 
@@ -258,6 +286,7 @@ export function createGridFieldRunner(
     if (program.kind === 'hold') {
       return holdEnvelope(elapsed, clockOf(program.sprite), options.fadeMs)
     }
+    if (program.kind === 'live') return holdEnvelope(elapsed, LIVE_CLOCK, options.fadeMs)
     let envelope = loopEnvelope(elapsed, clockOf(currentSprite()), program.timeline)
     if (envelope.cycle >= 0 && envelope.cycle !== spriteCycle) {
       spriteCycle = envelope.cycle
@@ -276,6 +305,7 @@ export function createGridFieldRunner(
     spriteCycle = -1
     switching = null
     pending = null
+    islandsDirty = true
     resetMasks()
   }
 
@@ -309,7 +339,61 @@ export function createGridFieldRunner(
     return { mask, col0: box.col0, row0: box.row0, accent: stage.accent }
   }
 
-  function spriteFrame(now: number): { placement: SpritePlacement | null; textAlpha: number } {
+  function cellRectOf(r: DOMRect, frame: DOMRect, step: number): CellRect {
+    const col = Math.floor((r.left - frame.left) / step)
+    const row = Math.floor((r.top - frame.top) / step)
+    return {
+      col,
+      row,
+      cols: Math.ceil((r.right - frame.left) / step) - col,
+      rows: Math.ceil((r.bottom - frame.top) / step) - row,
+    }
+  }
+
+  /** Islas, relativas a la caja: no cambian con el scroll, solo con el layout. */
+  function scanIslands(target: Element, frame: DOMRect, step: number): void {
+    islandsDirty = false
+    islands.length = 0
+    for (const node of target.querySelectorAll(ISLAND_SELECTOR)) {
+      const r = node.getBoundingClientRect()
+      if (r.width >= 1 && r.height >= 1) islands.push(cellRectOf(r, frame, step))
+    }
+    // Se re-miden en cada scroll, pero la versión sube solo si algo cambió: cambiarla
+    // re-marca las islas del escenario (y, quieto, lo vuelve a asentar).
+    const key = JSON.stringify(islands)
+    if (key !== islandsKey) {
+      islandsKey = key
+      live.islandsVersion++
+    }
+  }
+
+  function placeLive(dt: number, still: boolean): SpritePlacement | null {
+    if (!field || !stage || stage.program.kind !== 'live') return null
+    const origin = host.getBoundingClientRect()
+    const r = stage.target.getBoundingClientRect()
+    const box = spriteBoxFor(field, {
+      x: r.left - origin.left,
+      y: r.top - origin.top,
+      w: r.width,
+      h: r.height,
+    })
+    if (!box || !boxOnField(field, box)) return null
+    const step = fieldStep(field)
+    if (islandsDirty) scanIslands(stage.target, r, step)
+    live.dt = dt
+    live.pointerCol = (pointerX - origin.left) / step - box.col0
+    live.pointerRow = (pointerY - origin.top) / step - box.row0
+    const source = stage.program.source
+    const mask = still
+      ? source.still(box.cols, box.rows, live)
+      : source.frame(box.cols, box.rows, live)
+    return mask ? { mask, col0: box.col0, row0: box.row0, accent: stage.accent } : null
+  }
+
+  function spriteFrame(
+    now: number,
+    dt: number,
+  ): { placement: SpritePlacement | null; textAlpha: number } {
     let envelope = envelopeAt(now)
     let alpha = envelope.textAlpha
     if (switching) {
@@ -323,7 +407,9 @@ export function createGridFieldRunner(
     }
     lastAlpha = alpha
     if (alpha <= 0.01) return { placement: null, textAlpha: 0 }
-    return { placement: placeSprite(envelope.frameIndex), textAlpha: alpha }
+    const placement =
+      stage?.program.kind === 'live' ? placeLive(dt, false) : placeSprite(envelope.frameIndex)
+    return { placement, textAlpha: alpha }
   }
 
   // ─── Loop ──────────────────────────────────────────────────────────────────
@@ -343,7 +429,7 @@ export function createGridFieldRunner(
 
     const condense = condenseAt(now)
     lastCondense = condense
-    const { placement, textAlpha } = spriteFrame(now)
+    const { placement, textAlpha } = spriteFrame(now, dt)
     flickerCells(field, { dt, chance: options.chance, condense })
     paintField(
       ctx,
@@ -370,7 +456,7 @@ export function createGridFieldRunner(
     if (stage) {
       if (stage.program.kind === 'loop' && spriteIndex < 0) spriteIndex = 0
       lastAlpha = 1
-      placement = placeSprite(0)
+      placement = stage.program.kind === 'live' ? placeLive(0, true) : placeSprite(0)
     }
     paintField(
       ctx,
@@ -430,6 +516,22 @@ export function createGridFieldRunner(
     queueStill()
   }
   window.addEventListener('scroll', onScroll, { passive: true, capture: true })
+
+  // Solo la POSICIÓN del puntero: los escenarios vivos la huelen, nada la dibuja.
+  const onPointer = (event: PointerEvent) => {
+    pointerX = event.clientX
+    pointerY = event.clientY
+  }
+  const onPointerGone = (event: PointerEvent) => {
+    if (event.type !== 'pointerleave' && event.pointerType !== 'touch') return
+    pointerX = Number.NaN
+    pointerY = Number.NaN
+  }
+  window.addEventListener('pointermove', onPointer, { passive: true })
+  window.addEventListener('pointerdown', onPointer, { passive: true })
+  window.addEventListener('pointerup', onPointerGone, { passive: true })
+  window.addEventListener('pointercancel', onPointerGone, { passive: true })
+  document.documentElement.addEventListener('pointerleave', onPointerGone)
 
   const onTheme = () => {
     palettes = readPalettes()
@@ -502,6 +604,11 @@ export function createGridFieldRunner(
       document.removeEventListener('visibilitychange', onVisibility)
       motionQuery.removeEventListener('change', onMotion)
       window.removeEventListener('scroll', onScroll, { capture: true })
+      window.removeEventListener('pointermove', onPointer)
+      window.removeEventListener('pointerdown', onPointer)
+      window.removeEventListener('pointerup', onPointerGone)
+      window.removeEventListener('pointercancel', onPointerGone)
+      document.documentElement.removeEventListener('pointerleave', onPointerGone)
       if ('fonts' in document) document.fonts.removeEventListener('loadingdone', onFonts)
     },
   }

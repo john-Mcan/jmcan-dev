@@ -23,6 +23,8 @@ import {
   NOT_FOUND_SPRITE,
   SENT_SPRITE,
 } from '@/lib/grid-field/library'
+import type { CursorMode } from '@/lib/grid-field/live'
+import type * as LivePatterns from '@/lib/grid-field/live-patterns'
 import {
   createGridFieldRunner,
   GRID_FIELD_DEFAULTS,
@@ -37,8 +39,12 @@ import { LOOP_DEFAULTS } from '@/lib/grid-field/timeline'
 const WIDE_QUERY = '(min-width: 48rem)'
 /** Cuánto de una caja debe verse para que su escenario gane. */
 const MIN_RATIO = 0.3
+/** `data-grid-stage="live:<patrón>"`: un escenario vivo (moho, enjambre, corrientes). */
+const LIVE_PREFIX = 'live:'
 
 let mounted = false
+/** Se baja solo en la página que lo usa: el resto del sitio no lo paga. */
+let patterns: typeof LivePatterns | null = null
 
 export function mountGridField(): void {
   if (mounted) return
@@ -100,11 +106,25 @@ function parseStage(target: Element, value: string): Stage | null {
       accent: false,
     }
   }
+  if (value.startsWith(LIVE_PREFIX)) return liveStage(target, value.slice(LIVE_PREFIX.length))
   if (value === 'contact') return hold(target, CONTACT_SPRITE, false)
   if (value === 'sent') return hold(target, SENT_SPRITE[locale], true)
   if (value === '404') return hold(target, NOT_FOUND_SPRITE, true)
   const glyph = value.startsWith('glyph:') ? value.slice('glyph:'.length) : undefined
   return isGlyphKey(glyph) ? hold(target, GLYPHS[glyph], true) : null
+}
+
+/** Un escenario vivo lee `data-grid-cursor` (atrae, aparta o nada) en cada cuadro. */
+function liveStage(target: Element, pattern: string): Stage | null {
+  if (!patterns?.isLivePattern(pattern)) return null
+  const source = patterns.createLivePattern(pattern, () =>
+    cursorMode(target.getAttribute('data-grid-cursor')),
+  )
+  return { target, program: { kind: 'live', source }, accent: false }
+}
+
+function cursorMode(value: string | null): CursorMode {
+  return value === 'repel' || value === 'off' ? value : 'attract'
 }
 
 interface ProjectList {
@@ -247,6 +267,13 @@ function createStageController(runner: GridFieldRunner) {
   return {
     bind(): void {
       this.unbind()
+      if (!patterns && document.querySelector(`[data-grid-stage^="${LIVE_PREFIX}"]`)) {
+        void import('@/lib/grid-field/live-patterns').then((module) => {
+          patterns = module
+          this.bind()
+        })
+        return
+      }
       const stageElements = document.querySelectorAll('[data-grid-stage]')
       if (stageElements.length > 0) {
         const observer = new IntersectionObserver(

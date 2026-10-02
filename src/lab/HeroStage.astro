@@ -1,0 +1,39 @@
+---
+/**
+ * El hero de los candidatos (laboratorio), con el layout de «moho · sesión»: el
+ * texto a la izquierda y el patrón vivo en todo el hero, alrededor (las islas).
+ * En escritorio el nombre va en una sola línea, aunque pase del ancho de la
+ * columna: a su derecha solo hay fondo.
+ */
+import HeroAsk from '@/lab/HeroAsk.astro'
+import { SITE } from '@/data/site'
+import type { Locale } from '@/i18n'
+import type { LivePattern } from '@/lib/grid-field/live-patterns'
+import type { CursorMode } from '@/lib/grid-field/live'
+
+interface Props {
+  locale: Locale
+  pattern: LivePattern
+  cursor: CursorMode
+}
+
+const { locale, pattern, cursor } = Astro.props
+---
+
+<section data-grid-stage={`live:${pattern}`} data-grid-cursor={cursor}>
+  <div class="container-site grid min-h-[calc(100svh-var(--header-h))] content-center py-10 md:grid-cols-12 md:gap-x-10">
+    <div class="md:col-span-6">
+      <h1 class="font-pixel text-d3 sm:text-d4 md:whitespace-nowrap lg:text-d5 xl:text-d6">
+        <span class="inline-block" data-grid-shape>
+          {SITE.name}
+        </span>
+      </h1>
+      <p class="text-lead mt-6 mb-10 max-w-[30ch]">
+        <span data-grid-island class="inline-block">
+          Construimos productos web completos, del modelo de datos a la interfaz.
+        </span>
+      </p>
+      <HeroAsk locale={locale} />
+    </div>
+  </div>
+</section>

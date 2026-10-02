@@ -1,7 +1,19 @@
 import cloudflare from '@astrojs/cloudflare'
 import sitemap from '@astrojs/sitemap'
 import tailwindcss from '@tailwindcss/vite'
+import type { AstroIntegration } from 'astro'
 import { defineConfig, envField, fontProviders } from 'astro/config'
+
+/** `/lab/*`: vistas previas que solo existen en `astro dev`; nunca llegan al build. */
+const lab: AstroIntegration = {
+  name: 'lab',
+  hooks: {
+    'astro:config:setup': ({ command, injectRoute }) => {
+      if (command !== 'dev') return
+      injectRoute({ pattern: '/lab/[variant]', entrypoint: './src/lab/HeroLab.astro' })
+    },
+  },
+}
 
 export default defineConfig({
   site: 'https://johnmcan.dev',
@@ -11,7 +23,7 @@ export default defineConfig({
   // Sin sesiones: el adapter las activaría con un namespace KV que no necesitamos.
   session: false,
   prefetch: { prefetchAll: true, defaultStrategy: 'hover' },
-  integrations: [sitemap({ filter: (page) => !/\/404\/?$/.test(page) })],
+  integrations: [sitemap({ filter: (page) => !/\/404\/?$/.test(page) }), lab],
   vite: { plugins: [tailwindcss()] },
   fonts: [
     {

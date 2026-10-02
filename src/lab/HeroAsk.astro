@@ -1,0 +1,42 @@
+---
+/**
+ * El llamado de los heros del laboratorio: «¿qué construimos?» con un input que
+ * lleva a /contacto con el mensaje ya escrito (`?m=`), más «Ver proyectos» y la
+ * disponibilidad. Todo es isla: la grilla no imprime detrás.
+ */
+import Button from '@/components/ui/Button.astro'
+import { getDictionary, pathFor, type Locale } from '@/i18n'
+
+interface Props {
+  locale: Locale
+  align?: 'start' | 'center'
+}
+
+const { locale, align = 'start' } = Astro.props
+const t = getDictionary(locale)
+const center = align === 'center'
+---
+
+<div class:list={['flex flex-col gap-6', center ? 'items-center text-center' : 'items-start']}>
+  <form class="w-full max-w-md" action={pathFor(locale, 'contact')} method="get" data-grid-island>
+    <label for="hero-ask" class="font-pixel text-d1">
+      <span class="text-muted" aria-hidden="true">
+        &gt;
+      </span>{' '}
+      ¿qué construimos?
+    </label>
+    <div class="mt-3 flex gap-3">
+      <input id="hero-ask" name="m" class="field" autocomplete="off" placeholder="una app para…" />
+      <button class="btn btn-primary" type="submit">
+        Enviar
+      </button>
+    </div>
+  </form>
+  <div class:list={['flex flex-wrap items-center gap-x-6 gap-y-3', center && 'justify-center']}>
+    <Button href={pathFor(locale, 'projects')}>{t.hero.ctaProjects}</Button>
+    <p class="text-muted flex items-center gap-3 text-sm" data-grid-island>
+      <span class="signal-dot" aria-hidden="true"></span>
+      {t.hero.status}
+    </p>
+  </div>
+</div>

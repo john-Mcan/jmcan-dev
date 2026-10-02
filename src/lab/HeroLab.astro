@@ -1,0 +1,41 @@
+---
+/**
+ * `/lab/[variant]`: la home con un hero candidato, para comparar. La ruta solo
+ * existe en `astro dev` (la inyecta `astro.config.ts`); nunca llega al build.
+ */
+import ContactCta from '@/components/sections/home/ContactCta.astro'
+import FeaturedProjects from '@/components/sections/home/FeaturedProjects.astro'
+import Timeline from '@/components/sections/home/Timeline.astro'
+import HeroStage from '@/lab/HeroStage.astro'
+import LabBar from '@/lab/LabBar.astro'
+import { LAB_VARIANTS } from '@/lab/variants'
+import BaseLayout from '@/layouts/BaseLayout.astro'
+import { getProjects } from '@/lib/projects'
+
+export function getStaticPaths() {
+  return LAB_VARIANTS.map((variant) => ({ params: { variant: variant.slug }, props: { variant } }))
+}
+
+interface Props {
+  variant: (typeof LAB_VARIANTS)[number]
+}
+
+const locale = 'es'
+const { variant } = Astro.props
+const projects = await getProjects(locale)
+const featured = projects.filter((project) => project.entry.data.featured)
+---
+
+<BaseLayout
+  locale={locale}
+  route={{ key: 'home' }}
+  title={`Lab · ${variant.label}`}
+  description="Vista previa del hero."
+  noindex
+>
+  <HeroStage locale={locale} pattern={variant.pattern} cursor={variant.cursor} />
+  <FeaturedProjects locale={locale} projects={featured} total={projects.length} />
+  <Timeline locale={locale} />
+  <ContactCta locale={locale} />
+  <LabBar current={variant.slug} />
+</BaseLayout>
