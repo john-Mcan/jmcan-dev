@@ -164,9 +164,13 @@ export function createGridFieldRunner(
   }
 
   function readPalettes(): Palettes {
+    const spread = Number.parseFloat(
+      getComputedStyle(canvas).getPropertyValue('--grid-field-spread'),
+    )
     return {
       base: levelStyles(readRgb('--grid-field-rgb', FALLBACK_RGB)),
       accent: levelStyles(readRgb('--grid-field-accent-rgb', FALLBACK_ACCENT)),
+      spread: Number.isFinite(spread) ? clamp(spread) : 0,
     }
   }
 

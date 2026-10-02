@@ -97,6 +97,11 @@ export interface AlphaSource {
 export interface Palettes {
   base: readonly string[]
   accent: readonly string[]
+  /**
+   * Ganancia de punto (0–1): cuánto crece un punto con su intensidad, como la
+   * tinta que se corre al imprimir. 0 = punto fijo (luz emitida, tema oscuro).
+   */
+  spread: number
 }
 
 export const FIELD_DEFAULTS = { maxOpacity: 0.22, chance: 0.45 } as const
@@ -253,11 +258,15 @@ const LEVELS = 24
 const LEVEL_CEILING = 0.92
 const MIN_VISIBLE = 0.02
 const SKIP = 255
-const BUCKETS = LEVELS * 2
+/**
+ * Grupos de pintado: nivel × paleta (base, señal) × punto (campo, sprite). El
+ * campo y el sprite de un mismo nivel van seguidos y comparten color.
+ */
+const BUCKETS = LEVELS * 2 * 2
 /** Constante de tiempo con que las formas siguen a su objetivo. */
 const SHAPE_TAU_S = 0.12
-/** Desde cuánta cobertura una celda del sprite pinta con la paleta de señal. */
-const ACCENT_GLYPH = 0.15
+/** Desde cuánta cobertura una celda es del sprite: pinta con su paleta y su punto. */
+const SPRITE_GLYPH = 0.15
 
 /** Un `fillStyle` por nivel, nunca por celda: parsear el color es lo que cuesta el cuadro. */
 export function levelStyles(rgb: Rgb): string[] {
@@ -266,6 +275,40 @@ export function levelStyles(rgb: Rgb): string[] {
     { length: LEVELS },
     (_, i) => `rgba(${r},${g},${b},${(((i + 1) / LEVELS) * LEVEL_CEILING).toFixed(3)})`,
   )
+}
+
+/**
+ * Los puntos del campo crecen solo por encima de la luz máxima de un halo
+ * (0,22 × 1,8): engorda el pico del barrido, no el ruido ni los halos.
+ */
+const SPREAD_FROM = 0.4
+const SPREAD_TO = 0.5
+
+/**
+ * Lado de un punto. Sobre papel, un punto chico de tinta se pierde; uno de luz
+ * sobre negro no. Con `spread` (tema claro):
+ *  - el sprite crece PAREJO en todos sus niveles: la profundidad sigue en la
+ *    opacidad, como en oscuro. Hacerlo crecer con el nivel engordaba los trazos
+ *    fuertes y dejaba atrás los tenues (los anillos del radar se perdían);
+ *  - el campo crece solo en el pico del barrido.
+ * Se ajusta a píxeles del dispositivo para no difuminar los bordes.
+ */
+export function dotSize(
+  geometry: Pick<FieldGeometry, 'square' | 'gap'>,
+  spread: number,
+  level: number,
+  sprite: boolean,
+  dpr: number,
+): number {
+  const { square } = geometry
+  if (spread <= 0) return square
+  let t = 1
+  if (!sprite) {
+    const opacity = ((level + 1) / LEVELS) * LEVEL_CEILING
+    const x = Math.min(1, Math.max(0, (opacity - SPREAD_FROM) / (SPREAD_TO - SPREAD_FROM)))
+    t = x * x * (3 - 2 * x)
+  }
+  return Math.round((square + spread * geometry.gap * t) * dpr) / dpr
 }
 
 /** Memoria del pintado, reservada UNA vez por tamaño: el loop no asigna nada. */
@@ -289,8 +332,9 @@ export function createPaintBuffers(field: GridField): PaintBuffers {
 }
 
 /**
- * Cuantiza cada celda a uno de 24 niveles por paleta y las pinta agrupadas por
- * nivel (counting sort): como mucho 48 cambios de `fillStyle` por cuadro.
+ * Cuantiza cada celda a uno de 24 niveles por paleta y las pinta agrupadas
+ * (counting sort): como mucho 48 cambios de `fillStyle` por cuadro. El tamaño del
+ * punto sale del grupo, así que se calcula una vez por grupo y no por celda.
  */
 export function paintField(
   ctx: FieldCanvas,
@@ -346,9 +390,10 @@ export function paintField(
         levels[i] = SKIP
         continue
       }
-      const useAccent = (accent[i] === 1 && level > 0.02) || (spriteAccent && glyph > ACCENT_GLYPH)
-      const bucket =
-        Math.min(LEVELS - 1, ((opacity / LEVEL_CEILING) * LEVELS) | 0) + (useAccent ? LEVELS : 0)
+      const inSprite = glyph > SPRITE_GLYPH
+      const useAccent = (accent[i] === 1 && level > 0.02) || (spriteAccent && inSprite)
+      const tone = Math.min(LEVELS - 1, ((opacity / LEVEL_CEILING) * LEVELS) | 0)
+      const bucket = ((useAccent ? LEVELS : 0) + tone) * 2 + (inSprite ? 1 : 0)
       levels[i] = bucket
       counts[bucket] = (counts[bucket] ?? 0) + 1
     }
@@ -369,16 +414,25 @@ export function paintField(
     cursor[bucket] = at + 1
   }
 
+  let style = ''
   for (let bucket = 0; bucket < BUCKETS; bucket++) {
     const count = counts[bucket] ?? 0
     if (count === 0) continue
-    const styles = bucket < LEVELS ? palettes.base : palettes.accent
-    ctx.fillStyle = styles[bucket % LEVELS] ?? ''
+    const tone = (bucket >> 1) % LEVELS
+    const styles = bucket >> 1 < LEVELS ? palettes.base : palettes.accent
+    const next = styles[tone] ?? ''
+    if (next !== style) {
+      ctx.fillStyle = next
+      style = next
+    }
+    // El punto crece desde su centro: la grilla no se corre.
+    const size = dotSize(field, palettes.spread, tone, (bucket & 1) === 1, dpr)
+    const inset = Math.round(((size - field.square) / 2) * dpr) / dpr
     const start = starts[bucket] ?? 0
     for (let k = start; k < start + count; k++) {
       const index = order[k] ?? 0
       const col = (index / rows) | 0
-      ctx.fillRect(col * step, (index - col * rows) * step, field.square, field.square)
+      ctx.fillRect(col * step - inset, (index - col * rows) * step - inset, size, size)
     }
   }
 }

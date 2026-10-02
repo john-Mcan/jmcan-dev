@@ -3,6 +3,7 @@ import {
   cellLight,
   createField,
   createPaintBuffers,
+  dotSize,
   fieldGeometryFor,
   fieldStep,
   levelStyles,
@@ -34,7 +35,11 @@ function fakeCanvas() {
   return { ctx, calls }
 }
 
-const palettes = { base: levelStyles([255, 255, 255]), accent: levelStyles([255, 176, 0]) }
+const palettes = {
+  base: levelStyles([255, 255, 255]),
+  accent: levelStyles([255, 176, 0]),
+  spread: 0,
+}
 const clock = { frameCount: 4, frameMs: 500 }
 
 function frame(overrides: Partial<FrameInput> = {}): FrameInput {
@@ -54,8 +59,20 @@ describe('paintField', () => {
       { x: 50, y: 50, w: 200, h: 30, accent: false },
       { x: 50, y: 120, w: 200, h: 30, accent: true },
     ])
+    // Un sprite con toda la gama de coberturas: sus puntos van en grupos propios.
+    const mask = { cols: 40, rows: 20, data: new Float32Array(800).map((_, i) => (i % 10) / 9) }
     const { ctx, calls } = fakeCanvas()
-    paintField(ctx, field, frame(), createPaintBuffers(field), palettes, 1)
+    paintField(
+      ctx,
+      field,
+      frame({
+        phase: { presence: 1, condense: 0.5, textAlpha: 1 },
+        sprite: { mask, col0: 10, row0: 10, accent: true },
+      }),
+      createPaintBuffers(field),
+      { ...palettes, spread: 0.5 },
+      1,
+    )
     expect(calls.fillRect).toBeGreaterThan(0)
     expect(calls.styleSets).toBeLessThanOrEqual(48)
   })
@@ -86,6 +103,24 @@ describe('cellLight', () => {
     const phase = { presence: 1, condense: 0.5, textAlpha: 0 }
     expect(cellLight(0.2, 0, 0, phase, 0.22)).toBe(0.2)
     expect(cellLight(0.2, 1, 0, phase, 0.22)).toBeGreaterThan(0.2)
+  })
+})
+
+describe('dotSize', () => {
+  const desktop = { square: 2, gap: 4 }
+
+  it('sin ganancia el punto no cambia', () => {
+    expect(dotSize(desktop, 0, 23, true, 2)).toBe(2)
+  })
+
+  it('el sprite crece parejo: sus trazos tenues no quedan atrás de los fuertes', () => {
+    expect(dotSize(desktop, 0.5, 3, true, 2)).toBe(4)
+    expect(dotSize(desktop, 0.5, 23, true, 2)).toBe(4)
+  })
+
+  it('el ruido del campo no crece; el pico del barrido sí', () => {
+    expect(dotSize(desktop, 0.5, 5, false, 2)).toBe(2)
+    expect(dotSize(desktop, 0.5, 23, false, 2)).toBe(4)
   })
 })
 

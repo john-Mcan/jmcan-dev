@@ -18,21 +18,21 @@ esa guía sin contrastarlo con este documento.
 
 ## 1. Mapa de archivos
 
-| Archivo                             | Qué hace                                                                | ¿Toca el DOM?             |
-| ----------------------------------- | ----------------------------------------------------------------------- | ------------------------- |
-| `lib/grid-field/grid-field.ts`      | Motor: grilla, formas, máscaras, parpadeo, luz por celda y pintado      | No                        |
-| `lib/grid-field/timeline.ts`        | Relojes puros: `loopEnvelope`, `holdEnvelope`, `rising`, `sweepRows`    | No                        |
-| `lib/grid-field/sprites.ts`         | Tipos `Sprite` / `SpriteFrame`, `WORD_MS`, sorteo sin repetición        | No                        |
-| `lib/grid-field/sprite-drawings.ts` | Dibujos (cubo, globo, osciloscopio, radar, sobre, `glitchText`…)        | Solo el canvas que recibe |
-| `lib/grid-field/sprite-raster.ts`   | Cuadro → máscara de cobertura, caja alineada a la grilla                | Canvas fuera de pantalla  |
-| `lib/grid-field/runner.ts`          | Runtime: loop rAF, observers, tema, fuentes, escenarios, transiciones   | Sí                        |
-| `lib/grid-field/glyph-keys.ts`      | Claves de glifos válidas en el frontmatter de proyectos                 | No                        |
-| `lib/grid-field/library.ts`         | Los sprites del sitio: pools, glifos por proyecto, contacto, 404        | No                        |
-| `scripts/grid-field.ts`             | Monta el runner una vez y decide qué escenario suena según la página    | Sí                        |
-| `components/fx/GridField.astro`     | El `<canvas>` fijo, persistente entre navegaciones                      | —                         |
-| `components/fx/Stage.astro`         | Caja vacía con marcas en las esquinas donde se imprime un sprite        | —                         |
-| `styles/global.css`                 | `--grid-field-rgb`, `--grid-field-accent-rgb` y CSS de view transitions | —                         |
-| `lib/grid-field/grid-field.test.ts` | Tests de los módulos puros (`pnpm test`)                                | —                         |
+| Archivo                             | Qué hace                                                                                       | ¿Toca el DOM?             |
+| ----------------------------------- | ---------------------------------------------------------------------------------------------- | ------------------------- |
+| `lib/grid-field/grid-field.ts`      | Motor: grilla, formas, máscaras, parpadeo, luz por celda y pintado                             | No                        |
+| `lib/grid-field/timeline.ts`        | Relojes puros: `loopEnvelope`, `holdEnvelope`, `rising`, `sweepRows`                           | No                        |
+| `lib/grid-field/sprites.ts`         | Tipos `Sprite` / `SpriteFrame`, `WORD_MS`, sorteo sin repetición                               | No                        |
+| `lib/grid-field/sprite-drawings.ts` | Dibujos (cubo, globo, osciloscopio, radar, sobre, `glitchText`…)                               | Solo el canvas que recibe |
+| `lib/grid-field/sprite-raster.ts`   | Cuadro → máscara de cobertura, caja alineada a la grilla                                       | Canvas fuera de pantalla  |
+| `lib/grid-field/runner.ts`          | Runtime: loop rAF, observers, tema, fuentes, escenarios, transiciones                          | Sí                        |
+| `lib/grid-field/glyph-keys.ts`      | Claves de glifos válidas en el frontmatter de proyectos                                        | No                        |
+| `lib/grid-field/library.ts`         | Los sprites del sitio: pools, glifos por proyecto, contacto, 404                               | No                        |
+| `scripts/grid-field.ts`             | Monta el runner una vez y decide qué escenario suena según la página                           | Sí                        |
+| `components/fx/GridField.astro`     | El `<canvas>` fijo, persistente entre navegaciones                                             | —                         |
+| `components/fx/Stage.astro`         | Caja vacía con marcas en las esquinas donde se imprime un sprite                               | —                         |
+| `styles/global.css`                 | `--grid-field-rgb`, `--grid-field-accent-rgb`, `--grid-field-spread` y CSS de view transitions | —                         |
+| `lib/grid-field/grid-field.test.ts` | Tests de los módulos puros (`pnpm test`)                                                       | —                         |
 
 Solo `runner.ts` y `scripts/grid-field.ts` tocan `window`/`document`. Todo lo demás se testea en
 Node con un contexto falso.
@@ -73,6 +73,19 @@ a re-rasterizar.
 **Paletas.** `base` (blanco en oscuro, tinta en claro) y `accent` (señal). Las dos salen de
 variables CSS y se re-leen al cambiar `data-theme`. Los dibujos nunca eligen color: pintan en
 blanco y el campo pone el color.
+
+**Ganancia de punto.** Un punto de luz sobre negro se lee aunque sea chico; uno de tinta sobre
+papel casi desaparece. Por eso cada tema define `--grid-field-spread` (0 en oscuro, 0,5 en claro) y
+los puntos crecen desde su centro (`dotSize`), como tinta que se corre:
+
+- **El sprite crece parejo**, en todos sus niveles: la profundidad sigue en la opacidad, como en
+  oscuro. Hacerlo crecer con la intensidad engordaba los trazos fuertes y dejaba atrás los tenues
+  (los anillos del radar se perdían).
+- **El campo solo crece en el pico del barrido** (sobre la luz máxima de un halo): el ruido y los
+  halos quedan iguales.
+
+Las celdas del sprite (cobertura > `SPRITE_GLYPH`) van en grupos de pintado propios, junto a los del
+campo del mismo nivel: siguen siendo como mucho 48 cambios de `fillStyle`.
 
 **Ganancias.** Hoy hay una sola, calculada en `paintField`: `gain` (barrido por fila), que
 multiplica todo, sprite incluido.

@@ -20,6 +20,8 @@
   --surface: rgb(0 0 0 / 0.78);
   --grid-field-rgb: 255 255 255;
   --grid-field-accent-rgb: 255 176 0;
+  /* Ganancia de punto de la grilla: la luz sobre negro se lee con un punto fijo. */
+  --grid-field-spread: 0;
 }
 
 [data-theme='light'] {
@@ -34,6 +36,8 @@
   --surface: rgb(230 231 233 / 0.82);
   --grid-field-rgb: 20 20 20;
   --grid-field-accent-rgb: 143 74 0;
+  /* La tinta sobre papel necesita puntos que crezcan con la intensidad para leerse. */
+  --grid-field-spread: 0.5;
 }
 
 :root {
