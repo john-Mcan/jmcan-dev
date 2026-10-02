@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
+  cellLight,
   createField,
   createPaintBuffers,
   fieldGeometryFor,
@@ -41,7 +42,6 @@ function frame(overrides: Partial<FrameInput> = {}): FrameInput {
     phase: { presence: 1, condense: 0.5, textAlpha: 0 },
     sprite: null,
     rowGain: null,
-    pointer: null,
     dt: 0,
     ...overrides,
   }
@@ -78,6 +78,14 @@ describe('paintField', () => {
     }
     paintField(ctx, field, frame(), createPaintBuffers(field), palettes, 1)
     expect([...used].every((style) => palettes.accent.includes(style))).toBe(true)
+  })
+})
+
+describe('cellLight', () => {
+  it('las formas encienden su zona sin atenuar el resto (sin velo)', () => {
+    const phase = { presence: 1, condense: 0.5, textAlpha: 0 }
+    expect(cellLight(0.2, 0, 0, phase, 0.22)).toBe(0.2)
+    expect(cellLight(0.2, 1, 0, phase, 0.22)).toBeGreaterThan(0.2)
   })
 })
 

@@ -8,7 +8,8 @@
  *    así un sprite anclado a un elemento sigue el scroll sin re-rasterizarse;
  *  - las formas pueden ser de «señal» y pintan con una segunda paleta (ámbar);
  *  - las formas entran y salen suavizadas, no de golpe;
- *  - ganancias por fila (barrido de escaneo) y por puntero.
+ *  - las formas solo SUMAN luz: el resto del campo no se atenúa (nada de velo);
+ *  - ganancia por fila (barrido de escaneo).
  */
 
 export type Rgb = readonly [number, number, number]
@@ -71,19 +72,11 @@ export interface FieldPhase {
   presence: number
 }
 
-export interface FieldPointer {
-  x: number
-  y: number
-  radius: number
-  strength: number
-}
-
 export interface FrameInput {
   phase: FieldPhase
   sprite: SpritePlacement | null
   /** Ganancia por fila (barrido de escaneo); null = 1 en todas. */
   rowGain: Float32Array | null
-  pointer: FieldPointer | null
   /** Segundos desde el cuadro anterior: suaviza las formas. 0 = salto inmediato. */
   dt: number
 }
@@ -238,8 +231,10 @@ export function flickerCells(
 
 /**
  * Luz de una celda antes de presencia y barrido. `level` es cuánto está dentro
- * de una forma (0–1, suavizado). El sprite tiene un PISO propio y solo parpadea
- * alrededor de él: derivarlo del valor de la celda borra media palabra por cuadro.
+ * de una forma (0–1, suavizado): la forma enciende sus celdas y deja el resto
+ * como está; apagar el resto oscurecía toda la pantalla como un velo. El sprite
+ * tiene un PISO propio y solo parpadea alrededor de él: derivarlo del valor de
+ * la celda borra media palabra por cuadro.
  */
 export function cellLight(
   cell: number,
@@ -247,11 +242,8 @@ export function cellLight(
   glyph: number,
   phase: FieldPhase,
   maxOpacity: number,
-  boost: number,
 ): number {
-  const c = phase.condense
-  const shape = (1 - level) * (1 - 0.97 * c) + level * (1 + 1.6 * c)
-  const base = cell * shape * boost
+  const base = cell * (1 + 1.6 * phase.condense * level)
   const ta = phase.textAlpha
   if (glyph <= 0 || ta <= 0.01) return base
   return base * (1 - 0.55 * ta) + ta * glyph * (0.45 + (0.55 * cell) / maxOpacity)
@@ -310,7 +302,7 @@ export function paintField(
 ): void {
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
   ctx.clearRect(0, 0, field.width, field.height)
-  const { phase, sprite, rowGain, pointer } = frame
+  const { phase, sprite, rowGain } = frame
   if (phase.presence <= 0) return
 
   const { levels, order, counts, starts, cursor } = buffers
@@ -323,25 +315,10 @@ export function paintField(
   const mr0 = sprite?.row0 ?? 0
   const spriteAccent = sprite?.accent ?? false
 
-  // Caja del puntero en celdas: fuera de ella no se calcula ninguna distancia.
-  let pc0 = 1
-  let pc1 = 0
-  let pr0 = 1
-  let pr1 = 0
-  let r2 = 0
-  if (pointer) {
-    pc0 = Math.floor((pointer.x - pointer.radius) / step)
-    pc1 = Math.ceil((pointer.x + pointer.radius) / step)
-    pr0 = Math.floor((pointer.y - pointer.radius) / step)
-    pr1 = Math.ceil((pointer.y + pointer.radius) / step)
-    r2 = pointer.radius * pointer.radius
-  }
-
   counts.fill(0)
   for (let col = 0; col < cols; col++) {
     const lc = col - mc0
     const inMaskCol = mask !== null && lc >= 0 && lc < mask.cols
-    const inPointerCol = col >= pc0 && col <= pc1
     for (let row = 0; row < rows; row++) {
       const i = col * rows + row
 
@@ -362,17 +339,9 @@ export function paintField(
         if (lr >= 0 && lr < mask.rows) glyph = mask.data[lc * mask.rows + lr] ?? 0
       }
 
-      let boost = 1
-      if (pointer && inPointerCol && row >= pr0 && row <= pr1) {
-        const dx = col * step - pointer.x
-        const dy = row * step - pointer.y
-        const d2 = dx * dx + dy * dy
-        if (d2 < r2) boost = 1 + pointer.strength * (1 - d2 / r2)
-      }
-
       const gain = rowGain ? (rowGain[row] ?? 1) : 1
       const opacity =
-        cellLight(cells[i] ?? 0, level, glyph, phase, maxOpacity, boost) * phase.presence * gain
+        cellLight(cells[i] ?? 0, level, glyph, phase, maxOpacity) * phase.presence * gain
       if (opacity < MIN_VISIBLE) {
         levels[i] = SKIP
         continue

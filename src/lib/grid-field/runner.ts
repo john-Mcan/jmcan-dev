@@ -7,7 +7,6 @@ import {
   markShapes,
   paintField,
   FIELD_DEFAULTS,
-  type FieldPointer,
   type GridField,
   type PaintBuffers,
   type Palettes,
@@ -66,8 +65,6 @@ export interface GridFieldOptions {
   leaveMs: number
   /** Fade de entrada/salida de los sprites. */
   fadeMs: number
-  /** Brillo que sigue al puntero (solo punteros finos y sin movimiento reducido). */
-  pointer: boolean
   font: SpriteFont
 }
 
@@ -84,7 +81,6 @@ export const GRID_FIELD_DEFAULTS: Omit<GridFieldOptions, 'font'> = {
   enterTauMs: 450,
   leaveMs: 180,
   fadeMs: 260,
-  pointer: true,
 }
 
 export interface GridFieldRunner {
@@ -101,8 +97,6 @@ export interface GridFieldRunner {
 
 const FALLBACK_RGB: Rgb = [255, 255, 255]
 const FALLBACK_ACCENT: Rgb = [255, 176, 0]
-const POINTER_RADIUS = 150
-const POINTER_STRENGTH = 1.6
 
 interface Sweep {
   start: number
@@ -122,7 +116,6 @@ export function createGridFieldRunner(
   const ctx = canvas.getContext('2d')
   const scratch = document.createElement('canvas')
   const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
-  const fineQuery = window.matchMedia('(pointer: fine)')
 
   let field: GridField | null = null
   let buffers: PaintBuffers | null = null
@@ -153,8 +146,6 @@ export function createGridFieldRunner(
   const masks = new Map<number, SpriteMask>()
   let maskCols = 0
   let maskRows = 0
-
-  let pointer: FieldPointer | null = null
 
   let raf = 0
   let running = false
@@ -357,7 +348,6 @@ export function createGridFieldRunner(
         phase: { condense, textAlpha, presence: 1 },
         sprite: placement,
         rowGain: sweepGain(now),
-        pointer,
         dt,
       },
       buffers,
@@ -385,7 +375,6 @@ export function createGridFieldRunner(
         phase: { condense, textAlpha: placement ? 1 : 0, presence: 1 },
         sprite: placement,
         rowGain: null,
-        pointer: null,
         dt: 0,
       },
       buffers,
@@ -419,7 +408,6 @@ export function createGridFieldRunner(
 
   const onMotion = () => {
     reduced = motionQuery.matches
-    if (reduced) pointer = null
     sync()
   }
   motionQuery.addEventListener('change', onMotion)
@@ -438,22 +426,6 @@ export function createGridFieldRunner(
     queueStill()
   }
   window.addEventListener('scroll', onScroll, { passive: true, capture: true })
-
-  // El fondo tiene pointer-events: none, así que el puntero se escucha en window.
-  const onPointer = (event: PointerEvent) => {
-    if (!options.pointer || reduced || !fineQuery.matches || event.pointerType !== 'mouse') return
-    pointer = {
-      x: event.clientX,
-      y: event.clientY,
-      radius: POINTER_RADIUS,
-      strength: POINTER_STRENGTH,
-    }
-  }
-  const onPointerOut = (event: PointerEvent) => {
-    if (!event.relatedTarget) pointer = null
-  }
-  window.addEventListener('pointermove', onPointer, { passive: true })
-  document.addEventListener('pointerout', onPointerOut)
 
   const onTheme = () => {
     palettes = readPalettes()
@@ -526,8 +498,6 @@ export function createGridFieldRunner(
       document.removeEventListener('visibilitychange', onVisibility)
       motionQuery.removeEventListener('change', onMotion)
       window.removeEventListener('scroll', onScroll, { capture: true })
-      window.removeEventListener('pointermove', onPointer)
-      document.removeEventListener('pointerout', onPointerOut)
       if ('fonts' in document) document.fonts.removeEventListener('loadingdone', onFonts)
     },
   }

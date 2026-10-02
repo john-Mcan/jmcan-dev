@@ -23,6 +23,7 @@ proyectos, detalle de proyecto, contacto y 404, en español e inglés.
   `text-d6`. Instrument Sans para todo lo demás.
 - **Movimiento.**
   - Vive en la grilla de fondo; el contenido HTML queda quieto (sin fade-in por sección).
+  - Sin velo ni brillo bajo el cursor: la grilla suma luz donde marca y nunca atenúa el resto.
   - Respeta `prefers-reduced-motion`.
 - **Accesibilidad.** Lo que dibuja la grilla es decoración (`aria-hidden`): toda información debe
   existir en HTML. Foco visible en ámbar e inputs de ≥ 16 px (iOS).

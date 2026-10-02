@@ -44,7 +44,7 @@ debajo de 640 px de ancho). Cada celda tiene una luz base que el parpadeo re-sor
 campo y un solo loop para todo el sitio: es lo que hace que se lea como una superficie.
 
 **Formas (halo).** Cualquier elemento con `data-grid-shape` hace que las celdas detrás de él se
-enciendan y que el resto se apague un poco («condensar»). Con `data-grid-shape="accent"` el halo
+enciendan («condensar»); el resto del campo queda igual. Con `data-grid-shape="accent"` el halo
 pinta con la paleta de señal (ámbar). Las formas se re-miden al hacer scroll, cada segundo y con
 `runner.rescan()`, y entran y salen suavizadas (~120 ms).
 
@@ -74,10 +74,8 @@ a re-rasterizar.
 variables CSS y se re-leen al cambiar `data-theme`. Los dibujos nunca eligen color: pintan en
 blanco y el campo pone el color.
 
-**Ganancias.** Multiplicadores por celda calculados en `paintField`:
-
-- `boost` (puntero): multiplica solo la luz base (ruido y halo), no el sprite.
-- `gain` (barrido por fila): multiplica todo, sprite incluido.
+**Ganancias.** Hoy hay una sola, calculada en `paintField`: `gain` (barrido por fila), que
+multiplica todo, sprite incluido.
 
 **Transiciones de página.** `astro:before-preparation` llama a `runner.leave()` (la estructura se
 disuelve en 180 ms) y suelta los escenarios. `astro:after-swap` llama a `runner.enter()` (barrido
@@ -160,9 +158,9 @@ sale de un clic.
 2. **Reloj puro.** En `timeline.ts`, una función del tiempo transcurrido que devuelva ese estado
    (o `null` cuando terminó). Testéala en `grid-field.test.ts`.
 3. **Pintado.** En `paintField`, calcula _antes_ del loop lo que no depende de la celda (la caja en
-   celdas del efecto, igual que `pc0…pr1` del puntero). Dentro del loop, salta rápido si la celda
-   está fuera de la caja. Decide si multiplica `boost` (solo luz base) o la ganancia total (incluye
-   el sprite).
+   celdas del efecto: columna y fila mínimas y máximas). Dentro del loop, salta rápido si la celda
+   está fuera de la caja. Decide si multiplica solo la luz base (el término `base` de `cellLight`)
+   o la ganancia total, como `gain` (incluye el sprite).
 4. **Runner.** Guarda el estado, pásalo en cada `paintField` y expón un método (`ripple(x, y)`) en
    `GridFieldRunner`. Con movimiento reducido, no hagas nada.
 5. **Disparo.** Llámalo desde `scripts/grid-field.ts` (un listener de clic, una transición).
@@ -173,7 +171,7 @@ Para elegir la forma del efecto, según de qué dependa:
 | ---------------------------------- | -------------------------------------------------------------- | ---------------------- |
 | Solo la fila                       | Precalcula un `Float32Array(rows)` por cuadro (como `rowGain`) | Barrido de escaneo     |
 | Solo la columna                    | `Float32Array(cols)`                                           | Barrido horizontal     |
-| Distancia a un punto               | Caja en celdas + `d²` (sin `sqrt`) solo dentro de la caja      | Puntero, onda          |
+| Distancia a un punto               | Caja en celdas + `d²` (sin `sqrt`) solo dentro de la caja      | Onda                   |
 | Un hash estable por celda          | Precalcula un `Uint8Array`/`Float32Array` en `measure()`       | Disolución por tramado |
 | Desplazar la lectura de la máscara | Cambia `lc`/`lr` por banda de filas                            | Glitch de sprite       |
 
@@ -190,6 +188,9 @@ Para elegir la forma del efecto, según de qué dependa:
   primer cuadro del sprite. Todo efecto nuevo queda apagado.
 - **Accesibilidad.** El fondo es `aria-hidden` y `pointer-events: none`. Las cajas `Stage` también
   son `aria-hidden`: lo que dibuja la grilla es decoración y su información debe existir en HTML.
+- **Sin velo.** Un efecto suma luz donde marca; nunca atenúa el resto del campo: apagar todo lo
+  que no era halo oscurecía la pantalla entera. Tampoco hay brillo bajo el cursor (se quitó a
+  propósito).
 - **Color.** El ámbar significa estado, foco o interacción. Un sprite decorativo va en `base`.
 - **Contraste.** Un sprite llega a 0,92 de opacidad: nunca lo pongas detrás de texto.
 - **Sin frameworks.** El motor es TypeScript plano; no lo envuelvas en React.
@@ -198,19 +199,18 @@ Para elegir la forma del efecto, según de qué dependa:
 
 `GRID_FIELD_DEFAULTS` (`runner.ts`):
 
-| Campo                    | Valor      | Efecto                                                       |
-| ------------------------ | ---------- | ------------------------------------------------------------ |
-| `fps`                    | 30         | Tope de cuadros por segundo                                  |
-| `maxOpacity`             | 0,22       | Luz máxima de una celda de ruido                             |
-| `chance`                 | 0,45       | Fracción de celdas re-sorteadas por segundo                  |
-| `maxCells`               | 90 000     | Presupuesto de celdas; por encima la grilla se engrosa       |
-| `maxDpr`                 | 2          | Tope del devicePixelRatio                                    |
-| `restCondense`           | 0,5        | Cuánto destacan los halos en reposo                          |
-| `introMs` / `introTauMs` | 1100 / 900 | Barrido que revela el campo y emergencia inicial             |
-| `enterMs` / `enterTauMs` | 650 / 450  | Barrido y emergencia al llegar a otra página                 |
-| `leaveMs`                | 180        | Disolución al salir de una página                            |
-| `fadeMs`                 | 260        | Fade de los sprites y de los cambios de escenario            |
-| `pointer`                | true       | Brillo bajo el puntero (solo mouse, sin movimiento reducido) |
+| Campo                    | Valor      | Efecto                                                 |
+| ------------------------ | ---------- | ------------------------------------------------------ |
+| `fps`                    | 30         | Tope de cuadros por segundo                            |
+| `maxOpacity`             | 0,22       | Luz máxima de una celda de ruido                       |
+| `chance`                 | 0,45       | Fracción de celdas re-sorteadas por segundo            |
+| `maxCells`               | 90 000     | Presupuesto de celdas; por encima la grilla se engrosa |
+| `maxDpr`                 | 2          | Tope del devicePixelRatio                              |
+| `restCondense`           | 0,5        | Cuánto destacan los halos en reposo                    |
+| `introMs` / `introTauMs` | 1100 / 900 | Barrido que revela el campo y emergencia inicial       |
+| `enterMs` / `enterTauMs` | 650 / 450  | Barrido y emergencia al llegar a otra página           |
+| `leaveMs`                | 180        | Disolución al salir de una página                      |
+| `fadeMs`                 | 260        | Fade de los sprites y de los cambios de escenario      |
 
 `LOOP_DEFAULTS` (`timeline.ts`): `firstMs` 600, `everyMs` 7000, `spriteMs` 4600, `fadeMs` 260.
 
