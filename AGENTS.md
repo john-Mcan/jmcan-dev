@@ -63,11 +63,29 @@ src/
 Una página nueva = una view en `src/views/` + un archivo fino por idioma en `src/pages/` + su
 entrada en `src/i18n/routes.ts`.
 
-## Contenido de ejemplo (reemplazar antes de publicar)
+## Pendientes
 
-`src/data/site.ts` (nombre, correo, cargo, redes), `src/data/experience.ts`,
-`src/content/projects/**`, y los textos de disponibilidad y tiempos de respuesta en
-`src/i18n/ui/*.ts`.
+Estado al 2026-10-02: la base y la landing están listas en `main2`. Falta, en este orden:
+
+1. **Contenido real** (hoy es de ejemplo):
+   - `src/data/site.ts`: nombre ("John Mcan" salió del dominio), correo (`hola@johnmcan.dev` es
+     inventado), cargo y redes (falta LinkedIn).
+   - `src/data/experience.ts`: trayectoria.
+   - `src/content/projects/{es,en}/*.md`: proyectos reales; Atlas, Relay, Vertex y Beacon son de
+     ejemplo.
+   - En `src/i18n/ui/*.ts`, los textos de disponibilidad ("desde noviembre") y de tiempo de
+     respuesta ("48 horas").
+2. **Resend:**
+   - verificar el dominio en Resend;
+   - cargar `RESEND_API_KEY`, `CONTACT_TO_EMAIL` y `CONTACT_FROM_EMAIL` (`.dev.vars` en local,
+     `wrangler secret put` en producción);
+   - probar un envío real, que nunca se probó.
+3. **Deploy:** `wrangler login`, primer `pnpm deploy` y el dominio `johnmcan.dev` apuntando al
+   Worker.
+4. **Sin verificar aún:** Safari, Firefox y el rendimiento en un móvil de gama baja (si no da el
+   ancho, ver la sección 5 de `docs/grid-field-extending.md`).
+5. **Opcional:** imagen OG para compartir en redes, la ruta `/lab` para afinar sprites y efectos, y
+   el resto de las ideas de la sección 6 de `docs/grid-field-extending.md`.
 
 ## Comandos
 
