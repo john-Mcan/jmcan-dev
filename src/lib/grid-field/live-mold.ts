@@ -7,8 +7,10 @@
 import type { SpriteMask } from './grid-field'
 import {
   createPresence,
+  fineScale,
   followPointer,
-  halfRects,
+  scaled,
+  scaledRects,
   type CellRect,
   type CursorMode,
   type LiveContext,
@@ -40,10 +42,13 @@ export interface MoldOptions {
 
 const HABITATS: Record<Habitat, { params: PhysarumParams; spawnTop: number }> = {
   open: { params: PHYSARUM_DEFAULTS, spawnTop: 0 },
-  reef: { params: { ...PHYSARUM_DEFAULTS, wrapY: false, gravity: 2 }, spawnTop: 0.65 },
+  reef: {
+    params: { ...PHYSARUM_DEFAULTS, wrapY: false, gravity: 2, shunIslands: true },
+    spawnTop: 0.65,
+  },
 }
 
-/** Umbral rastro → cobertura (ver `writeHalfRes`): bajo LOW nada, sobre HIGH pleno. */
+/** Umbral rastro → cobertura (ver `writeScaled`): bajo LOW nada, sobre HIGH pleno. */
 const TRAIL_LOW = 2
 const TRAIL_HIGH = 6.5
 const GAIN = 0.72
@@ -63,6 +68,7 @@ export function createMold(options: MoldOptions): LiveSource {
 
   let sim: Physarum | null = null
   let mask: SpriteMask | null = null
+  let scale = 1
   let islandsSeen = -1
   const rects: CellRect[] = []
   // Movimiento reducido: con qué simulación e islas se asentó el cuadro quieto.
@@ -73,10 +79,12 @@ export function createMold(options: MoldOptions): LiveSource {
   const lure: Lure = { x: 0, y: 0, radius: 1, strength: 0 }
 
   function ensure(cols: number, rows: number, context: LiveContext): Physarum {
-    if (!sim || !mask || mask.cols !== cols || mask.rows !== rows) {
+    const wanted = fineScale(context.cellPx)
+    if (!sim || !mask || mask.cols !== cols || mask.rows !== rows || scale !== wanted) {
+      scale = wanted
       habitat = habitatFor(options.habitat, cols, rows)
       ;({ params, spawnTop } = HABITATS[habitat])
-      sim = createPhysarum(Math.ceil(cols / 2), Math.ceil(rows / 2), params, spawnTop, random)
+      sim = createPhysarum(scaled(cols, scale), scaled(rows, scale), params, spawnTop, random)
       mask = { data: new Float32Array(cols * rows), cols, rows }
       if (habitat === 'reef') sim.food.set(groundFood(sim, random))
       lure.radius = Math.max(8, LURE_RADIUS * Math.max(sim.cols, sim.rows))
@@ -84,14 +92,14 @@ export function createMold(options: MoldOptions): LiveSource {
     }
     if (islandsSeen !== context.islandsVersion) {
       islandsSeen = context.islandsVersion
-      blockRects(sim, halfRects(context.islands, ISLAND_MARGIN, rects), random)
+      blockRects(sim, scaledRects(context.islands, ISLAND_MARGIN, scale, rects), random)
     }
     return sim
   }
 
   function lureFor(context: LiveContext): Lure | null {
     const strength = LURE_STRENGTH[options.cursor()]
-    followPointer(presence, context, strength !== 0)
+    followPointer(presence, context, strength !== 0, scale)
     if (presence.level <= 0.01) return null
     lure.x = presence.x
     lure.y = presence.y
@@ -103,7 +111,7 @@ export function createMold(options: MoldOptions): LiveSource {
     frame(cols, rows, context) {
       const target = ensure(cols, rows, context)
       stepPhysarum(target, params, lureFor(context), random)
-      if (mask) writeMask(target, mask, TRAIL_LOW, TRAIL_HIGH, GAIN)
+      if (mask) writeMask(target, mask, scale, TRAIL_LOW, TRAIL_HIGH, GAIN)
       return mask
     },
 
@@ -112,7 +120,7 @@ export function createMold(options: MoldOptions): LiveSource {
       // El cuadro quieto se asienta UNA vez: el runner lo pide en cada scroll.
       if (settled === target && settledIslands === islandsSeen) return mask
       for (let step = 0; step < STILL_STEPS; step++) stepPhysarum(target, params, null, random)
-      if (mask) writeMask(target, mask, TRAIL_LOW, TRAIL_HIGH, GAIN)
+      if (mask) writeMask(target, mask, scale, TRAIL_LOW, TRAIL_HIGH, GAIN)
       settled = target
       settledIslands = islandsSeen
       return mask

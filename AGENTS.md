@@ -46,9 +46,9 @@ Las páginas declaran qué imprime la grilla con atributos:
   (componente `Stage.astro`).
 - `data-grid-projects` + `data-grid-row`: lista de proyectos con panel narrador.
 - `data-grid-stage="live:<patrón>"` + `data-grid-cursor="attract|repel|off"`: escenario vivo (una
-  simulación en vez de un sprite: moho, enjambre, corrientes, escarcha, Julia). El contenido dentro
-  de su caja es isla (`data-grid-shape` o `data-grid-island`): el patrón no imprime ahí. Hoy solo lo
-  usan los heroes de `/lab`; ver `docs/sesion-2026-10-02-hero-vivo.md`.
+  simulación en vez de un sprite: moho, cosmos, enjambre, corrientes, escarcha, Julia). El contenido
+  dentro de su caja es isla (`data-grid-shape` o `data-grid-island`): el patrón no imprime ahí. Hoy
+  solo lo usan los heroes de `/lab`; ver `docs/sesion-2026-10-02-hero-vivo.md` (secciones 5 y 9).
 
 ## Estructura
 

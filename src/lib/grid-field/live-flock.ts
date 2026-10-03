@@ -4,16 +4,17 @@
  * parte. Cada ave deja una estela corta, la SUYA: el puntero no deja nada; la
  * bandada lo rodea (curiosa) o le hace lugar (tímida). Sin DOM.
  *
- * Unidades: celdas de media resolución por cuadro (el runner va a 30 fps).
+ * Unidades: celdas de la simulación (ver `fineScale`) por cuadro (el runner va a 30 fps).
  */
 
 import type { SpriteMask } from './grid-field'
 import {
   createPresence,
+  fineScale,
   followPointer,
-  half,
-  halfRects,
-  writeHalfRes,
+  scaled,
+  scaledRects,
+  writeScaled,
   type CellRect,
   type CursorMode,
   type LiveContext,
@@ -25,10 +26,10 @@ export interface FlockOptions {
   random?: () => number
 }
 
-/** Aves por celda de media resolución. */
+/** Aves por celda. */
 const DENSITY = 0.06
 const MIN_BIRDS = 150
-const MAX_BIRDS = 900
+const MAX_BIRDS = 2400
 /** Radio de vecindad y distancia personal. */
 const SIGHT = 5
 const SPACE = 1.6
@@ -70,6 +71,7 @@ export function createFlock(options: FlockOptions): LiveSource {
 
   let cols = 0
   let rows = 0
+  let scale = 1
   let mask: SpriteMask | null = null
   let birds = new Float32Array(0)
   let count = 0
@@ -117,9 +119,11 @@ export function createFlock(options: FlockOptions): LiveSource {
   }
 
   function ensure(boxCols: number, boxRows: number, context: LiveContext): void {
-    if (!mask || mask.cols !== boxCols || mask.rows !== boxRows) {
-      cols = half(boxCols)
-      rows = half(boxRows)
+    const wanted = fineScale(context.cellPx)
+    if (!mask || mask.cols !== boxCols || mask.rows !== boxRows || scale !== wanted) {
+      scale = wanted
+      cols = scaled(boxCols, scale)
+      rows = scaled(boxRows, scale)
       mask = { data: new Float32Array(boxCols * boxRows), cols: boxCols, rows: boxRows }
       trail = new Float32Array(cols * rows)
       count = Math.round(Math.min(MAX_BIRDS, Math.max(MIN_BIRDS, cols * rows * DENSITY)))
@@ -134,7 +138,7 @@ export function createFlock(options: FlockOptions): LiveSource {
     if (islandsSeen !== context.islandsVersion) {
       const first = islandsSeen < 0
       islandsSeen = context.islandsVersion
-      halfRects(context.islands, ISLAND_MARGIN, rects)
+      scaledRects(context.islands, ISLAND_MARGIN, scale, rects)
       for (let i = 0; i < count; i++) {
         if (first || inIsland(birds[i * 4] ?? 0, birds[i * 4 + 1] ?? 0)) spawn(i)
       }
@@ -313,9 +317,9 @@ export function createFlock(options: FlockOptions): LiveSource {
     frame(boxCols, boxRows, context) {
       ensure(boxCols, boxRows, context)
       const mode = options.cursor()
-      followPointer(presence, context, mode !== 'off')
+      followPointer(presence, context, mode !== 'off', scale)
       step(context.dt, mode)
-      if (mask) writeHalfRes(trail, rows, mask, TRAIL_LOW, TRAIL_HIGH, GAIN)
+      if (mask) writeScaled(trail, rows, mask, scale, TRAIL_LOW, TRAIL_HIGH, GAIN)
       return mask
     },
 
@@ -323,7 +327,7 @@ export function createFlock(options: FlockOptions): LiveSource {
       ensure(boxCols, boxRows, context)
       if (settledMask === mask && settledIslands === islandsSeen) return mask
       for (let i = 0; i < STILL_STEPS; i++) step(1 / 30, 'off')
-      if (mask) writeHalfRes(trail, rows, mask, TRAIL_LOW, TRAIL_HIGH, GAIN)
+      if (mask) writeScaled(trail, rows, mask, scale, TRAIL_LOW, TRAIL_HIGH, GAIN)
       settledMask = mask
       settledIslands = islandsSeen
       return mask

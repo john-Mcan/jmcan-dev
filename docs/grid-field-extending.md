@@ -33,8 +33,9 @@ esa guía sin contrastarlo con este documento.
 | `components/fx/Stage.astro`         | Caja vacía con marcas en las esquinas donde se imprime un sprite                               | —                         |
 | `styles/global.css`                 | `--grid-field-rgb`, `--grid-field-accent-rgb`, `--grid-field-spread` y CSS de view transitions | —                         |
 | `lib/grid-field/live.ts`            | Escenarios vivos: contrato (`LiveSource`, `LiveContext`) y utilidades compartidas              | No                        |
-| `lib/grid-field/live-*.ts`          | Los patrones vivos (moho, enjambre, corrientes, escarcha, Julia) y su registro                 | No                        |
+| `lib/grid-field/live-*.ts`          | Los patrones vivos (moho, cosmos, enjambre, corrientes, escarcha, Julia) y su registro         | No                        |
 | `lib/grid-field/physarum.ts`        | Simulación del moho (Physarum) que usa `live-mold.ts`                                          | No                        |
+| `lib/grid-field/gravity.ts`         | Gravedad: N-cuerpos de partícula-malla (Poisson por FFT) que usa `live-cosmos.ts`              | No                        |
 | `lib/grid-field/grid-field.test.ts` | Tests de los módulos puros (`pnpm test`)                                                       | —                         |
 
 Solo `runner.ts` y `scripts/grid-field.ts` tocan `window`/`document`. Todo lo demás se testea en
@@ -198,8 +199,8 @@ rasterizados. Se declara con `data-grid-stage="live:<patrón>"` y `data-grid-cur
 reglas (islas, cursor sin rastro, cuadro quieto que se asienta una vez), los patrones y su peso
 están en `docs/sesion-2026-10-02-hero-vivo.md`, sección 5. Para uno nuevo:
 
-1. Implementa `LiveSource` (`frame` y `still`) en un `live-<nombre>.ts`, a media resolución, con
-   las utilidades de `live.ts`.
+1. Implementa `LiveSource` (`frame` y `still`) en un `live-<nombre>.ts`, en celdas de unos 6 px
+   (`fineScale` con el `cellPx` del contexto), con las utilidades de `live.ts`.
 2. Regístralo en `live-patterns.ts` y agrégalo a los tests de «patrones vivos».
 3. Pruébalo en `/lab`: una entrada en `src/lab/variants.ts`.
 

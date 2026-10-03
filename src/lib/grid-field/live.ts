@@ -4,8 +4,8 @@
  * (puntero e islas); los patrones (moho, enjambre, corrientes) comparten lo de
  * este archivo.
  *
- * Todos viven a MEDIA resolución de la caja (una celda por 2×2 del campo): cuesta
- * la cuarta parte y deja trazos de al menos dos celdas, el piso para que se lean.
+ * Cada patrón vive en una grilla propia de celdas de unos 6 px (ver `fineScale`):
+ * cuesta menos que el campo en móvil y deja trazos que se leen.
  */
 
 import type { SpriteMask } from './grid-field'
@@ -29,6 +29,8 @@ export interface LiveContext {
   islands: readonly CellRect[]
   /** Sube cada vez que las islas cambian. */
   islandsVersion: number
+  /** Lo que mide una celda del campo, en px: 3 en móvil, 6 en escritorio. */
+  cellPx: number
 }
 
 export interface LiveSource {
@@ -41,26 +43,40 @@ export interface LiveSource {
 /** Qué hace el patrón con el puntero. Cada uno lo interpreta (atraer, estimular…). */
 export type CursorMode = 'attract' | 'repel' | 'off'
 
-/** Media resolución de un lado de la caja. */
-export function half(cells: number): number {
-  return Math.ceil(cells / 2)
+/** Lo que mide una celda de simulación, en px. */
+const FINE_PX = 6
+
+/**
+ * La escala de una simulación (cuántas celdas del campo, por lado, mide una celda
+ * suya) para que su celda mida unos 6 px en cualquier pantalla: 2 en móvil (campo
+ * de 3 px), 1 en escritorio (6 px). Antes todos vivían a media resolución, y en
+ * escritorio se veían al doble que en móvil, gruesos: con 6 px se ven mucho mejor.
+ */
+export function fineScale(cellPx: number): number {
+  return Math.max(1, Math.round(FINE_PX / cellPx))
 }
 
-/** Las islas (celdas de la caja) a media resolución, con margen. Reusa `out`. */
-export function halfRects(
+/** Un lado de la caja, en celdas de la simulación. */
+export function scaled(cells: number, scale: number): number {
+  return Math.ceil(cells / scale)
+}
+
+/** Las islas (celdas de la caja) en celdas de la simulación, con margen. Reusa `out`. */
+export function scaledRects(
   islands: readonly CellRect[],
   margin: number,
+  scale: number,
   out: CellRect[] = [],
 ): CellRect[] {
   out.length = 0
   for (const island of islands) {
-    const col = Math.floor(island.col / 2) - margin
-    const row = Math.floor(island.row / 2) - margin
+    const col = Math.floor(island.col / scale) - margin
+    const row = Math.floor(island.row / scale) - margin
     out.push({
       col,
       row,
-      cols: Math.ceil((island.col + island.cols) / 2) + margin - col,
-      rows: Math.ceil((island.row + island.rows) / 2) + margin - row,
+      cols: Math.ceil((island.col + island.cols) / scale) + margin - col,
+      rows: Math.ceil((island.row + island.rows) / scale) + margin - row,
     })
   }
   return out
@@ -85,14 +101,16 @@ export function fillRects(
 }
 
 /**
- * Vuelca un buffer de media resolución a la máscara de la caja (2×2 por celda)
- * con un umbral suave entre `low` y `high`: lo tenue queda en 0 (se confundiría
- * con el ruido y lo atenuaría) y lo intenso sube hasta `gain`.
+ * Vuelca el buffer de una simulación a la máscara de la caja (`scale × scale`
+ * celdas por cada una suya) con un umbral suave entre `low` y `high`: lo tenue
+ * queda en 0 (se confundiría con el ruido y lo atenuaría) y lo intenso sube hasta
+ * `gain`.
  */
-export function writeHalfRes(
+export function writeScaled(
   source: Float32Array,
   sourceRows: number,
   mask: SpriteMask,
+  scale: number,
   low: number,
   high: number,
   gain: number,
@@ -100,31 +118,34 @@ export function writeHalfRes(
   const data = mask.data
   const span = Math.max(1e-6, high - low)
   for (let c = 0; c < mask.cols; c++) {
-    const base = (c >> 1) * sourceRows
+    const base = ((c / scale) | 0) * sourceRows
     const out = c * mask.rows
     for (let r = 0; r < mask.rows; r++) {
-      const t = ((source[base + (r >> 1)] ?? 0) - low) / span
+      const t = ((source[base + ((r / scale) | 0)] ?? 0) - low) / span
       data[out + r] = t <= 0 ? 0 : t >= 1 ? gain : t * t * (3 - 2 * t) * gain
     }
   }
 }
 
-/** Como `writeHalfRes`, pero copia el valor tal cual (recortado a `gain`), sin umbral. */
-export function writeHalfDirect(
+/** Como `writeScaled`, pero copia el valor tal cual (recortado a `gain`), sin umbral. */
+export function writeScaledDirect(
   source: Float32Array,
   sourceRows: number,
   mask: SpriteMask,
+  scale: number,
   gain: number,
 ): void {
   const data = mask.data
   for (let c = 0; c < mask.cols; c++) {
-    const base = (c >> 1) * sourceRows
+    const base = ((c / scale) | 0) * sourceRows
     const out = c * mask.rows
-    for (let r = 0; r < mask.rows; r++) data[out + r] = Math.min(gain, source[base + (r >> 1)] ?? 0)
+    for (let r = 0; r < mask.rows; r++) {
+      data[out + r] = Math.min(gain, source[base + ((r / scale) | 0)] ?? 0)
+    }
   }
 }
 
-/** El puntero, suavizado, en celdas de MEDIA resolución. `level` es cuánto está (0–1). */
+/** El puntero, suavizado, en celdas de la simulación. `level` es cuánto está (0–1). */
 export interface Presence {
   x: number
   y: number
@@ -142,12 +163,17 @@ const FADE_S = 0.35
  * Sigue al puntero sin saltos y entra o sale suave: un patrón que reacciona de
  * golpe a la llegada del puntero se lee como un error, no como atención.
  */
-export function followPointer(presence: Presence, context: LiveContext, active: boolean): void {
+export function followPointer(
+  presence: Presence,
+  context: LiveContext,
+  active: boolean,
+  scale: number,
+): void {
   const here = active && Number.isFinite(context.pointerCol)
   const dt = context.dt
   if (here) {
-    const x = context.pointerCol / 2
-    const y = context.pointerRow / 2
+    const x = context.pointerCol / scale
+    const y = context.pointerRow / scale
     if (presence.level <= 0.01) {
       presence.x = x
       presence.y = y

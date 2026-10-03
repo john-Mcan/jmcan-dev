@@ -13,6 +13,7 @@ import {
   type FrameInput,
 } from './grid-field'
 import type { LiveContext } from './live'
+import { createCosmos } from './live-cosmos'
 import { createCurrents } from './live-currents'
 import { createFlock } from './live-flock'
 import { createFrost } from './live-frost'
@@ -246,7 +247,7 @@ describe('physarum', () => {
     const sim = createPhysarum(4, 4, PHYSARUM_DEFAULTS, 0, seeded(1))
     sim.trail.set([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15])
     const mask = { data: new Float32Array(64), cols: 8, rows: 8 }
-    writeMask(sim, mask, 2, 6.5, 0.72)
+    writeMask(sim, mask, 2, 2, 6.5, 0.72)
     expect(mask.data[0]).toBe(0)
     expect(Math.max(...mask.data)).toBeCloseTo(0.72)
     expect(Math.min(...mask.data)).toBe(0)
@@ -264,10 +265,12 @@ describe('patrones vivos', () => {
     pointerRow: Number.NaN,
     islands: [island],
     islandsVersion: 1,
+    cellPx: 6,
   })
   const patterns = {
     moho: () => createMold({ habitat: 'open', cursor: () => 'attract', random: seeded(1) }),
     arrecife: () => createMold({ habitat: 'reef', cursor: () => 'off', random: seeded(2) }),
+    cosmos: () => createCosmos({ cursor: () => 'attract', random: seeded(3) }),
     enjambre: () => createFlock({ cursor: () => 'attract', random: seeded(4) }),
     corrientes: () => createCurrents({ cursor: () => 'repel', random: seeded(5) }),
     escarcha: () => createFrost({ cursor: () => 'attract', random: seeded(6) }),

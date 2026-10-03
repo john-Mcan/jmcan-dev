@@ -5,17 +5,18 @@
  * cuadro). El puntero, mientras está, es una roca (aparta) o un remolino (atrae);
  * al irse, la corriente se recompone. Sin DOM.
  *
- * Unidades: celdas de media resolución por cuadro (el runner va a 30 fps).
+ * Unidades: celdas de la simulación (ver `fineScale`) por cuadro (el runner va a 30 fps).
  */
 
 import type { SpriteMask } from './grid-field'
 import {
   createPresence,
   fillRects,
+  fineScale,
   followPointer,
-  half,
-  halfRects,
-  writeHalfRes,
+  scaled,
+  scaledRects,
+  writeScaled,
   type CellRect,
   type CursorMode,
   type LiveContext,
@@ -29,10 +30,10 @@ export interface CurrentsOptions {
 
 /** Velocidad del viento libre. */
 const WIND = 0.36
-/** Partículas por celda de media resolución. */
+/** Partículas por celda. */
 const DENSITY = 0.035
 const MIN_PARTICLES = 250
-const MAX_PARTICLES = 2400
+const MAX_PARTICLES = 3200
 /** Vida de una partícula, en cuadros. */
 const LIFE_MIN = 150
 const LIFE_MAX = 320
@@ -74,6 +75,7 @@ export function createCurrents(options: CurrentsOptions): LiveSource {
 
   let cols = 0
   let rows = 0
+  let scale = 1
   let mask: SpriteMask | null = null
   let psi = new Float32Array(0)
   let fixed = new Uint8Array(0)
@@ -94,9 +96,11 @@ export function createCurrents(options: CurrentsOptions): LiveSource {
   const presence = createPresence()
 
   function ensure(boxCols: number, boxRows: number, context: LiveContext): void {
-    if (!mask || mask.cols !== boxCols || mask.rows !== boxRows) {
-      cols = half(boxCols)
-      rows = half(boxRows)
+    const wanted = fineScale(context.cellPx)
+    if (!mask || mask.cols !== boxCols || mask.rows !== boxRows || scale !== wanted) {
+      scale = wanted
+      cols = scaled(boxCols, scale)
+      rows = scaled(boxRows, scale)
       const n = cols * rows
       mask = { data: new Float32Array(boxCols * boxRows), cols: boxCols, rows: boxRows }
       psi = new Float32Array(n)
@@ -114,7 +118,7 @@ export function createCurrents(options: CurrentsOptions): LiveSource {
     }
     if (islandsSeen !== context.islandsVersion) {
       islandsSeen = context.islandsVersion
-      solve(halfRects(context.islands, ISLAND_MARGIN, rects))
+      solve(scaledRects(context.islands, ISLAND_MARGIN, scale, rects))
       for (let i = 0; i < count; i++) spawn(i, false)
     }
   }
@@ -319,9 +323,9 @@ export function createCurrents(options: CurrentsOptions): LiveSource {
     frame(boxCols, boxRows, context) {
       ensure(boxCols, boxRows, context)
       const mode = options.cursor()
-      followPointer(presence, context, mode !== 'off')
+      followPointer(presence, context, mode !== 'off', scale)
       step(context.dt, mode)
-      if (mask) writeHalfRes(trail, rows, mask, TRAIL_LOW, TRAIL_HIGH, GAIN)
+      if (mask) writeScaled(trail, rows, mask, scale, TRAIL_LOW, TRAIL_HIGH, GAIN)
       return mask
     },
 
@@ -329,7 +333,7 @@ export function createCurrents(options: CurrentsOptions): LiveSource {
       ensure(boxCols, boxRows, context)
       if (settledMask === mask && settledIslands === islandsSeen) return mask
       for (let i = 0; i < STILL_STEPS; i++) step(1 / 30, 'off')
-      if (mask) writeHalfRes(trail, rows, mask, TRAIL_LOW, TRAIL_HIGH, GAIN)
+      if (mask) writeScaled(trail, rows, mask, scale, TRAIL_LOW, TRAIL_HIGH, GAIN)
       settledMask = mask
       settledIslands = islandsSeen
       return mask

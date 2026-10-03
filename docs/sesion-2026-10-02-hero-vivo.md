@@ -16,12 +16,13 @@ previas); nada de esto toca todavía la home de producción.
 6. [Pendiente: elegir el hero](#6-pendiente-elegir-el-hero)
 7. [Pendiente: el header](#7-pendiente-el-header)
 8. [Para pasar a producción](#8-para-pasar-a-producción)
+9. [Ajustes del 2026-10-03: celdas de 6 px y cosmos](#9-ajustes-del-2026-10-03-celdas-de-6-px-y-cosmos)
 
 ## 1. Cómo ver los candidatos
 
-Con `pnpm dev`, en `/lab/<variante>` (`sesion`, `arrecife`, `enjambre`, `corrientes`, `escarcha`,
-`julia`). Es la home con el hero candidato y el resto de las secciones, para ver también el paso al
-siguiente escenario al hacer scroll.
+Con `pnpm dev`, en `/lab/<variante>` (`sesion`, `arrecife`, `cosmos`, `enjambre`, `corrientes`,
+`escarcha`, `julia`). Es la home con el hero candidato y el resto de las secciones, para ver también
+el paso al siguiente escenario al hacer scroll.
 
 - La ruta solo existe en `astro dev`: la inyecta una integración en `astro.config.ts` y nunca llega
   al build.
@@ -56,14 +57,15 @@ siguiente escenario al hacer scroll.
 
 ## 3. Candidatos
 
-| Variante   | Patrón      | Cursor   | Qué hace                                                                                                                                                                                                                                                                                                                 |
-| ---------- | ----------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| sesion     | `mold-open` | atrae    | Moho (Physarum): miles de agentes siguen su propio rastro y forman una red de venas que se reorganiza sola. El cursor estira la red hacia él.                                                                                                                                                                            |
-| arrecife   | `mold-reef` | atrae    | El mismo moho, creciendo desde el borde inferior como un arrecife. **Solo escritorio:** en una caja vertical vive como red abierta (`habitatFor`).                                                                                                                                                                       |
-| enjambre   | `flock`     | nada     | Una bandada (boids) con estela corta propia; cada 7–13 s se sobresalta y se parte. Con «curiosa» rodea al cursor y con «tímida» le abre paso.                                                                                                                                                                            |
-| corrientes | `currents`  | remolino | Partículas en un viento que rodea el texto (la función de corriente se resuelve con el texto como obstáculo). «Remolino» hace girar la corriente alrededor del cursor; «roca» la obliga a rodearlo.                                                                                                                      |
-| escarcha   | `frost`     | atrae    | Agregación limitada por difusión: cristales fractales que nacen en el texto y crecen siempre hacia adelante; lo más viejo se apaga y se derrite por detrás. Cada 3–6 s sale una ola nueva desde el texto. «Atrae» estira las ramas hacia el cursor.                                                                      |
-| julia      | `julia`     | guía     | El conjunto de Julia de z² + c, en dendritas finas, con c meciéndose en el borde de la cardioide de Mandelbrot. Va a lo largo de la diagonal que sube desde abajo al centro hasta arriba a la derecha (en móvil, todo el alto). «Guía»: la posición del cursor elige la forma; en «nada» se queda quieta y solo respira. |
+| Variante   | Patrón      | Cursor   | Qué hace                                                                                                                                                                                                                                                                                                                                                                |
+| ---------- | ----------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| sesion     | `mold-open` | atrae    | Moho (Physarum): miles de agentes siguen su propio rastro y forman una red de venas que se reorganiza sola. El cursor estira la red hacia él.                                                                                                                                                                                                                           |
+| arrecife   | `mold-reef` | atrae    | El mismo moho, creciendo desde el borde inferior como un arrecife. **Solo escritorio:** en una caja vertical vive como red abierta (`habitatFor`).                                                                                                                                                                                                                      |
+| cosmos     | `cosmos`    | atrae    | Gravedad (N-cuerpos de partícula-malla): la materia corre desde los dos lados y colapsa en una franja, y ahí nace un tornado que gira alrededor de ella, alimentado por un flujo que no se corta. Ver la sección 9.                                                                                                                                                     |
+| enjambre   | `flock`     | nada     | Una bandada (boids) con estela corta propia; cada 7–13 s se sobresalta y se parte. Con «curiosa» rodea al cursor y con «tímida» le abre paso.                                                                                                                                                                                                                           |
+| corrientes | `currents`  | remolino | Partículas en un viento que rodea el texto (la función de corriente se resuelve con el texto como obstáculo). «Remolino» hace girar la corriente alrededor del cursor; «roca» la obliga a rodearlo.                                                                                                                                                                     |
+| escarcha   | `frost`     | atrae    | Agregación limitada por difusión: cristales fractales que nacen en el texto y crecen siempre hacia adelante; lo más viejo se apaga y se derrite por detrás. Cada 3–6 s sale una ola nueva desde el texto. «Atrae» estira las ramas hacia el cursor.                                                                                                                     |
+| julia      | `julia`     | guía     | El conjunto de Julia de z² + c, en dendritas finas, con c recorriendo el borde de la cardioide de Mandelbrot. Va a lo largo de la diagonal que sube desde abajo al centro hasta arriba a la derecha (en móvil, más alta que la caja y corrida a la derecha). «Guía»: la posición del cursor elige la forma; en «nada» se queda en su lugar y cambia de estructura sola. |
 
 Julia es la **excepción** a «nada detrás del texto»: pasa por debajo de las letras al 30 % de su luz
 (`UNDER_TEXT`) en vez de cortarse en un rectángulo. Así se pidió.
@@ -94,10 +96,12 @@ en cada cuadro, en vez de cuadros rasterizados.
 - **Interfaz** (`src/lib/grid-field/live.ts`): un patrón implementa `LiveSource` con `frame` y
   `still`. `still` es el cuadro quieto para movimiento reducido: se asienta una sola vez, porque el
   runner lo pide en cada scroll.
-- **Lo compartido** (`live.ts`): media resolución (una celda por 2 × 2 del campo: un cuarto del
-  costo y trazos de al menos dos celdas), islas, volcado a la máscara y el puntero suavizado.
-- **Los patrones:** `physarum.ts` + `live-mold.ts`, `live-flock.ts`, `live-currents.ts`,
-  `live-frost.ts` y `live-julia.ts`. El registro está en `live-patterns.ts`, y
+- **Lo compartido** (`live.ts`): la escala de las simulaciones (`fineScale`: celdas de unos 6 px,
+  2 × 2 del campo en móvil y 1 × 1 en escritorio; el runner pasa `cellPx`), islas, volcado a la
+  máscara y el puntero suavizado.
+- **Los patrones:** `physarum.ts` + `live-mold.ts`, `gravity.ts` + `live-cosmos.ts`,
+  `live-flock.ts`, `live-currents.ts`, `live-frost.ts` y `live-julia.ts`. El registro está en
+  `live-patterns.ts`, y
   `scripts/grid-field.ts` lo baja aparte (`import()`) solo en la página que tiene un escenario vivo.
 - **Tests:** en `grid-field.test.ts`. Cada patrón se mueve, no imprime sobre el texto (Julia, solo
   atenuado), no pasa del tope de luz y asienta su cuadro quieto una vez.
@@ -154,3 +158,58 @@ Cuando se elija el hero:
    excepción de Julia si queda.
 5. Medir en Safari, Firefox y un móvil modesto. El costo por cuadro no se midió en el navegador; en
    Node, un paso del moho ronda 1 ms en una caja de escritorio.
+
+## 9. Ajustes del 2026-10-03: celdas de 6 px y cosmos
+
+**Celdas de 6 px en todos los patrones.**
+
+- Antes todos vivían a media resolución: cada celda medía 12 px en escritorio y 6 en móvil, donde se
+  veían mejor. Se probó 6 px en todos y se veían mucho mejor, así que quedó así: `fineScale` en
+  `live.ts`, con el `cellPx` que pasa el runner. Julia ya medía 6 px.
+- En escritorio hay cuatro veces más celdas. En Node, el moho pasó de ~0,7 a ~2,3 ms por cuadro, el
+  enjambre ronda los 2,4 y la escarcha los 1,4. En móvil no cambia nada.
+- Subieron los topes (moho 16 000 agentes, enjambre 2 400, corrientes 3 200, escarcha 2 000), y la
+  escarcha derrite en proporción al área.
+- Con eso se dieron por resueltos el enjambre (partículas más chicas y fluidas) y la escarcha: se
+  pedía separar crecimiento y deshielo, pero lo que faltaba era la escala.
+
+**Arrecife.** Trepaba siempre el bloque del texto: los agentes que esquivaban o chocaban una isla se
+juntaban en su borde y la red lo recorría. Ahora (`shunIslands`) las islas no se huelen como pared y
+el agente que entra renace en otro lado. Todavía trepa a veces, menos marcado, y se aceptó así: se ve
+orgánico.
+
+**Julia.**
+
+- En «nada», c recorre el borde de la cardioide entre ~1,8 y ~2,5 con dos vaivenes (~37 y ~13 s): la
+  estructura cambia de forma visible cada pocos segundos.
+- La escala de c no pasa de ~1,006. Más afuera, en varios ángulos, la forma se rellena de gris, que
+  ya se había descartado.
+- En móvil es más alta que la caja (desborda arriba y abajo) y su eje va al 62 % del ancho.
+
+**Cosmos (nuevo).** Se pidió una variante con la forma de la red cósmica: filamentos y nudos.
+
+- Se descartaron el moho con cúmulos que lo alimentan (se veía como «sesión», una espuma pareja) y
+  una red cósmica con gravedad apantallada, mareas y flujos (persistía, pero no convenció).
+- Quedó la primera prueba de gravedad, con lo que gustó de ella: el arranque, con la materia que
+  aparece y corre desde los dos lados hasta colapsar en una franja. A partir de ahí, la materia gira
+  alrededor de la franja como un tornado visto de costado.
+- `gravity.ts` es un N-cuerpos de partícula-malla (Poisson por FFT, caja periódica). En
+  `live-cosmos.ts`:
+  - El arranque es un campo de Zel'dovich (la textura de los filamentos) más un pozo hacia el eje, al
+    76 % del ancho (62 % en móvil). Las ondas más largas del campo al azar se silencian: en cajas
+    anchas armaban su propia franja.
+  - El tornado nace sobre la franja y la sigue unos segundos: nace antes de que la franja termine de
+    formarse y, quieto, quedaba a un costado.
+  - Lo que llega al eje orbita en 3D, en tres hebras helicoidales que giran juntas. Lo de adelante
+    brilla y lo de atrás queda tenue. Sin hebras, el giro no se ve.
+  - El núcleo succiona la materia libre desde los dos lados. Cada partícula orbita un tiempo al azar
+    (o hasta la cima), sube a su propio ritmo y renace lejos del eje, así el flujo no se corta. Con un
+    tiempo fijo, lo que entraba junto salía junto y el tornado latía. Subiendo todas igual, los nudos
+    llegaban enteros a la cima y renacían de golpe.
+  - El texto aparta la materia con un empuje de corto alcance. Como vacío gravitatorio dejaba un pozo
+    en la caja periódica (cerca del 80 % del ancho), donde se armaba una franja propia junto al
+    tornado.
+  - El eje es una fracción fija del ancho y no sale del texto: el texto se mide antes de que cargue la
+    fuente pixel y después se angosta, y el eje se corría.
+- Pendiente: en móvil se lee poco, porque el texto tapa casi todo. Cuesta ~2,9 ms por cuadro en
+  escritorio (Node), más que los otros patrones.

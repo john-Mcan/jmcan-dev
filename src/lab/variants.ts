@@ -22,6 +22,14 @@ export const LAB_VARIANTS = [
     repel: 'aparta',
   },
   {
+    slug: 'cosmos',
+    label: 'cosmos',
+    pattern: 'cosmos',
+    cursor: 'attract',
+    attract: 'atrae',
+    repel: 'aparta',
+  },
+  {
     slug: 'enjambre',
     label: 'enjambre',
     pattern: 'flock',

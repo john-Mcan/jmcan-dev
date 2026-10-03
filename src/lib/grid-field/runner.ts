@@ -169,6 +169,7 @@ export function createGridFieldRunner(
     pointerRow: Number.NaN,
     islands,
     islandsVersion: 0,
+    cellPx: 6,
   }
   let pointerX = Number.NaN
   let pointerY = Number.NaN
@@ -381,6 +382,7 @@ export function createGridFieldRunner(
     const step = fieldStep(field)
     if (islandsDirty) scanIslands(stage.target, r, step)
     live.dt = dt
+    live.cellPx = step
     live.pointerCol = (pointerX - origin.left) / step - box.col0
     live.pointerRow = (pointerY - origin.top) / step - box.row0
     const source = stage.program.source

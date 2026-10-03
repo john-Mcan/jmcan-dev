@@ -9,17 +9,18 @@
  * ahí) o lo aparta (ahí no se pega nada y lo cristalizado se atenúa mientras
  * está). Sin DOM.
  *
- * Unidades: celdas de media resolución.
+ * Unidades: celdas de la simulación (ver `fineScale`).
  */
 
 import type { SpriteMask } from './grid-field'
 import {
   createPresence,
   fillRects,
+  fineScale,
   followPointer,
-  half,
-  halfRects,
-  writeHalfDirect,
+  scaled,
+  scaledRects,
+  writeScaledDirect,
   type CellRect,
   type CursorMode,
   type LiveContext,
@@ -34,7 +35,7 @@ export interface FrostOptions {
 /** Caminantes por celda libre, y pasos que da cada uno por cuadro. */
 const WALKER_DENSITY = 0.03
 const MIN_WALKERS = 120
-const MAX_WALKERS = 600
+const MAX_WALKERS = 2000
 const WALKER_STEPS = 10
 /** Probabilidad de pegarse al tocar: más baja, ramas más gruesas. */
 const STICK = 0.6
@@ -47,8 +48,8 @@ const WAVE_MAX_S = 6
 const WAVE_SEEDS = 4
 /** Cuánto hielo vive a la vez (fracción de lo libre): lo que sobra se derrite, lo más viejo primero. */
 const COVER = 0.15
-/** Deshielo: celdas por segundo como mucho y cuánto tarda una en apagarse. */
-const MELT_PER_S = 500
+/** Deshielo: cuánto se derrite por segundo como mucho (fracción de lo libre) y cuánto tarda una celda en apagarse. */
+const MELT_PER_S = 0.06
 const MELT_MS = 500
 /** Luz: el frente (lo nuevo) pleno, la cola (lo viejo) más tenue; el destello al pegarse. */
 const ICE = 0.62
@@ -77,6 +78,7 @@ export function createFrost(options: FrostOptions): LiveSource {
 
   let cols = 0
   let rows = 0
+  let scale = 1
   let mask: SpriteMask | null = null
   /** 0 libre, 1 hielo, 2 derritiéndose. */
   let ice = new Uint8Array(0)
@@ -209,9 +211,11 @@ export function createFrost(options: FrostOptions): LiveSource {
   }
 
   function ensure(boxCols: number, boxRows: number, context: LiveContext): void {
-    if (!mask || mask.cols !== boxCols || mask.rows !== boxRows) {
-      cols = half(boxCols)
-      rows = half(boxRows)
+    const wanted = fineScale(context.cellPx)
+    if (!mask || mask.cols !== boxCols || mask.rows !== boxRows || scale !== wanted) {
+      scale = wanted
+      cols = scaled(boxCols, scale)
+      rows = scaled(boxRows, scale)
       const n = cols * rows
       mask = { data: new Float32Array(boxCols * boxRows), cols: boxCols, rows: boxRows }
       ice = new Uint8Array(n)
@@ -230,7 +234,7 @@ export function createFrost(options: FrostOptions): LiveSource {
     if (islandsSeen !== context.islandsVersion) {
       islandsSeen = context.islandsVersion
       blocked.fill(0)
-      fillRects(blocked, cols, rows, halfRects(context.islands, ISLAND_MARGIN, rects))
+      fillRects(blocked, cols, rows, scaledRects(context.islands, ISLAND_MARGIN, scale, rects))
       let used = 0
       for (const cell of blocked) used += cell
       freeCells = Math.max(1, blocked.length - used)
@@ -278,7 +282,7 @@ export function createFrost(options: FrostOptions): LiveSource {
 
   /** Lo que pasa del cupo se derrite por detrás: lo más viejo primero. */
   function melt(dt: number): void {
-    let budget = MELT_PER_S * dt
+    let budget = MELT_PER_S * freeCells * dt
     const limit = COVER * freeCells
     while (budget-- > 0 && tail - head > limit) {
       const i = order[head % order.length] ?? 0
@@ -326,7 +330,7 @@ export function createFrost(options: FrostOptions): LiveSource {
       kept++
     }
     meltingCount = kept
-    writeHalfDirect(light, rows, mask, GAIN)
+    writeScaledDirect(light, rows, mask, scale, GAIN)
   }
 
   return {
@@ -334,7 +338,7 @@ export function createFrost(options: FrostOptions): LiveSource {
       ensure(boxCols, boxRows, context)
       elapsed += context.dt * 1000
       const mode = options.cursor()
-      followPointer(presence, context, mode !== 'off')
+      followPointer(presence, context, mode !== 'off', scale)
       if (elapsed >= nextWave) wave()
       grow(mode)
       melt(context.dt)

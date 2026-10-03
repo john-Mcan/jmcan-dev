@@ -3,9 +3,9 @@
  * sobre el borde de la cardioide principal del conjunto de Mandelbrot (justo en
  * el borde, la Julia es una dendrita: filamentos que se ramifican). Se dibuja el
  * borde (el tiempo de escape suavizado), fino, con lo tenue aclarado; el
- * interior y lo lejano quedan oscuros. El puntero guía c (atrae: su posición elige la forma) o lo invierte
- * (aparta: lo lleva al lado opuesto); sin puntero, la forma se queda donde está
- * y solo respira. Sin DOM.
+ * interior y lo lejano quedan oscuros. El puntero guía c (atrae: su posición elige
+ * la forma) o lo invierte (aparta: lo lleva al lado opuesto); sin puntero, la
+ * forma se queda en su lugar, respira y va cambiando de estructura. Sin DOM.
  *
  * Es la excepción a «nada detrás del texto»: la forma pasa por debajo de las
  * letras, atenuada (`UNDER_TEXT`), en vez de cortarse en un rectángulo.
@@ -18,6 +18,7 @@ import type { SpriteMask } from './grid-field'
 import {
   createPresence,
   fillRects,
+  fineScale,
   followPointer,
   type CellRect,
   type CursorMode,
@@ -30,19 +31,31 @@ export interface JuliaOptions {
   random?: () => number
 }
 
-/** c sobre la cardioide: ángulo central, vaivén del ángulo y de la escala (1 = el borde). */
-const ANGLE = 2.2
-const ANGLE_SWAY = 0.12
-const SCALE = 1.005
-const SCALE_SWAY = 0.012
-/** Un vaivén completo cada ~50 s. */
-const SWAY_SPEED = 0.125
+/**
+ * c sobre la cardioide: ángulo central y escala (1 = el borde). Sin puntero, c
+ * recorre el borde con dos vaivenes, uno amplio (~37 s) y uno corto (~13 s), y la
+ * forma cambia de estructura: erguida y con espirales hacia 1,85, tendida hacia
+ * 2,45. Más allá de 2,6 se acuesta y se vuelve la «basílica», de bulbos gruesos.
+ * La escala no pasa de ~1,006: más afuera del borde, en varios ángulos, el escape
+ * se vuelve lento en zonas anchas y la forma se rellena de gris.
+ */
+const ANGLE = 2.15
+const ANGLE_SWAY = 0.3
+const ANGLE_SWAY_SPEED = 0.17
+const ANGLE_RIPPLE = 0.07
+const ANGLE_RIPPLE_SPEED = 0.47
+const SCALE = 1
+const SCALE_SWAY = 0.006
+const SCALE_SWAY_SPEED = 0.2
 const MAX_ITERATIONS = 40
 const BAILOUT = 16
 /** Largo de la forma en el plano complejo (de punta a punta, a lo largo de su eje). */
 const SPAN = 3.4
 /** Esta dendrita se inclina respecto del eje real: se compensa para que su espina siga la diagonal. */
 const TILT = 0.44
+/** En móvil: dónde va el eje (fracción del ancho) y cuánto desborda la forma, arriba y abajo (fracción del alto). */
+const PORTRAIT_X = 0.62
+const PORTRAIT_OVERFLOW = 0.1
 /** Cuánto respira (zoom lento). */
 const BREATH = 0.02
 const BREATH_SPEED = 0.3
@@ -68,6 +81,8 @@ const ISLAND_MARGIN = 1
 export function createJulia(options: JuliaOptions): LiveSource {
   let cols = 0
   let rows = 0
+  /** Celdas del campo por cálculo, de lado (ver `fineScale`): los trazos miden lo mismo en móvil. */
+  let block = 1
   let mask: SpriteMask | null = null
   let under = new Uint8Array(0)
   const rects: CellRect[] = []
@@ -85,6 +100,7 @@ export function createJulia(options: JuliaOptions): LiveSource {
   const presence = createPresence()
 
   function ensure(boxCols: number, boxRows: number, context: LiveContext): void {
+    block = fineScale(context.cellPx)
     if (!mask || mask.cols !== boxCols || mask.rows !== boxRows) {
       cols = boxCols
       rows = boxRows
@@ -113,14 +129,15 @@ export function createJulia(options: JuliaOptions): LiveSource {
   /** c: el vaivén, y hacia donde lo lleve el puntero mientras está. */
   function steer(dt: number, mode: CursorMode): void {
     time += dt
-    const sway = Math.sin(time * SWAY_SPEED)
-    let angle = ANGLE + ANGLE_SWAY * sway
-    let scale = SCALE + SCALE_SWAY * Math.cos(time * SWAY_SPEED * 0.7)
+    let angle =
+      ANGLE +
+      ANGLE_SWAY * Math.sin(time * ANGLE_SWAY_SPEED) +
+      ANGLE_RIPPLE * Math.sin(time * ANGLE_RIPPLE_SPEED + 1.3)
+    let scale = SCALE + SCALE_SWAY * Math.cos(time * SCALE_SWAY_SPEED)
     const level = mode === 'off' ? 0 : presence.level
     if (level > 0.01) {
-      // `presence` va en media resolución; la caja de Julia, en completa.
-      const fx = (presence.x * 2) / cols - 0.5
-      const fy = (presence.y * 2) / rows
+      const fx = presence.x / cols - 0.5
+      const fy = presence.y / rows
       const sign = mode === 'attract' ? 1 : -1
       angle += sign * fx * 2 * STEER_TURN * level
       scale += (SCALE_MIN + (SCALE_MAX - SCALE_MIN) * fy - scale) * level
@@ -138,12 +155,13 @@ export function createJulia(options: JuliaOptions): LiveSource {
     const data = mask.data
     // Dónde vive la forma: en una caja apaisada, a lo largo de la diagonal que va
     // del centro abajo a la esquina de arriba a la derecha (el texto queda a la
-    // izquierda); en una vertical (móvil), de arriba abajo, ocupando todo el alto.
+    // izquierda); en una vertical (móvil), de arriba abajo y corrida a la derecha,
+    // más larga que la caja: desborda arriba, abajo y por el costado.
     const landscape = cols >= rows
-    const fromX = landscape ? cols * 0.51 : cols * 0.5
-    const fromY = landscape ? rows : rows * 0.98
-    const toX = landscape ? cols * 0.92 : cols * 0.5
-    const toY = landscape ? 0 : rows * 0.02
+    const fromX = landscape ? cols * 0.51 : cols * PORTRAIT_X
+    const fromY = landscape ? rows : rows * (1 + PORTRAIT_OVERFLOW)
+    const toX = landscape ? cols * 0.92 : cols * PORTRAIT_X
+    const toY = landscape ? 0 : -rows * PORTRAIT_OVERFLOW
     const centerX = (fromX + toX) / 2
     const centerY = (fromY + toY) / 2
     const axis = Math.atan2(toY - fromY, toX - fromX) + TILT
@@ -156,9 +174,6 @@ export function createJulia(options: JuliaOptions): LiveSource {
     // Escala logarítmica: el escape tiene una cola larga y, lineal, solo se vería una franja finísima.
     const norm = Math.log1p(Math.max(MIN_PEAK, peak))
     let slowest = 0
-    // En una caja vertical (móvil) el campo es más fino (puntos de 1 px): se calcula de a
-    // 2 × 2 para que los trazos midan lo mismo que en escritorio.
-    const block = landscape ? 1 : 2
     for (let r = all ? 0 : parity * block; r < rows; r += block * (all ? 1 : 2)) {
       const dy = r - centerY
       for (let c = 0; c < cols; c += block) {
@@ -203,7 +218,7 @@ export function createJulia(options: JuliaOptions): LiveSource {
     frame(boxCols, boxRows, context) {
       ensure(boxCols, boxRows, context)
       const mode = options.cursor()
-      followPointer(presence, context, mode !== 'off')
+      followPointer(presence, context, mode !== 'off', 1)
       steer(context.dt, mode)
       render(false)
       return mask

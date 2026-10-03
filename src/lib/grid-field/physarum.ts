@@ -11,7 +11,7 @@
  */
 
 import type { SpriteMask } from './grid-field'
-import { writeHalfRes, type CellRect } from './live'
+import { writeScaled, type CellRect } from './live'
 
 export interface PhysarumParams {
   /** Agentes por celda de rastro. */
@@ -51,6 +51,12 @@ export interface PhysarumParams {
    * solo si esto es true; con gravedad, el fondo tiene que ser suelo.
    */
   wrapY: boolean
+  /**
+   * Las islas no se huelen como pared, y el agente que entra renace en otro lado.
+   * Esquivándolas y girando al chocar, los agentes se juntaban en el borde y la red
+   * lo recorría: el arrecife trepaba siempre el bloque del texto.
+   */
+  shunIslands: boolean
 }
 
 /**
@@ -60,7 +66,7 @@ export interface PhysarumParams {
  */
 export const PHYSARUM_DEFAULTS: PhysarumParams = {
   density: 0.35,
-  maxAgents: 8000,
+  maxAgents: 16000,
   sensorAngle: 0.785,
   sensorDistance: 4,
   turnAngle: 0.6,
@@ -75,6 +81,7 @@ export const PHYSARUM_DEFAULTS: PhysarumParams = {
   feed: 0.35,
   gravity: 0,
   wrapY: true,
+  shunIslands: false,
 }
 
 /** Un punto que la red huele sin que quede rastro: positivo atrae, negativo aparta. */
@@ -183,7 +190,8 @@ function smell(
     y += y < 0 ? rows : -rows
   }
   const i = (x | 0) * rows + (y | 0)
-  if (sim.blocked[i] === 1) return -1
+  // Con `shunIslands` la isla no se huele: el que entra renace, y su borde no junta rastro.
+  if (sim.blocked[i] === 1) return params.shunIslands ? 0 : -1
   let value = (sim.trail[i] ?? 0) + params.foodWeight * (sim.food[i] ?? 0)
   if (params.gravity !== 0) value += (params.gravity * y) / rows
   if (lure) {
@@ -235,6 +243,10 @@ export function stepPhysarum(
     if (ny < 0 || ny >= rows) {
       if (params.wrapY) ny += ny < 0 ? rows : -rows
       else wall = true
+    }
+    if (!wall && blocked[(nx | 0) * rows + (ny | 0)] === 1 && params.shunIslands) {
+      placeAgent(sim, a, random)
+      continue
     }
     if (wall || blocked[(nx | 0) * rows + (ny | 0)] === 1) {
       h = random() * TAU
@@ -301,15 +313,16 @@ export function stepPhysarum(
 }
 
 /**
- * Vuelca el rastro a la máscara de la caja (ver `writeHalfRes`). Sin el umbral,
+ * Vuelca el rastro a la máscara de la caja (ver `writeScaled`). Sin el umbral,
  * la red se lee como una mancha pareja.
  */
 export function writeMask(
   sim: Physarum,
   mask: SpriteMask,
+  scale: number,
   low: number,
   high: number,
   gain: number,
 ): void {
-  writeHalfRes(sim.trail, sim.rows, mask, low, high, gain)
+  writeScaled(sim.trail, sim.rows, mask, scale, low, high, gain)
 }
