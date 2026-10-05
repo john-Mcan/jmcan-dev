@@ -292,9 +292,9 @@ describe('patrones vivos', () => {
       const data = mask?.data ?? new Float32Array(0)
       expect(data.some((v) => v > 0.1)).toBe(true)
       expect(Math.max(...data)).toBeLessThanOrEqual(0.95)
-      // El interior de la isla (descontado el margen de media celda) queda apagado; Julia,
-      // la excepción, pasa por debajo del texto pero atenuada.
-      const underText = name === 'julia' ? 0.3 : 0
+      // El interior de la isla (descontado el margen de media celda) queda apagado; Julia y
+      // cosmos, las excepciones, pasan por debajo del texto pero atenuados.
+      const underText = name === 'julia' ? 0.3 : name === 'cosmos' ? 0.4 : 0
       for (let c = island.col + 1; c < island.col + island.cols - 1; c++) {
         for (let r = island.row + 1; r < island.row + island.rows - 1; r++) {
           expect(data[c * ROWS + r]).toBeLessThanOrEqual(underText)
@@ -309,6 +309,31 @@ describe('patrones vivos', () => {
       const again = [...(source.still(COLS, ROWS, ctx)?.data ?? [])]
       expect(first.some((v) => v > 0)).toBe(true)
       expect(again).toEqual(first)
+    })
+  }
+
+  // El texto no es un recuadro apagado ni aparta la materia, en una caja apaisada (escritorio)
+  // o vertical (móvil, con el texto cubriendo casi todo el ancho).
+  const boxes = {
+    apaisada: { cols: 120, rows: 80, text: { col: 20, row: 30, cols: 50, rows: 16 } },
+    vertical: { cols: 60, rows: 140, text: { col: 3, row: 50, cols: 54, rows: 50 } },
+  }
+  for (const [shape, { cols, rows, text }] of Object.entries(boxes)) {
+    it(`cosmos ${shape}: la materia pasa por debajo del texto, atenuada`, () => {
+      const source = createCosmos({ cursor: () => 'attract', random: seeded(3) })
+      const ctx: LiveContext = { ...context(), islands: [text] }
+      let mask = null
+      for (let i = 0; i < 90; i++) mask = source.frame(cols, rows, ctx)
+      const data = mask?.data ?? new Float32Array(0)
+      let inside = 0
+      for (let c = text.col + 1; c < text.col + text.cols - 1; c++) {
+        for (let r = text.row + 1; r < text.row + text.rows - 1; r++) {
+          const v = data[c * rows + r] ?? 0
+          expect(v).toBeLessThanOrEqual(0.4 * 0.95)
+          inside = Math.max(inside, v)
+        }
+      }
+      expect(inside).toBeGreaterThan(0)
     })
   }
 })

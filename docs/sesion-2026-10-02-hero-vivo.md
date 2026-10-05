@@ -206,10 +206,24 @@ orgánico.
     (o hasta la cima), sube a su propio ritmo y renace lejos del eje, así el flujo no se corta. Con un
     tiempo fijo, lo que entraba junto salía junto y el tornado latía. Subiendo todas igual, los nudos
     llegaban enteros a la cima y renacían de golpe.
-  - El texto aparta la materia con un empuje de corto alcance. Como vacío gravitatorio dejaba un pozo
-    en la caja periódica (cerca del 80 % del ancho), donde se armaba una franja propia junto al
-    tornado.
+  - El texto apartaba la materia con un empuje de corto alcance (quitado el 2026-10-05, ver abajo).
+    Como vacío gravitatorio dejaba un pozo en la caja periódica (cerca del 80 % del ancho), donde se
+    armaba una franja propia junto al tornado.
   - El eje es una fracción fija del ancho y no sale del texto: el texto se mide antes de que cargue la
     fuente pixel y después se angosta, y el eje se corría.
-- Pendiente: en móvil se lee poco, porque el texto tapa casi todo. Cuesta ~2,9 ms por cuadro en
-  escritorio (Node), más que los otros patrones.
+- Pendiente: cuesta ~2,9 ms por cuadro en escritorio (Node), más que los otros patrones.
+
+**Cosmos, ajustes del 2026-10-05.**
+
+- **Todo nace igual.** La materia que renace (fin de la órbita o goteo) cae en un punto al azar de
+  _toda_ la caja. Antes esquivaba las islas y una franja del 30 % del ancho alrededor del eje, y el
+  nacimiento no era parejo.
+- **El texto no existe para la simulación, en todos los anchos.** Se quitó el empuje de corto alcance
+  (arriba) y el corte en recuadro: la materia pasa por debajo del texto con el 40 % de su luz
+  (`UNDER_TEXT`), como Julia (30 %). Primero se hizo solo para cajas verticales (móvil), pero en
+  escritorio seguía viéndose un halo vacío alrededor del texto, y se pidió lo mismo en todos los
+  anchos («móvil» incluye escritorio).
+- **Recuadros de CSS, en todos los anchos.** En `HeroAsk.astro`, `.live-open` vuelve transparentes el
+  input y los botones (queda el borde; el principal lo marca de 2 px). Antes `.field`
+  (semitransparente) y `.btn` (sólido) tapaban el ruido de la grilla. Es de todos los heros del
+  laboratorio, no solo de cosmos.

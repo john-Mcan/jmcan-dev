@@ -218,6 +218,29 @@
     outline-offset: 0;
   }
 
+  /*
+   * Sobre un fondo vivo, en cualquier ancho, los recuadros (input y botones) no
+   * tapan lo de atrás: solo queda su borde, y el botón principal lo marca más
+   * grueso. El hover se repite aquí porque, con la misma especificidad, esta regla
+   * le ganaría al `.btn:hover` de arriba.
+   */
+  .live-open :is(.field, .btn) {
+    background: transparent;
+  }
+  .live-open .btn-primary {
+    border-width: 2px;
+    color: var(--fg);
+  }
+  .live-open .btn:hover {
+    background: var(--fg);
+    color: var(--bg);
+  }
+  .live-open .btn-primary:hover {
+    border-color: var(--signal);
+    background: var(--signal);
+    color: var(--on-signal);
+  }
+
   /* Cuerpo de los casos de estudio (Markdown). */
   .prose-case {
     max-width: 65ch;

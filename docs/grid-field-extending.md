@@ -221,8 +221,9 @@ están en `docs/sesion-2026-10-02-hero-vivo.md`, sección 5. Para uno nuevo:
   que no era halo oscurecía la pantalla entera. Tampoco hay brillo bajo el cursor (se quitó a
   propósito).
 - **Color.** El ámbar significa estado, foco o interacción. Un sprite decorativo va en `base`.
-- **Contraste.** Un sprite llega a 0,92 de opacidad: nunca lo pongas detrás de texto. La única
-  excepción, pedida, es el patrón Julia: pasa por debajo de las letras al 30 % de su luz.
+- **Contraste.** Un sprite llega a 0,92 de opacidad: nunca lo pongas detrás de texto. Las únicas
+  excepciones, pedidas: el patrón Julia, que pasa por debajo de las letras al 30 % de su luz, y
+  cosmos, al 40 %, en cualquier ancho.
 - **Sin frameworks.** El motor es TypeScript plano; no lo envuelvas en React.
 
 ## 5. Parámetros

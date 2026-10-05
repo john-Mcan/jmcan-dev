@@ -2,7 +2,9 @@
 /**
  * El llamado de los heros del laboratorio: «¿qué construimos?» con un input que
  * lleva a /contacto con el mensaje ya escrito (`?m=`), más «Ver proyectos» y la
- * disponibilidad. Todo es isla: la grilla no imprime detrás.
+ * disponibilidad. Todo es isla (los patrones no imprimen detrás; cosmos y Julia
+ * pasan por debajo, atenuados), y los recuadros son transparentes (`.live-open`
+ * en `global.css`).
  */
 import Button from '@/components/ui/Button.astro'
 import { getDictionary, pathFor, type Locale } from '@/i18n'
@@ -17,7 +19,12 @@ const t = getDictionary(locale)
 const center = align === 'center'
 ---
 
-<div class:list={['flex flex-col gap-6', center ? 'items-center text-center' : 'items-start']}>
+<div
+  class:list={[
+    'live-open flex flex-col gap-6',
+    center ? 'items-center text-center' : 'items-start',
+  ]}
+>
   <form class="w-full max-w-md" action={pathFor(locale, 'contact')} method="get" data-grid-island>
     <label for="hero-ask" class="font-pixel text-d1">
       <span class="text-muted" aria-hidden="true">

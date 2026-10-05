@@ -20,9 +20,14 @@
  * materia libre se agotaba y el tornado moría en segundos; con un tiempo fijo, lo
  * que entró junto salía junto y el tornado latía.
  *
- * El texto aparta la materia que pasa cerca (un empuje de corto alcance) y ahí
- * nunca se pinta. El puntero es una masa (atrae) o un vacío (aparta) para la
- * materia libre, y no deja rastro. Sin DOM.
+ * Todo nace igual: la materia que termina su órbita (o cae del goteo) renace en
+ * un punto al azar de TODA la caja, sin mirar el texto ni el eje.
+ *
+ * El texto no existe para la simulación: no aparta la materia ni la corta. Pasa
+ * por debajo, atenuada (`UNDER_TEXT`), como en Julia, en cualquier ancho. Ni un
+ * empuje alrededor ni un recuadro apagado: dejaban un halo visible. El puntero es
+ * una masa (atrae) o un vacío (aparta) para la materia libre, y no deja rastro.
+ * Sin DOM.
  *
  * Unidades: celdas finas (ver `fineScale`), segundos.
  */
@@ -77,14 +82,12 @@ const KICK = 0.5
 /** Goteo: fracción de la materia libre que renace en cualquier lugar por segundo. */
 const RAIN = 0.01
 /**
- * El texto aparta la materia a menos de SHOVE_REACH celdas, con hasta SHOVE
- * celdas/s². Es un empuje local y no un vacío gravitatorio: un vacío, en la caja
- * periódica, dejaba un pozo en el punto más lejano del texto y de su copia (cerca
- * del 80 % del ancho), donde la materia armaba una franja propia junto al tornado.
+ * El texto no aparta ni corta la materia: pasa por debajo, con esta fracción de su
+ * luz (ISLAND_MARGIN celdas más allá del texto). Apartarla dejaba un halo vacío
+ * alrededor del texto, y cortarla, un recuadro apagado.
  */
-const SHOVE = 12
-const SHOVE_REACH = 5
 const ISLAND_MARGIN = 1
+const UNDER_TEXT = 0.4
 /** Luz: densidad (partículas por celda) bajo LOW es vacío; sobre HIGH, plena. */
 const LOW = 0.35
 const HIGH = 8
@@ -152,12 +155,11 @@ const SWAY = 0.035
 const SWAY_SPEED = 0.6
 /**
  * Cuánto orbita una partícula (s): exponencial de media STAY_S, entre STAY_MIN_S y
- * STAY_MAX_S. Al salir renace a REBIRTH_AWAY del eje, como mínimo (fracción del ancho).
+ * STAY_MAX_S. Al salir renace quieta, en un punto al azar de la caja.
  */
 const STAY_S = 8
 const STAY_MIN_S = 1.5
 const STAY_MAX_S = 25
-const REBIRTH_AWAY = 0.15
 /**
  * Luz de lo que orbita, por profundidad: adelante FRONT, atrás BACK (fracción de
  * GAIN). Va por partícula, no por densidad: así las hebras se leen nítidas.
@@ -180,13 +182,13 @@ export function createCosmos(options: CosmosOptions): LiveSource {
   let scale = 1
   let cols = 0
   let rows = 0
+  /** Caja vertical: el eje va más a la izquierda que en una apaisada. */
+  let portrait = false
   /** Partículas por celda de la caja, para pintar. */
   let counts = new Float32Array(0)
   let light = new Float32Array(0)
+  /** Celdas bajo el texto: la materia las cruza y se pinta atenuada. */
   let blocked = new Uint8Array(0)
-  /** El empuje del texto, por celda de malla (aceleración). */
-  let shoveX = new Float32Array(0)
-  let shoveY = new Float32Array(0)
   let islandsSeen = -1
   const rects: CellRect[] = []
   let settled: Gravity | null = null
@@ -218,19 +220,10 @@ export function createCosmos(options: CosmosOptions): LiveSource {
   const presence = createPresence()
   const pointer: PointMass = { x: 0, y: 0, soft: POINTER_SOFT, strength: 0 }
 
-  /** Renace en un lugar al azar fuera del texto (y, si hay tornado, lejos de su eje), quieta. */
+  /** Renace quieta en un punto al azar de toda la caja: no mira el texto ni el eje. */
   function respawn(target: Gravity, p: number): void {
-    let x = 0
-    let y = 0
-    const away = born ? REBIRTH_AWAY * cols : 0
-    for (let attempt = 0; attempt < 16; attempt++) {
-      x = random() * cols
-      y = random() * rows
-      if (blocked[(x | 0) * rows + (y | 0)] === 1) continue
-      if (Math.abs(across(axisX, x)) >= away) break
-    }
-    target.x[p] = x
-    target.y[p] = y
+    target.x[p] = random() * cols
+    target.y[p] = random() * rows
     target.vx[p] = 0
     target.vy[p] = 0
   }
@@ -241,7 +234,7 @@ export function createCosmos(options: CosmosOptions): LiveSource {
    */
   function begin(target: Gravity): void {
     randomDisplacement(target, SPECTRUM, random, QUIET_WAVES)
-    axisX = (cols >= rows ? AXIS_LANDSCAPE : AXIS_PORTRAIT) * cols
+    axisX = (portrait ? AXIS_PORTRAIT : AXIS_LANDSCAPE) * cols
     for (let p = 0; p < target.count; p++) {
       const qx = random() * cols
       const qy = random() * rows
@@ -266,6 +259,7 @@ export function createCosmos(options: CosmosOptions): LiveSource {
       scale = wanted
       cols = scaled(boxCols, scale)
       rows = scaled(boxRows, scale)
+      portrait = cols < rows
       const n = cols * rows
       const count = Math.min(MAX_PARTICLES, Math.round(n * DENSITY))
       sim = createGravity(cols, rows, meshSize(cols / MESH_CELL), meshSize(rows / MESH_CELL), count)
@@ -274,8 +268,6 @@ export function createCosmos(options: CosmosOptions): LiveSource {
       light = new Float32Array(n)
       blocked = new Uint8Array(n)
       freeColumns = new Float32Array(cols)
-      shoveX = new Float32Array(sim.meshCols * sim.meshRows)
-      shoveY = new Float32Array(sim.meshCols * sim.meshRows)
       axisRow = new Float32Array(rows)
       wallRow = new Float32Array(rows)
       orbiting = new Uint8Array(count)
@@ -293,49 +285,8 @@ export function createCosmos(options: CosmosOptions): LiveSource {
       scaledRects(context.islands, ISLAND_MARGIN, scale, rects)
       blocked.fill(0)
       fillRects(blocked, cols, rows, rects)
-      markShove(sim)
     }
     return sim
-  }
-
-  /**
-   * El empuje del texto en la malla: desde el punto más cercano de cada isla hacia
-   * afuera, más fuerte cuanto más cerca; adentro, hacia el borde más cercano.
-   */
-  function markShove(target: Gravity): void {
-    const { meshCols, meshRows } = target
-    shoveX.fill(0)
-    shoveY.fill(0)
-    const hx = cols / meshCols
-    const hy = rows / meshRows
-    for (let c = 0; c < meshCols; c++) {
-      const x = (c + 0.5) * hx
-      for (let r = 0; r < meshRows; r++) {
-        const y = (r + 0.5) * hy
-        const i = c * meshRows + r
-        for (const rect of rects) {
-          const left = rect.col
-          const right = rect.col + rect.cols
-          const top = rect.row
-          const bottom = rect.row + rect.rows
-          if (x >= left && x < right && y >= top && y < bottom) {
-            const least = Math.min(x - left, right - x, y - top, bottom - y)
-            if (least === x - left) shoveX[i] = (shoveX[i] ?? 0) - SHOVE
-            else if (least === right - x) shoveX[i] = (shoveX[i] ?? 0) + SHOVE
-            else if (least === y - top) shoveY[i] = (shoveY[i] ?? 0) - SHOVE
-            else shoveY[i] = (shoveY[i] ?? 0) + SHOVE
-            continue
-          }
-          const dx = x - Math.min(right, Math.max(left, x))
-          const dy = y - Math.min(bottom, Math.max(top, y))
-          const d = Math.sqrt(dx * dx + dy * dy)
-          if (d >= SHOVE_REACH) continue
-          const push = (SHOVE * (1 - d / SHOVE_REACH)) / d
-          shoveX[i] = (shoveX[i] ?? 0) + dx * push
-          shoveY[i] = (shoveY[i] ?? 0) + dy * push
-        }
-      }
-    }
   }
 
   /**
@@ -543,18 +494,15 @@ export function createCosmos(options: CosmosOptions): LiveSource {
       const glow = GAIN * (BACK + (FRONT - BACK) * depth)
       if (glow > (light[k] ?? 0)) light[k] = glow
     }
-    for (let i = 0; i < light.length; i++) if (blocked[i] === 1) light[i] = 0
+    for (let i = 0; i < light.length; i++) {
+      if (blocked[i] === 1) light[i] = (light[i] ?? 0) * UNDER_TEXT
+    }
     writeScaledDirect(light, rows, mask, scale, GAIN)
   }
 
   function advance(target: Gravity, dt: number, mass: PointMass | null): void {
     time += dt
     accelerate(target, PARAMS)
-    const { ax, ay } = target
-    for (let i = 0; i < ax.length; i++) {
-      ax[i] = (ax[i] ?? 0) + (shoveX[i] ?? 0)
-      ay[i] = (ay[i] ?? 0) + (shoveY[i] ?? 0)
-    }
     watchCollapse(target, dt)
     spin += ((born ? 1 : 0) - spin) * (1 - Math.exp(-dt / SPIN_UP_S))
     if (born) {
