@@ -33,7 +33,12 @@ const featured = projects.filter((project) => project.entry.data.featured)
   description="Vista previa del hero."
   noindex
 >
-  <HeroStage locale={locale} pattern={variant.pattern} cursor={variant.cursor} />
+  <HeroStage
+    locale={locale}
+    pattern={variant.pattern}
+    cursor={variant.cursor}
+    intro={'intro' in variant ? variant.intro : undefined}
+  />
   <FeaturedProjects locale={locale} projects={featured} total={projects.length} />
   <Timeline locale={locale} />
   <ContactCta locale={locale} />

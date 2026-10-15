@@ -277,6 +277,7 @@ describe('patrones vivos', () => {
     moho: () => createMold({ habitat: 'open', cursor: () => 'attract', random: seeded(1) }),
     arrecife: () => createMold({ habitat: 'reef', cursor: () => 'off', random: seeded(2) }),
     cosmos: () => createCosmos({ cursor: () => 'attract', random: seeded(3) }),
+    'cosmos solo': () => createCosmos({ cursor: () => 'attract', alone: true, random: seeded(3) }),
     enjambre: () => createFlock({ cursor: () => 'attract', random: seeded(4) }),
     corrientes: () => createCurrents({ cursor: () => 'repel', random: seeded(5) }),
     escarcha: () => createFrost({ cursor: () => 'attract', random: seeded(6) }),
@@ -300,7 +301,7 @@ describe('patrones vivos', () => {
       expect(Math.max(...data)).toBeLessThanOrEqual(0.95)
       // El interior de la isla (descontado el margen de media celda) queda apagado; Julia y
       // cosmos, las excepciones, pasan por debajo del texto pero atenuados.
-      const underText = name === 'julia' ? 0.3 : name === 'cosmos' ? 0.4 : 0
+      const underText = name === 'julia' ? 0.3 : name.startsWith('cosmos') ? 0.4 : 0
       for (let c = island.col + 1; c < island.col + island.cols - 1; c++) {
         for (let r = island.row + 1; r < island.row + island.rows - 1; r++) {
           expect(data[c * ROWS + r]).toBeLessThanOrEqual(underText)
@@ -342,4 +343,24 @@ describe('patrones vivos', () => {
       expect(inside).toBeGreaterThan(0)
     })
   }
+
+  it('cosmos solo: formado el tornado, el fondo se vacía y el tornado sigue', () => {
+    const source = createCosmos({ cursor: () => 'off', alone: true, random: seeded(3) })
+    const ctx: LiveContext = { ...context(), islands: [] }
+    // El eje cae a 0,76 del ancho (columna ~91): lejos de él, el fondo; cerca, el tornado.
+    const light = (data: Float32Array, c0: number, c1: number) => {
+      let lit = 0
+      for (let c = c0; c < c1; c++) {
+        for (let r = 0; r < ROWS; r++) if ((data[c * ROWS + r] ?? 0) > 0.05) lit++
+      }
+      return lit
+    }
+    let mask = null
+    for (let i = 0; i < 90; i++) mask = source.frame(COLS, ROWS, ctx)
+    expect(light(mask?.data ?? new Float32Array(0), 5, 55)).toBeGreaterThan(100)
+    for (let i = 0; i < 40 * 30; i++) mask = source.frame(COLS, ROWS, ctx)
+    const late = mask?.data ?? new Float32Array(0)
+    expect(light(late, 5, 55)).toBe(0)
+    expect(light(late, 75, 107)).toBeGreaterThan(100)
+  })
 })

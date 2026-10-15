@@ -23,6 +23,10 @@
  * Todo nace igual: la materia que termina su órbita (o cae del goteo) renace en
  * un punto al azar de TODA la caja, sin mirar el texto ni el eje.
  *
+ * Solo (`alone`): nunca se suma materia. La del arranque cae al tornado y, al
+ * terminar su órbita, vuelve a entrar en él: sin goteo ni renacer en el fondo, el
+ * fondo se vacía y el tornado queda solo.
+ *
  * El texto no existe para la simulación: no aparta la materia ni la corta. Pasa
  * por debajo, atenuada (`UNDER_TEXT`), como en Julia, en cualquier ancho. Ni un
  * empuje alrededor ni un recuadro apagado: dejaban un halo visible. El puntero es
@@ -61,6 +65,8 @@ import {
 export interface CosmosOptions {
   /** Se lee en cada cuadro: el laboratorio lo cambia en vivo. */
   cursor: () => CursorMode
+  /** Sin materia nueva: el tornado se queda con la del arranque y el fondo se vacía. */
+  alone?: boolean
   random?: () => number
 }
 
@@ -408,38 +414,54 @@ export function createCosmos(options: CosmosOptions): LiveSource {
       const wall = wallRow[row] ?? 0
       const u = across(axisRow[row] ?? 0, target.x[p] ?? 0)
       if (y < SUMMIT * rows || Math.abs(u) > wall + CAPTURE || random() > chance) continue
-      orbiting[p] = 1
-      // Entra justo donde está (sin salto: la fase que la deja en su x, adelante o
-      // atrás) y después se suma, girando, a la hebra más cercana. Deslizarse en
-      // horizontal hasta la hebra dibujaba barras.
-      // Más cerca de la pared que del eje: el embudo es hueco y su silueta se lee.
-      const share = Math.max(0.6, Math.min(1, Math.abs(u) / Math.max(1, wall)))
-      const side = Math.asin(Math.max(-1, Math.min(1, u / (wall * share))))
-      const own = (random() < 0.5 ? side : Math.PI - side) - helix(y)
-      phase[p] = own
-      reach[p] = share
-      const strand = Math.round((own * STRANDS) / TAU)
-      strandPhase[p] = (strand * TAU) / STRANDS + (random() - 0.5) * 2 * STRAND_SPREAD
-      stay[p] = Math.min(STAY_MAX_S, Math.max(STAY_MIN_S, -Math.log(1 - random()) * STAY_S))
-      lift[p] = UPDRAFT * (1 + LIFT_SPREAD * (2 * random() - 1))
+      join(p, u, wall, y)
     }
   }
 
-  /** La órbita: sigue su hebra, que rota y sube; al terminar su tiempo (o en la cima) renace lejos del eje. */
+  /**
+   * Empieza a orbitar a `u` celdas del eje (la pared del embudo mide `wall`), a la
+   * altura `y`. Entra justo donde está (sin salto: la fase que la deja en su x,
+   * adelante o atrás) y después se suma, girando, a la hebra más cercana.
+   * Deslizarse en horizontal hasta la hebra dibujaba barras.
+   */
+  function join(p: number, u: number, wall: number, y: number): void {
+    orbiting[p] = 1
+    // Más cerca de la pared que del eje: el embudo es hueco y su silueta se lee.
+    const share = Math.max(0.6, Math.min(1, Math.abs(u) / Math.max(1, wall)))
+    const side = Math.asin(Math.max(-1, Math.min(1, u / (wall * share))))
+    const own = (random() < 0.5 ? side : Math.PI - side) - helix(y)
+    phase[p] = own
+    reach[p] = share
+    const strand = Math.round((own * STRANDS) / TAU)
+    strandPhase[p] = (strand * TAU) / STRANDS + (random() - 0.5) * 2 * STRAND_SPREAD
+    stay[p] = Math.min(STAY_MAX_S, Math.max(STAY_MIN_S, -Math.log(1 - random()) * STAY_S))
+    lift[p] = UPDRAFT * (1 + LIFT_SPREAD * (2 * random() - 1))
+  }
+
+  /**
+   * La órbita: sigue su hebra, que rota y sube; al terminar su tiempo (o en la cima)
+   * renace lejos del eje. Solo: vuelve a entrar al tornado, en un punto al azar de
+   * su pared, como si llegara.
+   */
   function whirl(target: Gravity, dt: number): void {
     turned += WHIRL * spin * dt
     if (turned > TAU) turned -= TAU
-    const join = 1 - Math.exp(-dt / SETTLE_S)
+    const settle = 1 - Math.exp(-dt / SETTLE_S)
     for (let p = 0; p < target.count; p++) {
       if (orbiting[p] !== 1) continue
-      const y = (target.y[p] ?? 0) - (lift[p] ?? UPDRAFT) * spin * dt
+      let y = (target.y[p] ?? 0) - (lift[p] ?? UPDRAFT) * spin * dt
       stay[p] = (stay[p] ?? 0) - dt
       if (y < SUMMIT * rows || (stay[p] ?? 0) <= 0) {
-        orbiting[p] = 0
-        respawn(target, p)
-        continue
+        if (!options.alone) {
+          orbiting[p] = 0
+          respawn(target, p)
+          continue
+        }
+        y = (SUMMIT + random() * (1 - SUMMIT)) * rows
+        const wall = wallRow[y | 0] ?? 0
+        join(p, (random() < 0.5 ? -1 : 1) * wall * (0.6 + 0.4 * random()), wall, y)
       }
-      const own = (phase[p] ?? 0) + ((strandPhase[p] ?? 0) - (phase[p] ?? 0)) * join
+      const own = (phase[p] ?? 0) + ((strandPhase[p] ?? 0) - (phase[p] ?? 0)) * settle
       phase[p] = own
       const a = own + helix(y)
       const row = y | 0
@@ -452,8 +474,9 @@ export function createCosmos(options: CosmosOptions): LiveSource {
     }
   }
 
-  /** Goteo parejo de la materia libre: renace en cualquier lugar. */
+  /** Goteo parejo de la materia libre: renace en cualquier lugar. Solo, no gotea. */
   function recycle(target: Gravity, dt: number): void {
+    if (options.alone) return
     const rain = RAIN * dt
     for (let p = 0; p < target.count; p++) {
       if (orbiting[p] !== 1 && random() < rain) respawn(target, p)

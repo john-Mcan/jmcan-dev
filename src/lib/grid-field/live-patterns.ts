@@ -15,6 +15,7 @@ export const LIVE_PATTERNS = [
   'mold-open',
   'mold-reef',
   'cosmos',
+  'cosmos-alone',
   'flock',
   'currents',
   'frost',
@@ -35,6 +36,8 @@ export function createLivePattern(pattern: LivePattern, cursor: () => CursorMode
       return createMold({ habitat: 'reef', cursor })
     case 'cosmos':
       return createCosmos({ cursor })
+    case 'cosmos-alone':
+      return createCosmos({ cursor, alone: true })
     case 'flock':
       return createFlock({ cursor })
     case 'currents':

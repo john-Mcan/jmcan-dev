@@ -10,6 +10,8 @@
  *    La fila activa (centro del viewport, o hover/foco) se marca en ámbar y su
  *    glifo se imprime en el panel.
  *
+ * `data-grid-intro="fade"` en la página: el fondo entra con un fundido, sin barrido.
+ *
  * Un `document.dispatchEvent(new Event('grid:refresh'))` vuelve a leer los escenarios
  * (p. ej. cuando el formulario cambia `contact` por `sent`).
  */
@@ -30,6 +32,7 @@ import {
   GRID_FIELD_DEFAULTS,
   SHAPE_ATTRIBUTE,
   type GridFieldRunner,
+  type Intro,
   type Stage,
 } from '@/lib/grid-field/runner'
 import type { Sprite } from '@/lib/grid-field/sprites'
@@ -59,6 +62,7 @@ export function mountGridField(): void {
     const family = getComputedStyle(document.documentElement).getPropertyValue('--font-departure')
     const runner = createGridFieldRunner(host, canvas, {
       ...GRID_FIELD_DEFAULTS,
+      intro: pageIntro(),
       font: { family: family.trim() || 'monospace', weight: 400 },
     })
     const stages = createStageController(runner)
@@ -67,7 +71,7 @@ export function mountGridField(): void {
       stages.unbind()
       runner.leave()
     })
-    document.addEventListener('astro:after-swap', () => runner.enter())
+    document.addEventListener('astro:after-swap', () => runner.enter(pageIntro()))
     document.addEventListener('astro:page-load', () => stages.bind())
   })
 }
@@ -82,6 +86,10 @@ function whenIdle(run: () => void): void {
   }
   if (document.readyState === 'complete') schedule()
   else window.addEventListener('load', schedule, { once: true })
+}
+
+function pageIntro(): Intro {
+  return document.querySelector('[data-grid-intro="fade"]') ? 'fade' : 'sweep'
 }
 
 function pageLocale(): Locale {

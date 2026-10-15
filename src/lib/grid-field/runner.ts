@@ -64,9 +64,13 @@ export interface GridFieldOptions {
   maxDpr: number
   /** Cuánto destacan las formas en reposo (0–1). */
   restCondense: number
+  /** Cómo entra el campo al montar (ver `Intro`). */
+  intro: Intro
   /** Barrido que revela el campo al montar. */
   introMs: number
   introTauMs: number
+  /** El fundido de entrada (`intro: 'fade'`). */
+  fadeInMs: number
   /** Barrido y re-condensación al llegar a una página nueva. */
   enterMs: number
   enterTauMs: number
@@ -84,8 +88,10 @@ export const GRID_FIELD_DEFAULTS: Omit<GridFieldOptions, 'font'> = {
   maxCells: 90_000,
   maxDpr: 2,
   restCondense: 0.5,
+  intro: 'sweep',
   introMs: 1100,
   introTauMs: 900,
+  fadeInMs: 1200,
   enterMs: 650,
   enterTauMs: 450,
   leaveMs: 180,
@@ -99,10 +105,20 @@ export interface GridFieldRunner {
   rescan(): void
   /** Navegación saliente: la estructura se disuelve en ruido. */
   leave(): void
-  /** Navegación entrante: barrido de escaneo y la estructura nueva emerge. */
-  enter(): void
+  /** Navegación entrante: barrido de escaneo (o fundido) y la estructura nueva emerge. */
+  enter(intro?: Intro): void
   destroy(): void
 }
+
+/**
+ * Cómo entra el campo: `sweep`, un barrido de arriba hacia abajo; `fade`, un
+ * fundido del campo entero (ruido y escenario) que espera al escenario, para que
+ * entre con él ya listo y no a medio llegar.
+ */
+export type Intro = 'sweep' | 'fade'
+
+/** Lo más que el fundido espera al escenario: una página sin escenario no queda a oscuras. */
+const FADE_WAIT_MS = 2500
 
 /** Un escenario vivo no tiene cuadros: suena como un sprite sostenido de uno solo. */
 const LIVE_CLOCK = { frameCount: 1, frameMs: 0 }
@@ -127,6 +143,13 @@ interface Sweep {
   start: number
   ms: number
   reveal: boolean
+}
+
+/** `asked`: cuándo se pidió; `start`: cuándo empezó a subir (0, esperando al escenario). */
+interface Fade {
+  asked: number
+  start: number
+  ms: number
 }
 
 /**
@@ -158,7 +181,10 @@ export function createGridFieldRunner(
   let leavingAt: number | null = null
   let leaveFrom = 0
   let lastCondense = 0
-  let sweep: Sweep | null = { start: 0, ms: options.introMs, reveal: true }
+  let sweep: Sweep | null =
+    options.intro === 'sweep' ? { start: 0, ms: options.introMs, reveal: true } : null
+  let fade: Fade | null =
+    options.intro === 'fade' ? { asked: 0, start: 0, ms: options.fadeInMs } : null
 
   // Escenario de sprites. Solo se cachean las máscaras del sprite ACTUAL.
   let stage: Stage | null = null
@@ -280,6 +306,23 @@ export function createGridFieldRunner(
     return null
   }
 
+  /** Cuánto se ve el campo entero: 1, salvo durante el fundido de entrada. */
+  function presenceAt(now: number): number {
+    if (!fade) return 1
+    if (fade.asked === 0) fade.asked = now
+    if (fade.start === 0) {
+      const ready = stage !== null && switching === null
+      if (!ready && now - fade.asked < FADE_WAIT_MS) return 0
+      fade.start = now
+    }
+    const t = (now - fade.start) / fade.ms
+    if (t >= 1) {
+      fade = null
+      return 1
+    }
+    return t * t * (3 - 2 * t)
+  }
+
   // ─── Sprites ───────────────────────────────────────────────────────────────
 
   function currentSprite(): Sprite | null {
@@ -314,7 +357,8 @@ export function createGridFieldRunner(
 
   function enterStage(next: Stage | null, now: number): void {
     stage = next
-    stageStart = now
+    // Si el fundido de entrada lo espera, entra ya encendido: el fundido es su entrada.
+    stageStart = fade?.start === 0 ? now - options.fadeMs : now
     spriteIndex = -1
     spriteCycle = -1
     switching = null
@@ -445,12 +489,14 @@ export function createGridFieldRunner(
     const condense = condenseAt(now)
     lastCondense = condense
     const { placement, textAlpha } = spriteFrame(now, dt)
+    // Después del escenario: el fundido lo espera y arranca en el cuadro en que entra.
+    const presence = presenceAt(now)
     flickerCells(field, { dt, chance: options.chance, condense })
     paintField(
       ctx,
       field,
       {
-        phase: { condense, textAlpha, presence: 1 },
+        phase: { condense, textAlpha, presence },
         sprite: placement,
         rowGain: sweepGain(now),
         dt,
@@ -569,7 +615,10 @@ export function createGridFieldRunner(
     document.fonts.addEventListener('loadingdone', onFonts)
   }
 
-  if (reduced) sweep = null
+  if (reduced) {
+    sweep = null
+    fade = null
+  }
   measure()
   sync()
 
@@ -583,7 +632,8 @@ export function createGridFieldRunner(
       }
       if (switching && next === pending) return
       const now = performance.now()
-      if (reduced || lastAlpha <= 0.01) {
+      // Mientras el fundido de entrada espera, nada se ve: el cambio es inmediato.
+      if (reduced || lastAlpha <= 0.01 || fade?.start === 0) {
         enterStage(next, now)
         paintStill()
         return
@@ -600,7 +650,7 @@ export function createGridFieldRunner(
       leaveFrom = lastCondense
       leavingAt = performance.now()
     },
-    enter() {
+    enter(intro = 'sweep') {
       shapesDirty = true
       leavingAt = null
       if (reduced) {
@@ -609,7 +659,9 @@ export function createGridFieldRunner(
       }
       condenseFrom = performance.now()
       condenseTau = options.enterTauMs
-      sweep = { start: 0, ms: options.enterMs, reveal: false }
+      // El fundido parte de cero: la página nueva entra a oscuras, con su escenario.
+      sweep = intro === 'sweep' ? { start: 0, ms: options.enterMs, reveal: false } : null
+      fade = intro === 'fade' ? { asked: 0, start: 0, ms: options.fadeInMs } : null
     },
     destroy() {
       destroyed = true

@@ -91,14 +91,18 @@ los puntos crecen desde su centro (`dotSize`), como tinta que se corre:
 Las celdas del sprite (cobertura > `SPRITE_GLYPH`) van en grupos de pintado propios, junto a los del
 campo del mismo nivel: siguen siendo como mucho 48 cambios de `fillStyle`.
 
-**Ganancias.** Hoy hay una sola, calculada en `paintField`: `gain` (barrido por fila), que
-multiplica todo, sprite incluido.
+**Ganancias.** Hay dos, y multiplican todo, sprite incluido: `gain` (barrido por fila, en
+`paintField`) y `presence` (el campo entero, que sube en el fundido de entrada).
+
+**Entrada.** Al montar, el campo entra con un barrido de arriba hacia abajo. Una página con
+`data-grid-intro="fade"` (hoy, `/lab/cosmosv2`) entra con un fundido de `presence`: espera a su
+escenario (a lo sumo 2,5 s) y lo trae ya encendido, así entra con él listo y no a medio llegar.
 
 **Transiciones de página.** `astro:before-preparation` llama a `runner.leave()` (la estructura se
 disuelve en 180 ms) y suelta los escenarios. `astro:after-swap` llama a `runner.enter()` (barrido
-de escaneo y la estructura nueva emerge). El contenido HTML hace su propio fade en pasos
-(`lib/transitions.ts`). El snapshot viejo del canvas se oculta en `global.css` para no duplicar
-puntos.
+de escaneo, o fundido si la página nueva lo pide, y la estructura nueva emerge). El contenido HTML
+hace su propio fade en pasos (`lib/transitions.ts`). El snapshot viejo del canvas se oculta en
+`global.css` para no duplicar puntos.
 
 ## 3. Recetas
 
@@ -238,7 +242,9 @@ están en `docs/sesion-2026-10-02-hero-vivo.md`, sección 5. Para uno nuevo:
 | `maxCells`               | 90 000     | Presupuesto de celdas; por encima la grilla se engrosa |
 | `maxDpr`                 | 2          | Tope del devicePixelRatio                              |
 | `restCondense`           | 0,5        | Cuánto destacan los halos en reposo                    |
+| `intro`                  | `sweep`    | Entrada al montar: barrido o fundido (`fade`)          |
 | `introMs` / `introTauMs` | 1100 / 900 | Barrido que revela el campo y emergencia inicial       |
+| `fadeInMs`               | 1200       | Fundido de entrada (`intro: 'fade'`)                   |
 | `enterMs` / `enterTauMs` | 650 / 450  | Barrido y emergencia al llegar a otra página           |
 | `leaveMs`                | 180        | Disolución al salir de una página                      |
 | `fadeMs`                 | 260        | Fade de los sprites y de los cambios de escenario      |

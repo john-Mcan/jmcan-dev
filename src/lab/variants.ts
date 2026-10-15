@@ -1,7 +1,8 @@
 /**
  * Los candidatos del hero que monta `/lab/[variant]` (solo en `astro dev`). Todos
  * usan el mismo layout (`HeroStage`); cambia el patrón vivo del fondo y el cursor
- * con que se eligió. Cada patrón nombra a su modo «atrae» y «aparta».
+ * con que se eligió. Cada patrón nombra a su modo «atrae» y «aparta». `intro: 'fade'`:
+ * el fondo entra con un fundido, sin el barrido de arriba hacia abajo.
  */
 export const LAB_VARIANTS = [
   {
@@ -28,6 +29,16 @@ export const LAB_VARIANTS = [
     cursor: 'attract',
     attract: 'atrae',
     repel: 'aparta',
+  },
+  {
+    // Entra con un fundido, y el tornado formado se sostiene solo: el fondo se vacía.
+    slug: 'cosmosv2',
+    label: 'cosmos v2',
+    pattern: 'cosmos-alone',
+    cursor: 'attract',
+    attract: 'atrae',
+    repel: 'aparta',
+    intro: 'fade',
   },
   {
     slug: 'enjambre',

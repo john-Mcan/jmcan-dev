@@ -17,12 +17,14 @@ previas); nada de esto toca todavía la home de producción.
 7. [Pendiente: el header](#7-pendiente-el-header)
 8. [Para pasar a producción](#8-para-pasar-a-producción)
 9. [Ajustes del 2026-10-03: celdas de 6 px y cosmos](#9-ajustes-del-2026-10-03-celdas-de-6-px-y-cosmos)
+10. [Ajustes del 2026-10-05: Julia con zoom infinito y grilla de 4 px](#10-ajustes-del-2026-10-05-julia-con-zoom-infinito-y-grilla-de-4-px)
+11. [Ajustes del 2026-10-15: cosmos v2](#11-ajustes-del-2026-10-15-cosmos-v2)
 
 ## 1. Cómo ver los candidatos
 
-Con `pnpm dev`, en `/lab/<variante>` (`sesion`, `arrecife`, `cosmos`, `enjambre`, `corrientes`,
-`escarcha`, `julia`). Es la home con el hero candidato y el resto de las secciones, para ver también
-el paso al siguiente escenario al hacer scroll.
+Con `pnpm dev`, en `/lab/<variante>` (`sesion`, `arrecife`, `cosmos`, `cosmosv2`, `enjambre`,
+`corrientes`, `escarcha`, `julia`). Es la home con el hero candidato y el resto de las secciones,
+para ver también el paso al siguiente escenario al hacer scroll.
 
 - La ruta solo existe en `astro dev`: la inyecta una integración en `astro.config.ts` y nunca llega
   al build.
@@ -59,15 +61,16 @@ el paso al siguiente escenario al hacer scroll.
 
 ## 3. Candidatos
 
-| Variante   | Patrón      | Cursor   | Qué hace                                                                                                                                                                                                                                                                          |
-| ---------- | ----------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| sesion     | `mold-open` | atrae    | Moho (Physarum): miles de agentes siguen su propio rastro y forman una red de venas que se reorganiza sola. El cursor estira la red hacia él.                                                                                                                                     |
-| arrecife   | `mold-reef` | atrae    | El mismo moho, creciendo desde el borde inferior como un arrecife. **Solo escritorio:** en una caja vertical vive como red abierta (`habitatFor`).                                                                                                                                |
-| cosmos     | `cosmos`    | atrae    | Gravedad (N-cuerpos de partícula-malla): la materia corre desde los dos lados y colapsa en una franja, y ahí nace un tornado que gira alrededor de ella, alimentado por un flujo que no se corta. Ver la sección 9.                                                               |
-| enjambre   | `flock`     | nada     | Una bandada (boids) con estela corta propia; cada 7–13 s se sobresalta y se parte. Con «curiosa» rodea al cursor y con «tímida» le abre paso.                                                                                                                                     |
-| corrientes | `currents`  | remolino | Partículas en un viento que rodea el texto (la función de corriente se resuelve con el texto como obstáculo). «Remolino» hace girar la corriente alrededor del cursor; «roca» la obliga a rodearlo.                                                                               |
-| escarcha   | `frost`     | atrae    | Agregación limitada por difusión: cristales fractales que nacen en el texto y crecen siempre hacia adelante; lo más viejo se apaga y se derrite por detrás. Cada 3–6 s sale una ola nueva desde el texto. «Atrae» estira las ramas hacia el cursor.                               |
-| julia      | `julia`     | guía     | Un zoom que no termina nunca en el conjunto de Julia de z² + c (c ≈ −0,8 + 0,156i: espirales y bulbos), con las ondas de su potencial alrededor, que corren hacia afuera. Ver la sección 10. «Guía»: la posición del cursor mueve c y cambia la forma; en «nada», c se mece sola. |
+| Variante   | Patrón         | Cursor   | Qué hace                                                                                                                                                                                                                                                                          |
+| ---------- | -------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| sesion     | `mold-open`    | atrae    | Moho (Physarum): miles de agentes siguen su propio rastro y forman una red de venas que se reorganiza sola. El cursor estira la red hacia él.                                                                                                                                     |
+| arrecife   | `mold-reef`    | atrae    | El mismo moho, creciendo desde el borde inferior como un arrecife. **Solo escritorio:** en una caja vertical vive como red abierta (`habitatFor`).                                                                                                                                |
+| cosmos     | `cosmos`       | atrae    | Gravedad (N-cuerpos de partícula-malla): la materia corre desde los dos lados y colapsa en una franja, y ahí nace un tornado que gira alrededor de ella, alimentado por un flujo que no se corta. Ver la sección 9.                                                               |
+| cosmosv2   | `cosmos-alone` | atrae    | Cosmos que entra con un fundido (sin barrido) y nunca suma materia: la del arranque cae al tornado y el fondo queda vacío. Ver la sección 11.                                                                                                                                     |
+| enjambre   | `flock`        | nada     | Una bandada (boids) con estela corta propia; cada 7–13 s se sobresalta y se parte. Con «curiosa» rodea al cursor y con «tímida» le abre paso.                                                                                                                                     |
+| corrientes | `currents`     | remolino | Partículas en un viento que rodea el texto (la función de corriente se resuelve con el texto como obstáculo). «Remolino» hace girar la corriente alrededor del cursor; «roca» la obliga a rodearlo.                                                                               |
+| escarcha   | `frost`        | atrae    | Agregación limitada por difusión: cristales fractales que nacen en el texto y crecen siempre hacia adelante; lo más viejo se apaga y se derrite por detrás. Cada 3–6 s sale una ola nueva desde el texto. «Atrae» estira las ramas hacia el cursor.                               |
+| julia      | `julia`        | guía     | Un zoom que no termina nunca en el conjunto de Julia de z² + c (c ≈ −0,8 + 0,156i: espirales y bulbos), con las ondas de su potencial alrededor, que corren hacia afuera. Ver la sección 10. «Guía»: la posición del cursor mueve c y cambia la forma; en «nada», c se mece sola. |
 
 Julia es la **excepción** a «nada detrás del texto»: pasa por debajo de las letras al 30 % de su luz
 (`UNDER_TEXT`) en vez de cortarse en un rectángulo. Así se pidió.
@@ -268,3 +271,22 @@ celda.
   serio habría que abaratar el pintado (`ImageData` o WebGL2, ver
   `docs/grid-field-extending.md`, sección 6) o dejarlo solo para el hero.
 - Pendiente: decidir si se queda.
+
+## 11. Ajustes del 2026-10-15: cosmos v2
+
+Se pidió una variante de cosmos (`/lab/cosmosv2`, patrón `cosmos-alone`) con dos cambios:
+
+- **Entrada.** Sin el barrido de arriba hacia abajo: el fondo entero (ruido y partículas) entra con
+  un fundido de 1,2 s, con las partículas ya listas. La página lo pide con `data-grid-intro="fade"`
+  (en `HeroStage`, desde `intro` en `variants.ts`). El fundido espera al escenario y lo trae ya
+  encendido; al navegar hacia la página, el campo baja a cero y sube igual.
+- **Sin materia nueva.** La del arranque cae al tornado como en cosmos, y nada más: sin goteo ni
+  renacer en el fondo. Lo que termina su órbita (o llega a la cima) vuelve a entrar al tornado en un
+  punto al azar de su pared, como si llegara, y se suma girando a su hebra. Hacia los 15 s ya no
+  queda nada en el fondo y el tornado se sostiene solo, con todas las partículas.
+- Primero se probó un destete: formado el tornado, la materia dejaba de renacer en el fondo de a
+  poco y el tornado se quedaba con la que tenía al formarse (~19 mil de 30 mil; el resto se
+  apagaba). Se reemplazó por lo de arriba, más simple. Con las 30 mil, el tornado ocupa ~6 % más de
+  celdas y se ve algo más lleno.
+- Con el fondo vacío, el cursor ya no tiene materia libre que atraer o apartar: deja de verse su
+  efecto.
