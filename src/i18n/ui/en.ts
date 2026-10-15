@@ -24,9 +24,19 @@ export const en: Dictionary = {
     contact: 'Contact',
   },
   hero: {
-    lead: 'We build complete web products, from the data model to the interface.',
-    ask: 'what are we building?',
-    askPlaceholder: 'an app for…',
+    lead: 'I build complete web products, from the data model to the interface.',
+    asks: [
+      { text: 'what do you want to build?', placeholder: 'an app for…' },
+      { text: 'have a question?', placeholder: 'I would like to know if…' },
+      { text: 'want to bring AI into a project?', placeholder: 'an assistant that…' },
+      { text: 'have a proposal?', placeholder: 'I propose…' },
+      { text: 'stopping by to say hi?', placeholder: 'hi…' },
+      {
+        text: 'listen to some music ',
+        link: { text: 'here', href: 'https://www.nex-radio.com/' },
+        placeholder: 'or write me something…',
+      },
+    ],
     askSubmit: 'Send',
     ctaProjects: 'See projects',
     status: 'Available for projects from November',

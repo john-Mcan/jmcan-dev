@@ -2,9 +2,9 @@
 /**
  * El hero: el texto a la izquierda y un escenario vivo en todo el hero, alrededor.
  * Por defecto, cosmos solo (la materia cae a un tornado que queda solo) y el fondo
- * entra con un fundido. `/lab` lo monta con otros patrones para compararlos. En
- * escritorio el nombre va en una sola línea, aunque pase del ancho de la columna:
- * a su derecha solo hay fondo.
+ * entra con el barrido de las otras páginas. `/lab` lo monta con otros patrones
+ * para compararlos. En escritorio el nombre va en una sola línea, aunque pase del
+ * ancho de la columna: a su derecha solo hay fondo.
  */
 import HeroAsk from '@/components/sections/home/HeroAsk.astro'
 import { SITE } from '@/data/site'
@@ -20,7 +20,7 @@ interface Props {
   intro?: 'fade' | 'sweep'
 }
 
-const { locale, pattern = 'cosmos-alone', cursor = 'attract', intro = 'fade' } = Astro.props
+const { locale, pattern = 'cosmos-alone', cursor = 'attract', intro = 'sweep' } = Astro.props
 const t = getDictionary(locale)
 ---
 

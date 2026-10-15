@@ -20,6 +20,7 @@ previas); nada de esto toca todavía la home de producción.
 10. [Ajustes del 2026-10-05: Julia con zoom infinito y grilla de 4 px](#10-ajustes-del-2026-10-05-julia-con-zoom-infinito-y-grilla-de-4-px)
 11. [Ajustes del 2026-10-15: cosmos v2](#11-ajustes-del-2026-10-15-cosmos-v2)
 12. [2026-10-15: cosmos v2 en la home y el header](#12-2026-10-15-cosmos-v2-en-la-home-y-el-header)
+13. [2026-10-15: header compacto, barrido y escritura](#13-2026-10-15-header-compacto-barrido-y-escritura)
 
 ## 1. Cómo ver los candidatos
 
@@ -156,8 +157,9 @@ Se acordó así y se implementó el 2026-10-15 (sección 12).
 
 ## 8. Para pasar a producción
 
-Lo hecho el 2026-10-15 está en la sección 12; quedan pendientes los puntos 3 y 5, y en el 1, la voz
-del resto del sitio.
+Lo hecho el 2026-10-15 está en las secciones 12 y 13; quedan pendientes los puntos 3 y 5. La voz
+quedó resuelta al revés de lo previsto: el hero pasó a primera persona singular, como el resto del
+sitio (sección 13).
 
 1. Mover `HeroStage` y `HeroAsk` a `src/components/sections/home/` (reemplazan a `Hero.astro`) y
    el copy a `src/i18n/ui/{es,en}.ts`: «¿qué construimos?», el placeholder, «Enviar» y la bajada en
@@ -337,3 +339,52 @@ que lo usa: la home no paga los del laboratorio. En el build:
   carácter) y parpadea; quieto con movimiento reducido.
 - Al navegar, el header de la página nueva toma el estado de su scroll sin animarlo
   (`data-settling`).
+
+## 13. 2026-10-15: header compacto, barrido y escritura
+
+**El header** deja de cambiar de alto: mide 44 px (`--header-h`) desde la carga. Arriba de todo
+sigue transparente y, al bajar más de 8 px, toma el fondo al 90 % de `--bg` y la línea fina
+(`data-scrolled`). Se fue `--header-compact-h`. Con el header más bajo, el hero empieza 20 px antes.
+
+**El tornado llega al header.** Su cima (`SUMMIT` en `live-cosmos.ts`) estaba al 3 % del alto de la
+caja, y con el header de 64 px quedaba un hueco de unos 25 px entre ambos. Ahora es 0: el tornado
+sube hasta el borde de arriba del hero, justo bajo el header.
+
+**La entrada.** La home volvió al barrido de las otras páginas: `Hero.astro` usa `intro = 'sweep'`
+por defecto. El fundido sigue en el motor para `/lab/cosmosv2`.
+
+**Escritura tecla a tecla** (`src/lib/typewriter.ts`, 0,9 KB gz). Para pasar de un texto a otro
+borra hasta lo que tienen en común y escribe el resto: de `~/proyectos` a `~/proyectos/atlas` solo
+escribe `/atlas`. Cada tecla tarda entre 55 y 115 ms, al azar; cada borrado, 30 ms; entre borrar y
+escribir hay una pausa de 200 ms. Si el destino cambia a mitad de camino, sigue desde donde está.
+Mientras escribe marca `data-typing`. Con movimiento reducido, cambia de golpe.
+
+- **El prompt del header** escribe la ruta al entrar y salir de las secciones de la home y al
+  cambiar de página. En la página nueva, `astro:before-swap` copia la ruta que se ve al documento
+  que entra, y el prompt la cambia desde ahí hasta la suya (`data-prompt-path`). En la primera carga
+  no escribe nada: la ruta ya viene en el HTML. En reposo, arriba de la home, queda `jm ~/▮`. El
+  cursor parpadea solo con la página bajada: arriba de todo (en cualquier página) y mientras
+  escribe, queda quieto.
+- **La pregunta del hero** rota entre las de `hero.asks`, con la misma escritura:
+  «¿qué quieres construir?», «¿necesitas hacer una consulta?», «¿quieres aplicar la IA en algún
+  proyecto?», «¿tienes alguna propuesta?», «¿pasas a saludar?» y un guiño, «escucha algo de música
+  aquí», con «aquí» enlazado a la radio (nex-radio.com, en otra pestaña).
+  - Cada pregunta trae su ejemplo para el input, que cambia cuando la pregunta termina de escribirse.
+  - Cada una queda 4,5 s. La rotación espera, con la pregunta completa, si el puntero o el foco están
+    en el formulario, si ya hay algo escrito en el input o si el hero no está a la vista: no cambia
+    lo que alguien lee, responde o está por tocar, como el enlace.
+  - Con movimiento reducido no rota: queda la primera.
+  - Todas las preguntas van invisibles en la misma celda de una grilla (`.ask-ghost`) y reservan el
+    alto de la más larga, así el input no salta. Desde 768 px van en una línea, como el nombre; en
+    un teléfono, la más larga ocupa dos.
+  - El input se llama siempre como la primera pregunta (`aria-label`): su nombre no cambia con la
+    rotación.
+  - Su cursor aparece solo mientras escribe y no parpadea: el que parpadea es el del header.
+
+**La voz.** La bajada y las preguntas pasaron a primera persona singular («Construyo productos web
+completos…»), como el resto del sitio; el «nosotros» quedó atrás.
+
+**El peso.** Las páginas pasan de 15,4 a 16,9 KB gz en archivos: el script del header ahora es un
+archivo (importa la escritura) y ya no va inline, y se suma `typewriter` (0,9). Los inline bajan de
+1,5 a 0,6 KB. La home suma cosmos (4,6) y la rotación (0,6): 22,1 KB en archivos más 0,9 inline. El
+presupuesto de 20 KB es una referencia que se puede pasar un poco.

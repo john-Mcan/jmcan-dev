@@ -7,9 +7,10 @@ proyectos, detalle de proyecto, contacto y 404, en español e inglés.
 ## Reglas del proyecto
 
 - **Rendimiento primero.** Sin frameworks de UI: React y similares están bloqueados por ESLint. La
-  interactividad va en `<script>` de componentes `.astro`. Presupuesto: ≤ 20 KB gz de JS por
-  página. Hoy, en archivos, 15,4 KB en todas las páginas y 20,0 en la home, que suma cosmos; los
-  scripts inline agregan 1,5 KB.
+  interactividad va en `<script>` de componentes `.astro`. Presupuesto: unos 20 KB gz de JS por
+  página, como referencia (puede pasarse un poco). Hoy, en archivos, 16,9 KB en todas las páginas
+  y 22,1 en la home, que suma cosmos (4,6) y la pregunta que rota (0,6); los scripts inline
+  agregan 0,6 KB (0,9 en la home).
 - **Idiomas.**
   - Español por defecto, sin prefijo; inglés bajo `/en/`.
   - Español **neutro**: tuteo, sin voseo ni modismos regionales.
@@ -46,15 +47,18 @@ Las páginas declaran qué imprime la grilla con atributos:
 - `data-grid-stage="contact|sent|404|glyph:<clave>"`: caja donde se imprime un sprite (componente
   `Stage.astro`).
 - `data-grid-projects` + `data-grid-row`: lista de proyectos con panel narrador.
-- `data-grid-intro="fade"`: el fondo entra con un fundido en vez del barrido (hoy, la home).
+- `data-grid-intro="fade"`: el fondo entra con un fundido en vez del barrido (hoy, solo
+  `/lab/cosmosv2`; la home volvió al barrido).
 - `data-grid-stage="live:<patrón>"` + `data-grid-cursor="attract|repel|off"`: escenario vivo (una
   simulación en vez de un sprite: moho, cosmos, enjambre, corrientes, escarcha, Julia). El contenido
   dentro de su caja es isla (`data-grid-shape` o `data-grid-island`): el patrón no imprime ahí. Lo
   usa el hero de la home (cosmos solo, `Hero.astro`) y los candidatos de `/lab`; ver
-  `docs/sesion-2026-10-02-hero-vivo.md` (secciones 5, 9 y 12).
+  `docs/sesion-2026-10-02-hero-vivo.md` (secciones 5, 9, 12 y 13).
 
-El header (`SiteHeader.astro`) es un prompt, `jm ~/<ruta>▮`: la ruta sale de `promptPath` y, en la
-home, de la sección a la vista, marcada con `data-prompt="<ruta>"`.
+El header (`SiteHeader.astro`) mide 44 px desde la carga: transparente arriba de todo, con fondo y
+línea al bajar. Es un prompt, `jm ~/<ruta>▮`: la ruta sale de `promptPath` y, en la home, de la
+sección a la vista, marcada con `data-prompt="<ruta>"`. Cambia tecla a tecla, también al navegar
+(`src/lib/typewriter.ts`, que usa además la pregunta rotativa del hero, `hero.asks`).
 
 ## Estructura
 
@@ -88,8 +92,6 @@ Estado al 2026-10-15: la base, la landing, el hero vivo (cosmos v2) y el header 
      ejemplo.
    - En `src/i18n/ui/*.ts`, los textos de disponibilidad ("desde noviembre") y de tiempo de
      respuesta ("48 horas").
-   - La voz: el hero nuevo habla en «nosotros» (la persona y la IA); el resto del sitio, todavía en
-     primera persona singular.
 2. **Resend:**
    - verificar el dominio en Resend;
    - cargar `RESEND_API_KEY`, `CONTACT_TO_EMAIL` y `CONTACT_FROM_EMAIL` (`.dev.vars` en local,

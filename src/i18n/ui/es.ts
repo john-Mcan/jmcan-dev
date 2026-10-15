@@ -3,6 +3,13 @@
  * las mismas claves). Tuteo, sin voseo ni modismos regionales.
  * El copy marcado como «ejemplo» en el README es provisional.
  */
+/** Una pregunta del hero, con el ejemplo para el input; con `link`, termina en un enlace. */
+interface HeroAsk {
+  text: string
+  placeholder: string
+  link?: { text: string; href: string }
+}
+
 export const es = {
   meta: {
     homeTitle: 'John Mcan | Desarrollo web full-stack',
@@ -27,9 +34,24 @@ export const es = {
     contact: 'Contacto',
   },
   hero: {
-    lead: 'Construimos productos web completos, del modelo de datos a la interfaz.',
-    ask: '¿qué construimos?',
-    askPlaceholder: 'una app para…',
+    lead: 'Construyo productos web completos, del modelo de datos a la interfaz.',
+    /**
+     * La pregunta sobre el input rota entre estas, tecla a tecla; cada una trae su
+     * ejemplo para el input. La primera es la que se ve al cargar y el nombre del
+     * input. La última es un guiño: la radio, el proyecto más reciente.
+     */
+    asks: [
+      { text: '¿qué quieres construir?', placeholder: 'una app para…' },
+      { text: '¿necesitas hacer una consulta?', placeholder: 'quiero saber si…' },
+      { text: '¿quieres aplicar la IA en algún proyecto?', placeholder: 'un asistente que…' },
+      { text: '¿tienes alguna propuesta?', placeholder: 'te propongo…' },
+      { text: '¿pasas a saludar?', placeholder: 'hola…' },
+      {
+        text: 'escucha algo de música ',
+        link: { text: 'aquí', href: 'https://www.nex-radio.com/' },
+        placeholder: 'o escríbeme algo…',
+      },
+    ] satisfies [HeroAsk, ...HeroAsk[]],
     askSubmit: 'Enviar',
     ctaProjects: 'Ver proyectos',
     status: 'Disponible para proyectos desde noviembre',

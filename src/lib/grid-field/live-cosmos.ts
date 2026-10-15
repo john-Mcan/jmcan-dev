@@ -149,13 +149,14 @@ const WHIRL = 2.4
 const INFLOW = 9
 /**
  * Corriente ascendente (celdas/s) y dónde termina: la cima (fracción del alto).
+ * En 0, el borde de arriba de la caja: en el hero, el tornado llega al header.
  * Cada partícula sube a su ritmo, entre 1 - LIFT_SPREAD y 1 + LIFT_SPREAD veces la
  * corriente: un nudo que entra junto se estira al subir. Subiendo todas igual, el
  * nudo llegaba entero a la cima y renacían miles de golpe, un estallido de la nada.
  */
 const UPDRAFT = 5
 const LIFT_SPREAD = 0.5
-const SUMMIT = 0.03
+const SUMMIT = 0
 /** La base serpentea: amplitud (fracción del alto) y velocidad (rad/s). */
 const SWAY = 0.035
 const SWAY_SPEED = 0.6

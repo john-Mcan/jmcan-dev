@@ -97,7 +97,7 @@ campo del mismo nivel: siguen siendo como mucho 48 cambios de `fillStyle`.
 `paintField`) y `presence` (el campo entero, que sube en el fundido de entrada).
 
 **Entrada.** Al montar, el campo entra con un barrido de arriba hacia abajo. Una página con
-`data-grid-intro="fade"` (hoy, la home y `/lab/cosmosv2`) entra con un fundido de `presence`: espera
+`data-grid-intro="fade"` (hoy, solo `/lab/cosmosv2`) entra con un fundido de `presence`: espera
 a su escenario (a lo sumo 2,5 s) y lo trae ya encendido, así entra con él listo y no a medio llegar.
 
 **Transiciones de página.** `astro:before-preparation` llama a `runner.leave()` (la estructura se
