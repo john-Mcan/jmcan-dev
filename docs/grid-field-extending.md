@@ -250,6 +250,9 @@ Otros: `MIN_BOX_CELLS` = 8 (caja mínima para dibujar), `MIN_RATIO` = 0,3 y `WID
 
 Si un móvil modesto no da el ancho, lo primero es `fps: 20`, `maxCells: 40_000` o `maxDpr: 1.5`.
 
+Para probar otra celda en escritorio sin tocar el código: `<html data-grid-cell="4:2">` (paso y punto,
+en px; lo pone la barra de `/lab`). Ignora `maxCells`: a 4 px el cuadro cuesta ~2,5 veces más.
+
 ## 6. Ideas pendientes y dónde encajan
 
 | Idea                                       | Dónde                                                                 | Notas                                                                                 |

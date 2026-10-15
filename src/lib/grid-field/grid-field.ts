@@ -114,12 +114,17 @@ export function fieldStep(geometry: Pick<FieldGeometry, 'square' | 'gap'>): numb
  * Tamaño de celda para un área. NYQUIST: un trazo más fino que dos celdas cae
  * entre ellas y desaparece, así que un área angosta (texto más chico) necesita
  * celdas más finas. Un viewport grande se engrosa hasta caber en `maxCells`.
+ *
+ * `cell` fuerza la celda desde 640 px de ancho, sin presupuesto: sirve para probar
+ * otros tamaños (lo usa `/lab`).
  */
 export function fieldGeometryFor(
   width: number,
   height: number,
   maxCells: number,
+  cell: { step: number; square: number } | null = null,
 ): Pick<FieldGeometry, 'square' | 'gap'> {
+  if (cell && width >= 640) return { square: cell.square, gap: cell.step - cell.square }
   const base = width < 640 ? { square: 1, gap: 2 } : { square: 2, gap: 4 }
   const baseStep = fieldStep(base)
   const cells = (width / baseStep) * (height / baseStep)

@@ -51,9 +51,10 @@ const FINE_PX = 6
  * suya) para que su celda mida unos 6 px en cualquier pantalla: 2 en móvil (campo
  * de 3 px), 1 en escritorio (6 px). Antes todos vivían a media resolución, y en
  * escritorio se veían al doble que en móvil, gruesos: con 6 px se ven mucho mejor.
+ * Nunca más gruesa que eso: con un campo de 4 px (ver `/lab`), una celda por celda.
  */
 export function fineScale(cellPx: number): number {
-  return Math.max(1, Math.round(FINE_PX / cellPx))
+  return Math.max(1, Math.floor(FINE_PX / cellPx))
 }
 
 /** Un lado de la caja, en celdas de la simulación. */

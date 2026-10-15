@@ -110,6 +110,19 @@ const LIVE_CLOCK = { frameCount: 1, frameMs: 0 }
 const FALLBACK_RGB: Rgb = [255, 255, 255]
 const FALLBACK_ACCENT: Rgb = [255, 176, 0]
 
+/**
+ * `<html data-grid-cell="<paso>:<punto>">` fuerza la celda (en px) en escritorio,
+ * para probar otros tamaños; lo pone `/lab`. Sin el atributo, la de siempre.
+ */
+const CELL_ATTRIBUTE = 'data-grid-cell'
+
+function forcedCell(): { step: number; square: number } | null {
+  const [step = 0, square = 0] = (document.documentElement.getAttribute(CELL_ATTRIBUTE) ?? '')
+    .split(':')
+    .map(Number)
+  return step >= 2 && square >= 1 && square < step ? { step, square } : null
+}
+
 interface Sweep {
   start: number
   ms: number
@@ -220,7 +233,7 @@ export function createGridFieldRunner(
     field = createField({
       width: box.width,
       height: box.height,
-      ...fieldGeometryFor(box.width, box.height, options.maxCells),
+      ...fieldGeometryFor(box.width, box.height, options.maxCells, forcedCell()),
       maxOpacity: options.maxOpacity,
     })
     buffers = createPaintBuffers(field)
@@ -535,14 +548,15 @@ export function createGridFieldRunner(
   window.addEventListener('pointercancel', onPointerGone, { passive: true })
   document.documentElement.addEventListener('pointerleave', onPointerGone)
 
-  const onTheme = () => {
+  const onTheme = (records: MutationRecord[]) => {
+    if (records.some((record) => record.attributeName === CELL_ATTRIBUTE)) measure()
     palettes = readPalettes()
     paintStill()
   }
   const themeObserver = new MutationObserver(onTheme)
   themeObserver.observe(document.documentElement, {
     attributes: true,
-    attributeFilter: ['class', 'style', 'data-theme'],
+    attributeFilter: ['class', 'style', 'data-theme', CELL_ATTRIBUTE],
   })
 
   const onFonts = () => {

@@ -182,6 +182,12 @@ describe('fieldGeometryFor', () => {
     expect(cells).toBeLessThanOrEqual(90_000 * 1.05)
     expect(fieldGeometryFor(390, 844, 90_000)).toEqual({ square: 1, gap: 2 })
   })
+
+  it('la celda forzada (el laboratorio) vale en escritorio, sin presupuesto; en móvil no', () => {
+    const cell = { step: 4, square: 2 }
+    expect(fieldGeometryFor(3840, 2160, 90_000, cell)).toEqual({ square: 2, gap: 2 })
+    expect(fieldGeometryFor(390, 844, 90_000, cell)).toEqual({ square: 1, gap: 2 })
+  })
 })
 
 /** Azar con semilla (mulberry32): la simulación se vuelve determinista y testeable. */

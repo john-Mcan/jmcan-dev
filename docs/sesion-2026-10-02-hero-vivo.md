@@ -28,6 +28,8 @@ el paso al siguiente escenario al hacer scroll.
   al build.
 - Arriba a la izquierda hay una barra para cambiar de variante y de reacción al cursor en vivo. Cada
   variante abre con el cursor con que se eligió; el cambio dura lo que dure la página.
+- La misma barra cambia la celda de la grilla en escritorio («grilla»: 6 px, 4 px o 4 px grueso).
+  Vale para todo el laboratorio mientras dure la sesión; ver la sección 10.
 
 ## 2. Decisiones
 
@@ -57,15 +59,15 @@ el paso al siguiente escenario al hacer scroll.
 
 ## 3. Candidatos
 
-| Variante   | Patrón      | Cursor   | Qué hace                                                                                                                                                                                                                                                                                                                                                                |
-| ---------- | ----------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| sesion     | `mold-open` | atrae    | Moho (Physarum): miles de agentes siguen su propio rastro y forman una red de venas que se reorganiza sola. El cursor estira la red hacia él.                                                                                                                                                                                                                           |
-| arrecife   | `mold-reef` | atrae    | El mismo moho, creciendo desde el borde inferior como un arrecife. **Solo escritorio:** en una caja vertical vive como red abierta (`habitatFor`).                                                                                                                                                                                                                      |
-| cosmos     | `cosmos`    | atrae    | Gravedad (N-cuerpos de partícula-malla): la materia corre desde los dos lados y colapsa en una franja, y ahí nace un tornado que gira alrededor de ella, alimentado por un flujo que no se corta. Ver la sección 9.                                                                                                                                                     |
-| enjambre   | `flock`     | nada     | Una bandada (boids) con estela corta propia; cada 7–13 s se sobresalta y se parte. Con «curiosa» rodea al cursor y con «tímida» le abre paso.                                                                                                                                                                                                                           |
-| corrientes | `currents`  | remolino | Partículas en un viento que rodea el texto (la función de corriente se resuelve con el texto como obstáculo). «Remolino» hace girar la corriente alrededor del cursor; «roca» la obliga a rodearlo.                                                                                                                                                                     |
-| escarcha   | `frost`     | atrae    | Agregación limitada por difusión: cristales fractales que nacen en el texto y crecen siempre hacia adelante; lo más viejo se apaga y se derrite por detrás. Cada 3–6 s sale una ola nueva desde el texto. «Atrae» estira las ramas hacia el cursor.                                                                                                                     |
-| julia      | `julia`     | guía     | El conjunto de Julia de z² + c, en dendritas finas, con c recorriendo el borde de la cardioide de Mandelbrot. Va a lo largo de la diagonal que sube desde abajo al centro hasta arriba a la derecha (en móvil, más alta que la caja y corrida a la derecha). «Guía»: la posición del cursor elige la forma; en «nada» se queda en su lugar y cambia de estructura sola. |
+| Variante   | Patrón      | Cursor   | Qué hace                                                                                                                                                                                                                                                                          |
+| ---------- | ----------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| sesion     | `mold-open` | atrae    | Moho (Physarum): miles de agentes siguen su propio rastro y forman una red de venas que se reorganiza sola. El cursor estira la red hacia él.                                                                                                                                     |
+| arrecife   | `mold-reef` | atrae    | El mismo moho, creciendo desde el borde inferior como un arrecife. **Solo escritorio:** en una caja vertical vive como red abierta (`habitatFor`).                                                                                                                                |
+| cosmos     | `cosmos`    | atrae    | Gravedad (N-cuerpos de partícula-malla): la materia corre desde los dos lados y colapsa en una franja, y ahí nace un tornado que gira alrededor de ella, alimentado por un flujo que no se corta. Ver la sección 9.                                                               |
+| enjambre   | `flock`     | nada     | Una bandada (boids) con estela corta propia; cada 7–13 s se sobresalta y se parte. Con «curiosa» rodea al cursor y con «tímida» le abre paso.                                                                                                                                     |
+| corrientes | `currents`  | remolino | Partículas en un viento que rodea el texto (la función de corriente se resuelve con el texto como obstáculo). «Remolino» hace girar la corriente alrededor del cursor; «roca» la obliga a rodearlo.                                                                               |
+| escarcha   | `frost`     | atrae    | Agregación limitada por difusión: cristales fractales que nacen en el texto y crecen siempre hacia adelante; lo más viejo se apaga y se derrite por detrás. Cada 3–6 s sale una ola nueva desde el texto. «Atrae» estira las ramas hacia el cursor.                               |
+| julia      | `julia`     | guía     | Un zoom que no termina nunca en el conjunto de Julia de z² + c (c ≈ −0,8 + 0,156i: espirales y bulbos), con las ondas de su potencial alrededor, que corren hacia afuera. Ver la sección 10. «Guía»: la posición del cursor mueve c y cambia la forma; en «nada», c se mece sola. |
 
 Julia es la **excepción** a «nada detrás del texto»: pasa por debajo de las letras al 30 % de su luz
 (`UNDER_TEXT`) en vez de cortarse en un rectángulo. Así se pidió.
@@ -227,3 +229,42 @@ orgánico.
   input y los botones (queda el borde; el principal lo marca de 2 px). Antes `.field`
   (semitransparente) y `.btn` (sólido) tapaban el ruido de la grilla. Es de todos los heros del
   laboratorio, no solo de cosmos.
+
+## 10. Ajustes del 2026-10-05: Julia con zoom infinito y grilla de 4 px
+
+Se pidió que Julia dejara de ser una figura quieta: que se viera lo que tiene de fractal (por más
+zoom que se le dé, el detalle no se acaba) y que conservara el detalle de las ondas que forma. Un
+primer intento de esa sesión (solo los filamentos, sin ondas) se descartó: eran «líneas que crecen».
+
+**El zoom.** Va hacia un punto periódico repulsor p del conjunto (período 4, |λ| ≈ 7), y la vista
+es la función de Poincaré de ese punto, no un zoom común: al acercar |λ| veces la imagen vuelve a ser
+exactamente la misma, así que el zoom da la vuelta sin salto y sigue para siempre sin perder
+precisión. Se eligió ese punto porque casi no gira (menos de 0,2 rad por cada e-pliegue de zoom): el
+punto fijo α de c, el de las espirales, gira 47 rad por e-pliegue y la vista daba vueltas como un
+trompo. c se mece con un radio de 0,03 y el puntero la lleva hasta ±0,08 por eje; en todo ese rango
+el punto sigue repeliendo (|λ| entre 5,8 y 8,4) y se sigue con Newton. El detalle del método está en
+el comentario de `live-julia.ts`.
+
+**Lo que se ve.** Todo se mide en celdas, así que se ve igual a cualquier profundidad:
+
+- El borde, con el estimador de distancia: no se pierden los filamentos más finos que una celda.
+- Las ondas: el tiempo de escape suavizado en líneas finas que corren hacia afuera. Cerca del borde
+  se juntan tanto que no entran en la grilla, y ahí se apagan.
+- En la grilla, la luz media (0,3–0,6) se confunde con el ruido del campo: las líneas necesitan
+  ~0,8. Una bruma gris donde las ondas no entran se leía como una mancha que tapaba las espirales, y
+  se quitó.
+
+**Peso.** ~3,5 ms por cuadro a 1838 px y ~0,8 en una caja de móvil (Chrome, escritorio).
+
+**Grilla de 4 px (prueba).** `<html data-grid-cell="<paso>:<punto>">` fuerza la celda en escritorio
+(desde 640 px), sin el presupuesto de celdas. Lo pone la barra del laboratorio. `fineScale` ya no
+engrosa la simulación cuando la celda mide menos de 6 px: con 4 px, una celda de simulación por
+celda.
+
+- **4 px grueso** (punto de 2 px cada 4) es lo que mejor lee Julia: las espirales y las ondas se ven
+  nítidas. Con punto de 1 px todo se apaga.
+- Cuesta: con 4 px hay 2,3 veces más celdas. El cuadro pasa de ~10 a ~25 ms en una RTX 3060 Ti
+  (Julia de 3,4 a ~9; el resto es pintar), contra 33 ms de presupuesto a 30 fps. Para adoptarlo en
+  serio habría que abaratar el pintado (`ImageData` o WebGL2, ver
+  `docs/grid-field-extending.md`, sección 6) o dejarlo solo para el hero.
+- Pendiente: decidir si se queda.

@@ -1,7 +1,8 @@
 ---
 /**
  * Barra del laboratorio: cambia de variante y de reacción al puntero en vivo
- * (`data-grid-cursor` en la caja del escenario vivo, que el motor lee en cada cuadro).
+ * (`data-grid-cursor` en la caja del escenario vivo, que el motor lee en cada cuadro),
+ * y el tamaño de la celda de la grilla en escritorio (`data-grid-cell` en `<html>`).
  */
 import { LAB_VARIANTS, type LabVariant } from '@/lab/variants'
 
@@ -15,6 +16,12 @@ const modes = [
   { value: 'attract', label: variant.attract },
   { value: 'repel', label: variant.repel },
   { value: 'off', label: 'nada' },
+]
+/** Paso y punto de la celda, en px; vacío = la de siempre (6 px con punto de 2). */
+const cells = [
+  { value: '', label: '6 px' },
+  { value: '4:1', label: '4 px' },
+  { value: '4:2', label: '4 px grueso' },
 ]
 ---
 
@@ -33,6 +40,12 @@ const modes = [
   {modes.map((mode) => (
     <button type="button" class="lab-chip" data-lab-cursor={mode.value}>
       {mode.label}
+    </button>
+  ))}
+  <span class="text-muted">grilla</span>
+  {cells.map((cell) => (
+    <button type="button" class="lab-chip" data-lab-cell={cell.value}>
+      {cell.label}
     </button>
   ))}
 </nav>
@@ -85,12 +98,43 @@ const modes = [
     }
   }
 
+  /** La celda de la grilla: vale para todo el laboratorio mientras dure la sesión. */
+  const CELL_KEY = 'lab-grid-cell'
+
+  function applyCell(cell: string): void {
+    const root = document.documentElement
+    if (cell) {
+      if (root.getAttribute('data-grid-cell') !== cell) root.setAttribute('data-grid-cell', cell)
+    } else if (root.hasAttribute('data-grid-cell')) root.removeAttribute('data-grid-cell')
+    for (const button of document.querySelectorAll<HTMLElement>('[data-lab-cell]')) {
+      button.setAttribute('aria-pressed', String(button.dataset['labCell'] === cell))
+    }
+    try {
+      sessionStorage.setItem(CELL_KEY, cell)
+    } catch {
+      // Sin almacenamiento, la celda dura lo que dure la página.
+    }
+  }
+
+  function savedCell(): string {
+    try {
+      return sessionStorage.getItem(CELL_KEY) ?? ''
+    } catch {
+      return ''
+    }
+  }
+
   document.addEventListener('astro:page-load', () => {
     apply(
       document.querySelector('[data-grid-cursor]')?.getAttribute('data-grid-cursor') ?? 'attract',
     )
     for (const button of document.querySelectorAll<HTMLElement>('[data-lab-cursor]')) {
       button.addEventListener('click', () => apply(button.dataset['labCursor'] ?? 'attract'))
+    }
+    if (!document.querySelector('[data-lab-cell]')) return
+    applyCell(savedCell())
+    for (const button of document.querySelectorAll<HTMLElement>('[data-lab-cell]')) {
+      button.addEventListener('click', () => applyCell(button.dataset['labCell'] ?? ''))
     }
   })
 </script>
