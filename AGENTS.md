@@ -97,11 +97,12 @@ Estado al 2026-10-15: la base, la landing, el hero vivo (cosmos v2) y el header 
    - cargar `RESEND_API_KEY`, `CONTACT_TO_EMAIL` y `CONTACT_FROM_EMAIL` (`.dev.vars` en local,
      `wrangler secret put` en producción);
    - probar un envío real, que nunca se probó.
-3. **Deploy:** `wrangler login`, primer `pnpm deploy` y el dominio `johnmcan.dev` apuntando al
-   Worker.
-4. **Sin verificar aún:** Safari, Firefox y el rendimiento en un móvil de gama baja, sobre todo el
-   del hero (cosmos es el patrón más pesado) y el del header fijo. Si no da el ancho, ver la
-   sección 5 de `docs/grid-field-extending.md`.
+3. **Deploy:** la preview ya corre en `preview.johnmcan.dev` (Worker `jmcan-dev-preview`,
+   `pnpm deploy:preview`). Falta producción: primer `pnpm deploy` y el dominio `johnmcan.dev`
+   (hoy en Vercel) apuntando al Worker.
+4. **Sin verificar aún:** Safari de escritorio (en iPhone ya se vio en la preview), Firefox y el
+   rendimiento en un móvil de gama baja, sobre todo el del hero (cosmos es el patrón más pesado) y
+   el del header fijo. Si no da el ancho, ver la sección 5 de `docs/grid-field-extending.md`.
 5. **Decidir** si `/lab` se queda como herramienta de dev o se borra con `src/lab/` y los patrones
    que no usa la home (sección 8 de `docs/sesion-2026-10-02-hero-vivo.md`).
 6. **Opcional:** imagen OG para compartir en redes, sumar a `/lab` vistas para afinar sprites y
@@ -118,6 +119,7 @@ Estado al 2026-10-15: la base, la landing, el hero vivo (cosmos v2) y el header 
 | `pnpm lint` / `pnpm format`   | ESLint / Prettier                                                              |
 | `pnpm test`                   | Tests del motor de la grilla                                                   |
 | `pnpm deploy`                 | Build + `wrangler deploy`                                                      |
+| `pnpm deploy:preview`         | Lo mismo, al entorno `preview` de `wrangler.jsonc`: `preview.johnmcan.dev`     |
 
 Secretos del formulario: `RESEND_API_KEY`, `CONTACT_TO_EMAIL` y `CONTACT_FROM_EMAIL`. En local van
 en `.dev.vars` (plantilla en `.dev.vars.example`); en producción, con `pnpm wrangler secret put`.

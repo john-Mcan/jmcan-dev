@@ -17,6 +17,7 @@ pnpm dev                         # corre sobre workerd, igual que en producción
 | `pnpm lint` / `pnpm format`   | ESLint / Prettier                |
 | `pnpm test`                   | Tests del motor de la grilla     |
 | `pnpm deploy`                 | Build + `wrangler deploy`        |
+| `pnpm deploy:preview`         | Deploy a `preview.johnmcan.dev`  |
 
 ## Formulario de contacto (Resend)
 

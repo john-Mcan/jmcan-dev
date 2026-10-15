@@ -14,7 +14,8 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "test": "vitest run",
-    "deploy": "astro build && wrangler deploy"
+    "deploy": "astro build && wrangler deploy",
+    "deploy:preview": "astro build --mode preview && wrangler deploy"
   },
   "pnpm": {
     "onlyBuiltDependencies": [

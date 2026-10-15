@@ -5,4 +5,12 @@
   "compatibility_date": "2026-09-01",
   "compatibility_flags": ["nodejs_compat"],
   "observability": { "enabled": true },
+  "env": {
+    // preview.johnmcan.dev: otro Worker (jmcan-dev-preview) para revisar main2 antes de producción.
+    // Se despliega con `pnpm deploy:preview`, que elige este entorno vía `.env.preview`.
+    "preview": {
+      "routes": [{ "pattern": "preview.johnmcan.dev", "custom_domain": true }],
+      "workers_dev": false,
+    },
+  },
 }
