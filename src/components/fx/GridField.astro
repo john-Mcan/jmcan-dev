@@ -19,7 +19,12 @@
 <style>
   .grid-field {
     position: fixed;
-    inset: 0;
+    /* Alto fijo (lvh) y no `inset: 0`: en móvil la barra del navegador se encoge al
+       hacer scroll y, con `inset: 0`, el fondo cambiaba de alto en cada cuadro; cada
+       cambio re-mide el canvas, lo borra y la grilla parpadeaba. Lo que queda bajo
+       la barra no se ve. */
+    inset: 0 0 auto;
+    height: 100lvh;
     z-index: 0;
     overflow: hidden;
     pointer-events: none;
