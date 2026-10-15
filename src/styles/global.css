@@ -42,6 +42,8 @@
 
 :root {
   --header-h: 4rem;
+  /* El header al bajar: compacto, con fondo y una línea fina. */
+  --header-compact-h: 2.75rem;
 }
 
 /* Departure Mono es nítida en múltiplos de 11 px: la escala display se queda en ellos. */

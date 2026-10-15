@@ -14,4 +14,4 @@ export function fill(text: string, values: Record<string, string | number>): str
 }
 
 export { DEFAULT_LOCALE, LOCALES, type Locale } from './config'
-export { alternates, pathFor, type RouteKey, type RouteRef } from './routes'
+export { alternates, pathFor, promptPath, type RouteKey, type RouteRef } from './routes'

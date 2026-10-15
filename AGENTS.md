@@ -8,7 +8,8 @@ proyectos, detalle de proyecto, contacto y 404, en español e inglés.
 
 - **Rendimiento primero.** Sin frameworks de UI: React y similares están bloqueados por ESLint. La
   interactividad va en `<script>` de componentes `.astro`. Presupuesto: ≤ 20 KB gz de JS por
-  página (hoy ~14 KB).
+  página. Hoy, en archivos, 15,4 KB en todas las páginas y 20,0 en la home, que suma cosmos; los
+  scripts inline agregan 1,5 KB.
 - **Idiomas.**
   - Español por defecto, sin prefijo; inglés bajo `/en/`.
   - Español **neutro**: tuteo, sin voseo ni modismos regionales.
@@ -42,15 +43,18 @@ Las páginas declaran qué imprime la grilla con atributos:
 
 - `data-grid-shape` / `data-grid-shape="accent"`: halo detrás de un elemento (marca el contenido,
   `inline-block`, no el contenedor).
-- `data-grid-stage="hero|contact|sent|404|glyph:<clave>"`: caja donde se imprime un sprite
-  (componente `Stage.astro`).
+- `data-grid-stage="contact|sent|404|glyph:<clave>"`: caja donde se imprime un sprite (componente
+  `Stage.astro`).
 - `data-grid-projects` + `data-grid-row`: lista de proyectos con panel narrador.
-- `data-grid-intro="fade"`: el fondo entra con un fundido en vez del barrido (hoy, solo
-  `/lab/cosmosv2`).
+- `data-grid-intro="fade"`: el fondo entra con un fundido en vez del barrido (hoy, la home).
 - `data-grid-stage="live:<patrón>"` + `data-grid-cursor="attract|repel|off"`: escenario vivo (una
   simulación en vez de un sprite: moho, cosmos, enjambre, corrientes, escarcha, Julia). El contenido
-  dentro de su caja es isla (`data-grid-shape` o `data-grid-island`): el patrón no imprime ahí. Hoy
-  solo lo usan los heroes de `/lab`; ver `docs/sesion-2026-10-02-hero-vivo.md` (secciones 5 y 9).
+  dentro de su caja es isla (`data-grid-shape` o `data-grid-island`): el patrón no imprime ahí. Lo
+  usa el hero de la home (cosmos solo, `Hero.astro`) y los candidatos de `/lab`; ver
+  `docs/sesion-2026-10-02-hero-vivo.md` (secciones 5, 9 y 12).
+
+El header (`SiteHeader.astro`) es un prompt, `jm ~/<ruta>▮`: la ruta sale de `promptPath` y, en la
+home, de la sección a la vista, marcada con `data-prompt="<ruta>"`.
 
 ## Estructura
 
@@ -73,15 +77,10 @@ entrada en `src/i18n/routes.ts`.
 
 ## Pendientes
 
-Estado al 2026-10-02: la base y la landing están listas en `main2`, y hay candidatos para un hero
-vivo en `/lab` (solo en `pnpm dev`). Falta, en este orden:
+Estado al 2026-10-15: la base, la landing, el hero vivo (cosmos v2) y el header están listos en
+`main2`; `/lab` sigue con los candidatos (solo en `pnpm dev`). Falta, en este orden:
 
-1. **Hero vivo:** elegir el candidato, o cómo usar más de uno a la vez, y pasarlo a producción.
-   Candidatos, decisiones y pasos: `docs/sesion-2026-10-02-hero-vivo.md` (secciones 3, 6 y 8).
-2. **Header sticky:** diseño acordado y sin implementar. Va el logo como prompt `jm ~/<ruta>▮`,
-   compacto en escritorio, escondido al bajar en móvil y sin blur. Detalle en la sección 7 del
-   mismo documento.
-3. **Contenido real** (hoy es de ejemplo):
+1. **Contenido real** (hoy es de ejemplo):
    - `src/data/site.ts`: nombre ("John Mcan" salió del dominio), correo (`hola@johnmcan.dev` es
      inventado), cargo y redes (falta LinkedIn).
    - `src/data/experience.ts`: trayectoria.
@@ -91,16 +90,19 @@ vivo en `/lab` (solo en `pnpm dev`). Falta, en este orden:
      respuesta ("48 horas").
    - La voz: el hero nuevo habla en «nosotros» (la persona y la IA); el resto del sitio, todavía en
      primera persona singular.
-4. **Resend:**
+2. **Resend:**
    - verificar el dominio en Resend;
    - cargar `RESEND_API_KEY`, `CONTACT_TO_EMAIL` y `CONTACT_FROM_EMAIL` (`.dev.vars` en local,
      `wrangler secret put` en producción);
    - probar un envío real, que nunca se probó.
-5. **Deploy:** `wrangler login`, primer `pnpm deploy` y el dominio `johnmcan.dev` apuntando al
+3. **Deploy:** `wrangler login`, primer `pnpm deploy` y el dominio `johnmcan.dev` apuntando al
    Worker.
-6. **Sin verificar aún:** Safari, Firefox y el rendimiento en un móvil de gama baja, también el de
-   los patrones vivos (si no da el ancho, ver la sección 5 de `docs/grid-field-extending.md`).
-7. **Opcional:** imagen OG para compartir en redes, sumar a `/lab` vistas para afinar sprites y
+4. **Sin verificar aún:** Safari, Firefox y el rendimiento en un móvil de gama baja, sobre todo el
+   del hero (cosmos es el patrón más pesado) y el del header fijo. Si no da el ancho, ver la
+   sección 5 de `docs/grid-field-extending.md`.
+5. **Decidir** si `/lab` se queda como herramienta de dev o se borra con `src/lab/` y los patrones
+   que no usa la home (sección 8 de `docs/sesion-2026-10-02-hero-vivo.md`).
+6. **Opcional:** imagen OG para compartir en redes, sumar a `/lab` vistas para afinar sprites y
    efectos (hoy solo compara heroes), y el resto de las ideas de la sección 6 de
    `docs/grid-field-extending.md`.
 

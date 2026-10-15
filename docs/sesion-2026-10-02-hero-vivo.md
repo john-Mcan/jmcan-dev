@@ -19,6 +19,7 @@ previas); nada de esto toca todavía la home de producción.
 9. [Ajustes del 2026-10-03: celdas de 6 px y cosmos](#9-ajustes-del-2026-10-03-celdas-de-6-px-y-cosmos)
 10. [Ajustes del 2026-10-05: Julia con zoom infinito y grilla de 4 px](#10-ajustes-del-2026-10-05-julia-con-zoom-infinito-y-grilla-de-4-px)
 11. [Ajustes del 2026-10-15: cosmos v2](#11-ajustes-del-2026-10-15-cosmos-v2)
+12. [2026-10-15: cosmos v2 en la home y el header](#12-2026-10-15-cosmos-v2-en-la-home-y-el-header)
 
 ## 1. Cómo ver los candidatos
 
@@ -116,10 +117,13 @@ programa vivo y el helper de carga diferida. Cada patrón suelto pesa entre 1,4 
 moho 2,3). El chunk del lab trae los seis juntos (7,7 KB), pero solo lo baja `/lab`. Una home con un
 solo patrón quedaría en unos 18 KB de los 20 del presupuesto.
 
-## 6. Pendiente: elegir el hero
+## 6. Elegir el hero
 
-Falta decidir qué candidato usar, o si se usa más de uno a la vez. El motor imprime **un escenario a
-la vez** (una sola máscara), así que «más de uno» se puede resolver de varias formas:
+**Elegido el 2026-10-15: cosmos v2** (sección 12). Lo que sigue queda como referencia, por si se
+quiere sumar otro.
+
+Faltaba decidir qué candidato usar, o si se usa más de uno a la vez. El motor imprime **un escenario
+a la vez** (una sola máscara), así que «más de uno» se puede resolver de varias formas:
 
 - **Alternarlos:** uno por visita, al azar o en orden.
 - **Uno por contexto:** por tema (oscuro y claro), por dispositivo (el arrecife ya es solo de
@@ -128,9 +132,9 @@ la vez** (una sola máscara), así que «más de uno» se puede resolver de vari
   máscara, por ejemplo la red de moho con Julia al fondo. Es lo más caro y habría que medirlo en un
   móvil modesto.
 
-## 7. Pendiente: el header
+## 7. El header
 
-Se acordó así; falta implementarlo.
+Se acordó así y se implementó el 2026-10-15 (sección 12).
 
 - **Sticky**, siempre a mano.
 - **Logo como prompt:** el «jm» pasa a ser una línea de terminal, `jm ~/<ruta>▮`.
@@ -152,7 +156,8 @@ Se acordó así; falta implementarlo.
 
 ## 8. Para pasar a producción
 
-Cuando se elija el hero:
+Lo hecho el 2026-10-15 está en la sección 12; quedan pendientes los puntos 3 y 5, y en el 1, la voz
+del resto del sitio.
 
 1. Mover `HeroStage` y `HeroAsk` a `src/components/sections/home/` (reemplazan a `Hero.astro`) y
    el copy a `src/i18n/ui/{es,en}.ts`: «¿qué construimos?», el placeholder, «Enviar» y la bajada en
@@ -290,3 +295,45 @@ Se pidió una variante de cosmos (`/lab/cosmosv2`, patrón `cosmos-alone`) con d
   celdas y se ve algo más lleno.
 - Con el fondo vacío, el cursor ya no tiene materia libre que atraer o apartar: deja de verse su
   efecto.
+
+## 12. 2026-10-15: cosmos v2 en la home y el header
+
+**El hero.** La home usa cosmos v2: patrón `cosmos-alone`, cursor «atrae» y entrada en fundido.
+
+- `HeroStage` y `HeroAsk` pasaron a `src/components/sections/home/` como `Hero.astro` y
+  `HeroAsk.astro`; el `Hero.astro` viejo (el del sprite) se borró. `/lab` monta el mismo `Hero`
+  con el patrón de cada variante (`pattern`, `cursor`, `intro`), así que lo que se ve en el
+  laboratorio es lo que va a producción.
+- El copy está en `src/i18n/ui/{es,en}.ts` (`hero.lead`, `hero.ask`, `hero.askPlaceholder`,
+  `hero.askSubmit`), con la bajada en «nosotros». **Falta** la voz del resto del sitio, que sigue en
+  primera persona singular («Escríbeme», «Cuéntame…»).
+- Se quitaron el pool de sprites del hero viejo (monograma y saludo) y el programa `loop` del
+  runner, que solo usaba ese pool.
+
+**El peso.** Cada patrón vivo se baja aparte (`LOADERS` en `live-patterns.ts`), solo en la página
+que lo usa: la home no paga los del laboratorio. En el build:
+
+- Todas las páginas: 15,4 KB gz de JS en archivos (ClientRouter 4,7, prefetch 1,1, la grilla 9,5)
+  más 1,5 KB de scripts inline (el tema y el header, entre otros).
+- La home suma cosmos: 4,6 KB gz (4,0 de `live-cosmos` con la gravedad y 0,65 de `live.ts`).
+  Queda en 20,0 KB en archivos, justo en el presupuesto, y en 21,5 con los inline. Cosmos es el
+  patrón más pesado.
+
+**El header** (`SiteHeader.astro`), como se acordó en la sección 7:
+
+- La barra va fija y el `<header>` guarda su alto en el flujo: compactarla no mueve la página.
+- Arriba de todo: 64 px, transparente. Al bajar más de 8 px: 44 px (`--header-compact-h`), con
+  fondo al 90 % de `--bg` y la línea fina (`--line`).
+- Bajo 768 px (el corte `md:`), además, se esconde al bajar (pasados 64 px) y vuelve compacto al
+  subir. Hace falta moverse 6 px para que cambie de rumbo, y no se esconde si algo suyo tiene el
+  foco.
+- El prompt: `jm ~/<ruta>▮`. La ruta sale de `promptPath` (`src/i18n/routes.ts`): `~/proyectos`,
+  `~/proyectos/<slug>`, `~/contacto`, `~/404`; en inglés, `~/projects`… En la home sigue a la
+  sección que cruza el medio de la pantalla, marcada con `data-prompt`: `~/`, `~/proyectos`,
+  `~/trayectoria` y `~/contacto` (`timeline.path` en el diccionario).
+- **En un teléfono (bajo 640 px) la ruta no se muestra:** no entra junto a la navegación, y el
+  prompt queda en `jm▮`. Desde 640 px, si una ruta no entra, se corta con «…».
+- El cursor ▮ es un bloque en ámbar dibujado con CSS (no depende de que la fuente tenga el
+  carácter) y parpadea; quieto con movimiento reducido.
+- Al navegar, el header de la página nueva toma el estado de su scroll sin animarlo
+  (`data-settling`).

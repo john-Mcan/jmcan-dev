@@ -18,17 +18,8 @@ import {
 } from './grid-field'
 import type { CellRect, LiveContext, LiveSource } from './live'
 import { boxOnField, rasteriseFrame, spriteBoxFor, type SpriteFont } from './sprite-raster'
-import { randomSpriteIndex, type Sprite } from './sprites'
-import {
-  clamp,
-  holdEnvelope,
-  loopEnvelope,
-  NO_SPRITE,
-  rising,
-  sweepRows,
-  type LoopTimeline,
-  type SpriteEnvelope,
-} from './timeline'
+import type { Sprite } from './sprites'
+import { clamp, holdEnvelope, NO_SPRITE, rising, sweepRows, type SpriteEnvelope } from './timeline'
 
 /** Marca un elemento como forma; con el valor `accent`, pinta con la paleta de señal. */
 export const SHAPE_ATTRIBUTE = 'data-grid-shape'
@@ -45,10 +36,7 @@ const ISLAND_SELECTOR = '[data-grid-island], [' + SHAPE_ATTRIBUTE + ']'
  */
 export interface Stage {
   target: Element
-  program:
-    | { kind: 'loop'; pool: readonly Sprite[]; timeline: LoopTimeline }
-    | { kind: 'hold'; sprite: Sprite }
-    | { kind: 'live'; source: LiveSource }
+  program: { kind: 'hold'; sprite: Sprite } | { kind: 'live'; source: LiveSource }
   /** Pinta el sprite con la paleta de señal. */
   accent: boolean
 }
@@ -192,8 +180,6 @@ export function createGridFieldRunner(
   let pending: Stage | null = null
   let switching: { from: number; at: number } | null = null
   let lastAlpha = 0
-  let spriteIndex = -1
-  let spriteCycle = -1
   const masks = new Map<number, SpriteMask>()
   let maskCols = 0
   let maskRows = 0
@@ -326,10 +312,7 @@ export function createGridFieldRunner(
   // ─── Sprites ───────────────────────────────────────────────────────────────
 
   function currentSprite(): Sprite | null {
-    if (!stage) return null
-    const program = stage.program
-    if (program.kind === 'live') return null
-    return program.kind === 'hold' ? program.sprite : (program.pool[spriteIndex] ?? null)
+    return stage?.program.kind === 'hold' ? stage.program.sprite : null
   }
 
   function clockOf(sprite: Sprite | null) {
@@ -338,29 +321,15 @@ export function createGridFieldRunner(
 
   function envelopeAt(now: number): SpriteEnvelope {
     if (!stage) return NO_SPRITE
-    const elapsed = now - stageStart
     const program = stage.program
-    if (program.kind === 'hold') {
-      return holdEnvelope(elapsed, clockOf(program.sprite), options.fadeMs)
-    }
-    if (program.kind === 'live') return holdEnvelope(elapsed, LIVE_CLOCK, options.fadeMs)
-    let envelope = loopEnvelope(elapsed, clockOf(currentSprite()), program.timeline)
-    if (envelope.cycle >= 0 && envelope.cycle !== spriteCycle) {
-      spriteCycle = envelope.cycle
-      // El primer sprite del pool abre siempre; después, al azar sin repetir.
-      spriteIndex = spriteIndex < 0 ? 0 : randomSpriteIndex(program.pool.length, spriteIndex)
-      resetMasks()
-      envelope = loopEnvelope(elapsed, clockOf(currentSprite()), program.timeline)
-    }
-    return envelope
+    const clock = program.kind === 'hold' ? clockOf(program.sprite) : LIVE_CLOCK
+    return holdEnvelope(now - stageStart, clock, options.fadeMs)
   }
 
   function enterStage(next: Stage | null, now: number): void {
     stage = next
     // Si el fundido de entrada lo espera, entra ya encendido: el fundido es su entrada.
     stageStart = fade?.start === 0 ? now - options.fadeMs : now
-    spriteIndex = -1
-    spriteCycle = -1
     switching = null
     pending = null
     islandsDirty = true
@@ -512,10 +481,9 @@ export function createGridFieldRunner(
     if (destroyed || running || !reduced || !field || !buffers || !ctx) return
     scanShapes()
     const condense = hasShapes ? options.restCondense : 0
-    // Un cuadro quieto también para los sprites: el primero del pool, sin animar.
+    // Un cuadro quieto también para los sprites: el primero, sin animar.
     let placement: SpritePlacement | null = null
     if (stage) {
-      if (stage.program.kind === 'loop' && spriteIndex < 0) spriteIndex = 0
       lastAlpha = 1
       placement = stage.program.kind === 'live' ? placeLive(0, true) : placeSprite(0)
     }

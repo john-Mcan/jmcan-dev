@@ -27,9 +27,11 @@ export const es = {
     contact: 'Contacto',
   },
   hero: {
-    lead: 'Desarrollo productos web completos, del modelo de datos a la interfaz.',
+    lead: 'Construimos productos web completos, del modelo de datos a la interfaz.',
+    ask: '¿qué construimos?',
+    askPlaceholder: 'una app para…',
+    askSubmit: 'Enviar',
     ctaProjects: 'Ver proyectos',
-    ctaContact: 'Escríbeme',
     status: 'Disponible para proyectos desde noviembre',
   },
   projects: {
@@ -46,6 +48,8 @@ export const es = {
   },
   timeline: {
     title: 'Trayectoria',
+    /** Cómo la nombra el prompt del header: `~/trayectoria`. */
+    path: 'trayectoria',
   },
   contactCta: {
     title: '¿Tienes un proyecto en mente?',

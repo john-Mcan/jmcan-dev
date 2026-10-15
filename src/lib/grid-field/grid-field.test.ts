@@ -27,8 +27,7 @@ import {
   writeMask,
   type Physarum,
 } from './physarum'
-import { randomSpriteIndex } from './sprites'
-import { holdEnvelope, loopEnvelope, LOOP_DEFAULTS, sweepRows } from './timeline'
+import { holdEnvelope, sweepRows } from './timeline'
 
 function fakeCanvas() {
   const calls = { fillRect: 0, styleSets: 0 }
@@ -140,13 +139,6 @@ describe('dotSize', () => {
 })
 
 describe('relojes', () => {
-  it('el loop suena un sprite por ciclo y calla entre ciclos', () => {
-    const t = LOOP_DEFAULTS
-    expect(loopEnvelope(t.firstMs + t.spriteMs / 2, clock, t).textAlpha).toBe(1)
-    expect(loopEnvelope(t.firstMs + t.spriteMs / 2 + t.everyMs, clock, t).cycle).toBe(1)
-    expect(loopEnvelope(t.firstMs + t.spriteMs + 100, clock, t).frameIndex).toBe(-1)
-  })
-
   it('hold entra con fade y se queda', () => {
     expect(holdEnvelope(0, clock, 260).textAlpha).toBe(0)
     expect(holdEnvelope(60_000, clock, 260).textAlpha).toBe(1)
@@ -158,20 +150,6 @@ describe('relojes', () => {
     expect(rows[0]).toBeGreaterThan(0.9)
     expect(rows[99]).toBe(0)
     expect(sweepRows(rows, 1, true)).toBe(false)
-  })
-})
-
-describe('randomSpriteIndex', () => {
-  it('nunca repite el anterior y alcanza todos', () => {
-    const seen = new Set<number>()
-    let last = -1
-    for (let i = 0; i < 2000; i++) {
-      const next = randomSpriteIndex(5, last)
-      expect(next).not.toBe(last)
-      seen.add(next)
-      last = next
-    }
-    expect(seen.size).toBe(5)
   })
 })
 

@@ -1,8 +1,22 @@
 ---
+/**
+ * El header, siempre a mano. El logo es un prompt, `jm ~/<ruta>▮`: la ruta dice
+ * dónde estás y, en la home, sigue a la sección a la vista (`data-prompt`). Arriba
+ * de todo es transparente; al bajar se compacta, con fondo y una línea fina. En
+ * móvil, además, se esconde al bajar y vuelve al subir. Sin `backdrop-filter`:
+ * detrás hay un canvas que repinta a 30 fps y el blur se recalcularía en cada cuadro.
+ */
 import LangSwitch from '@/components/layout/LangSwitch.astro'
 import ThemeToggle from '@/components/layout/ThemeToggle.astro'
 import { SITE } from '@/data/site'
-import { getDictionary, pathFor, type Locale, type RouteKey, type RouteRef } from '@/i18n'
+import {
+  getDictionary,
+  pathFor,
+  promptPath,
+  type Locale,
+  type RouteKey,
+  type RouteRef,
+} from '@/i18n'
 
 interface Props {
   locale: Locale
@@ -22,44 +36,202 @@ const items: { key: RouteKey; label: string; active: boolean }[] = [
 ]
 ---
 
-<header class="site-layer" transition:name="site-header" transition:animate="none">
-  <div class="container-site flex h-(--header-h) items-center justify-between gap-4">
-    <a
-      href={pathFor(locale, 'home')}
-      class="font-pixel text-d1"
-      aria-label={`${SITE.name}, ${t.nav.home}`}
-    >
-      jm
-    </a>
-    <div class="flex items-center gap-5 sm:gap-8">
-      <nav aria-label={t.a11y.mainNav}>
-        <ul class="flex gap-4 text-[0.9375rem] sm:gap-6">
-          {items.map((item) => (
-            <li>
-              <a
-                href={pathFor(locale, item.key)}
-                aria-current={item.active ? 'page' : undefined}
-                class:list={['nav-link py-2', item.active ? 'text-fg' : 'text-muted hover:text-fg']}
-              >
-                {item.label}
-              </a>
-            </li>
-          ))}
-        </ul>
-      </nav>
-      <div class="flex items-center gap-3">
-        <LangSwitch locale={locale} route={route} />
-        <ThemeToggle locale={locale} />
+<header class="site-header" data-site-header>
+  <div class="header-bar" transition:name="site-header" transition:animate="none">
+    <div class="container-site flex h-full items-center justify-between gap-4">
+      <a
+        href={pathFor(locale, 'home')}
+        class="prompt font-pixel text-d1"
+        aria-label={`${SITE.name}, ${t.nav.home}`}
+      >
+        <span>jm</span>
+        <span class="prompt-path text-muted">
+          ~/<span data-prompt-path>{promptPath(locale, route)}</span>
+        </span>
+        <span class="prompt-cursor" aria-hidden="true"></span>
+      </a>
+      <div class="flex flex-none items-center gap-5 sm:gap-8">
+        <nav aria-label={t.a11y.mainNav}>
+          <ul class="flex gap-4 text-[0.9375rem] sm:gap-6">
+            {items.map((item) => (
+              <li>
+                <a
+                  href={pathFor(locale, item.key)}
+                  aria-current={item.active ? 'page' : undefined}
+                  class:list={[
+                    'nav-link py-2',
+                    item.active ? 'text-fg' : 'text-muted hover:text-fg',
+                  ]}
+                >
+                  {item.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+        <div class="flex items-center gap-3">
+          <LangSwitch locale={locale} route={route} />
+          <ThemeToggle locale={locale} />
+        </div>
       </div>
     </div>
   </div>
 </header>
 
 <style>
+  /* Ocupa su alto en el flujo; la barra va fija encima, así compactarla no mueve la página. */
+  .site-header {
+    position: relative;
+    z-index: 10;
+    height: var(--header-h);
+  }
+  .header-bar {
+    position: fixed;
+    inset: 0 0 auto;
+    height: var(--header-h);
+    border-bottom: 1px solid transparent;
+    transition:
+      height 160ms steps(4, end),
+      background-color 160ms steps(4, end),
+      border-color 160ms steps(4, end),
+      transform 200ms steps(5, end);
+  }
+  [data-compact] .header-bar {
+    height: var(--header-compact-h);
+    border-bottom-color: var(--line);
+    background: color-mix(in srgb, var(--bg) 90%, transparent);
+  }
+  /* Escondido al bajar (móvil), salvo que algo suyo tenga el foco. */
+  [data-hidden]:not(:focus-within) .header-bar {
+    transform: translateY(-100%);
+  }
+  /* La página nueva toma su estado de golpe, sin animarlo. */
+  [data-settling] .header-bar {
+    transition: none;
+  }
+
+  .prompt {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    white-space: nowrap;
+  }
+  /* En un teléfono no entra junto a la navegación: queda `jm▮`. */
+  .prompt-path {
+    display: none;
+    min-width: 0;
+    /* El espacio entre `jm` y `~/`: en la fuente mono, 1ch es justo un espacio. */
+    margin-left: 1ch;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  @media (min-width: 40rem) {
+    .prompt-path {
+      display: block;
+    }
+  }
+  /* El cursor del prompt: un bloque en ámbar (estado), que parpadea. */
+  .prompt-cursor {
+    width: 0.5em;
+    height: 0.8em;
+    flex: none;
+    margin-left: 0.125em;
+    background: var(--signal);
+    animation: prompt-blink 1.1s steps(1, end) infinite;
+  }
+  @keyframes prompt-blink {
+    50% {
+      opacity: 0;
+    }
+  }
+
   .nav-link[aria-current='page'] {
     text-decoration: underline;
     text-decoration-color: var(--signal);
     text-decoration-thickness: 2px;
     text-underline-offset: 0.5em;
   }
+
+  @media (prefers-reduced-motion: reduce) {
+    .header-bar {
+      transition: none;
+    }
+    .prompt-cursor {
+      animation: none;
+    }
+  }
 </style>
+
+<script>
+  /** Mismo corte que `md:` de Tailwind: desde aquí el header no se esconde. */
+  const WIDE = window.matchMedia('(min-width: 48rem)')
+  /** Desde cuántos px se compacta y desde cuántos puede esconderse (móvil). */
+  const COMPACT_AT = 8
+  const HIDE_AFTER = 64
+  /** Cuánto hay que moverse para que cambie de rumbo: un temblor del dedo no lo mueve. */
+  const TURN = 6
+
+  let header: HTMLElement | null = null
+  let lastY = 0
+  let queued = false
+  let sections: IntersectionObserver | null = null
+
+  function update(): void {
+    queued = false
+    if (!header) return
+    const y = Math.max(0, window.scrollY)
+    header.toggleAttribute('data-compact', y > COMPACT_AT)
+    if (WIDE.matches || y <= HIDE_AFTER) {
+      header.removeAttribute('data-hidden')
+      lastY = y
+      return
+    }
+    const delta = y - lastY
+    if (Math.abs(delta) < TURN) return
+    header.toggleAttribute('data-hidden', delta > 0)
+    lastY = y
+  }
+
+  function queue(): void {
+    if (queued) return
+    queued = true
+    requestAnimationFrame(update)
+  }
+
+  /** En la home, la ruta del prompt es la de la sección que cruza el medio de la pantalla. */
+  function followSections(): void {
+    sections?.disconnect()
+    sections = null
+    const path = header?.querySelector('[data-prompt-path]')
+    const marked = document.querySelectorAll<HTMLElement>('[data-prompt]')
+    if (!path || marked.length === 0) return
+    sections = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting && entry.target instanceof HTMLElement) {
+            path.textContent = entry.target.dataset['prompt'] ?? ''
+          }
+        }
+      },
+      { rootMargin: '-45% 0px -45% 0px' },
+    )
+    for (const section of marked) sections.observe(section)
+  }
+
+  window.addEventListener('scroll', queue, { passive: true })
+  WIDE.addEventListener('change', queue)
+
+  // El header se reemplaza en cada navegación: el nuevo toma el estado del scroll de su página.
+  document.addEventListener('astro:page-load', () => {
+    header = document.querySelector('[data-site-header]')
+    if (!header) return
+    const settling = header
+    settling.setAttribute('data-settling', '')
+    lastY = Math.max(0, window.scrollY)
+    update()
+    requestAnimationFrame(() =>
+      requestAnimationFrame(() => settling.removeAttribute('data-settling')),
+    )
+    followSections()
+  })
+</script>

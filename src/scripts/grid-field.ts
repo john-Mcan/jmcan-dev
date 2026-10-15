@@ -2,8 +2,9 @@
  * Monta el fondo una sola vez (persiste entre navegaciones) y decide qué imprime
  * según lo que hay en pantalla. Las páginas declaran sus escenarios con atributos:
  *
- *  - `data-grid-stage="hero" | "contact" | "sent" | "404" | "glyph:<clave>"`:
- *    una caja donde la grilla imprime ese sprite mientras la caja esté a la vista.
+ *  - `data-grid-stage="contact" | "sent" | "404" | "glyph:<clave>"`: una caja donde
+ *    la grilla imprime ese sprite mientras la caja esté a la vista.
+ *  - `data-grid-stage="live:<patrón>"`: un escenario vivo (el hero).
  *  - `data-grid-projects`: lista de proyectos. Contiene `data-grid-panel` (pantalla
  *    sticky en escritorio) y filas `data-grid-row` con `data-grid-glyph="<clave>"`,
  *    un título `data-grid-row-title` y, para móvil, una caja `data-grid-glyph-box`.
@@ -18,15 +19,14 @@
 
 import { DEFAULT_LOCALE, isLocale, type Locale } from '@/i18n/config'
 import { GLYPH_KEYS, type GlyphKey } from '@/lib/grid-field/glyph-keys'
-import {
-  CONTACT_SPRITE,
-  GLYPHS,
-  HERO_POOL,
-  NOT_FOUND_SPRITE,
-  SENT_SPRITE,
-} from '@/lib/grid-field/library'
+import { CONTACT_SPRITE, GLYPHS, NOT_FOUND_SPRITE, SENT_SPRITE } from '@/lib/grid-field/library'
 import type { CursorMode } from '@/lib/grid-field/live'
-import type * as LivePatterns from '@/lib/grid-field/live-patterns'
+import {
+  isLivePattern,
+  loadLivePattern,
+  type LiveFactory,
+  type LivePattern,
+} from '@/lib/grid-field/live-patterns'
 import {
   createGridFieldRunner,
   GRID_FIELD_DEFAULTS,
@@ -36,18 +36,17 @@ import {
   type Stage,
 } from '@/lib/grid-field/runner'
 import type { Sprite } from '@/lib/grid-field/sprites'
-import { LOOP_DEFAULTS } from '@/lib/grid-field/timeline'
 
 /** Mismo corte que `md:` de Tailwind: desde aquí la lista de proyectos usa el panel sticky. */
 const WIDE_QUERY = '(min-width: 48rem)'
 /** Cuánto de una caja debe verse para que su escenario gane. */
 const MIN_RATIO = 0.3
-/** `data-grid-stage="live:<patrón>"`: un escenario vivo (moho, enjambre, corrientes). */
+/** `data-grid-stage="live:<patrón>"`: un escenario vivo (moho, cosmos, enjambre…). */
 const LIVE_PREFIX = 'live:'
 
 let mounted = false
-/** Se baja solo en la página que lo usa: el resto del sitio no lo paga. */
-let patterns: typeof LivePatterns | null = null
+/** Cada patrón se baja solo en la página que lo usa: el resto del sitio no lo paga. */
+const factories = new Map<LivePattern, LiveFactory>()
 
 export function mountGridField(): void {
   if (mounted) return
@@ -107,13 +106,6 @@ function hold(target: Element, sprite: Sprite, accent: boolean): Stage {
 
 function parseStage(target: Element, value: string): Stage | null {
   const locale = pageLocale()
-  if (value === 'hero') {
-    return {
-      target,
-      program: { kind: 'loop', pool: HERO_POOL[locale], timeline: LOOP_DEFAULTS },
-      accent: false,
-    }
-  }
   if (value.startsWith(LIVE_PREFIX)) return liveStage(target, value.slice(LIVE_PREFIX.length))
   if (value === 'contact') return hold(target, CONTACT_SPRITE, false)
   if (value === 'sent') return hold(target, SENT_SPRITE[locale], true)
@@ -124,11 +116,20 @@ function parseStage(target: Element, value: string): Stage | null {
 
 /** Un escenario vivo lee `data-grid-cursor` (atrae, aparta o nada) en cada cuadro. */
 function liveStage(target: Element, pattern: string): Stage | null {
-  if (!patterns?.isLivePattern(pattern)) return null
-  const source = patterns.createLivePattern(pattern, () =>
-    cursorMode(target.getAttribute('data-grid-cursor')),
-  )
+  const create = isLivePattern(pattern) ? factories.get(pattern) : undefined
+  if (!create) return null
+  const source = create(() => cursorMode(target.getAttribute('data-grid-cursor')))
   return { target, program: { kind: 'live', source }, accent: false }
+}
+
+/** Los patrones vivos de la página que todavía no se bajaron. */
+function missingPatterns(): LivePattern[] {
+  const missing = new Set<LivePattern>()
+  for (const element of document.querySelectorAll(`[data-grid-stage^="${LIVE_PREFIX}"]`)) {
+    const pattern = element.getAttribute('data-grid-stage')?.slice(LIVE_PREFIX.length) ?? ''
+    if (isLivePattern(pattern) && !factories.has(pattern)) missing.add(pattern)
+  }
+  return [...missing]
 }
 
 function cursorMode(value: string | null): CursorMode {
@@ -275,11 +276,12 @@ function createStageController(runner: GridFieldRunner) {
   return {
     bind(): void {
       this.unbind()
-      if (!patterns && document.querySelector(`[data-grid-stage^="${LIVE_PREFIX}"]`)) {
-        void import('@/lib/grid-field/live-patterns').then((module) => {
-          patterns = module
-          this.bind()
-        })
+      const missing = missingPatterns()
+      if (missing.length > 0) {
+        const loads = missing.map((pattern) =>
+          loadLivePattern(pattern).then((create) => factories.set(pattern, create)),
+        )
+        void Promise.all(loads).then(() => this.bind())
         return
       }
       const stageElements = document.querySelectorAll('[data-grid-stage]')

@@ -13,47 +13,9 @@ export interface SpriteEnvelope {
   textAlpha: number
   /** Cuadro a dibujar, o -1 si no suena ningún sprite. */
   frameIndex: number
-  /** Ciclo en curso (solo `loop`); -1 antes del primero. */
-  cycle: number
 }
 
-/** Un pool que suena en ciclos: aparece, se sostiene y calla hasta el siguiente. */
-export interface LoopTimeline {
-  /** Espera antes del primer sprite. */
-  firstMs: number
-  /** Período entre el inicio de un sprite y el del siguiente. */
-  everyMs: number
-  /** Cuánto dura un sprite en pantalla (debe ser < everyMs). */
-  spriteMs: number
-  fadeMs: number
-}
-
-export const LOOP_DEFAULTS: LoopTimeline = {
-  firstMs: 600,
-  everyMs: 7000,
-  spriteMs: 4600,
-  fadeMs: 260,
-}
-
-export const NO_SPRITE: SpriteEnvelope = { textAlpha: 0, frameIndex: -1, cycle: -1 }
-
-export function loopEnvelope(
-  elapsed: number,
-  clock: SpriteClock,
-  timeline: LoopTimeline,
-): SpriteEnvelope {
-  const since = elapsed - timeline.firstMs
-  if (since < 0 || timeline.everyMs <= 0) return NO_SPRITE
-  const cycle = Math.floor(since / timeline.everyMs)
-  const local = since - cycle * timeline.everyMs
-  if (local > timeline.spriteMs || clock.frameCount <= 0) return { ...NO_SPRITE, cycle }
-  const fade = Math.max(1, timeline.fadeMs)
-  return {
-    textAlpha: Math.min(clamp(local / fade), clamp((timeline.spriteMs - local) / fade)),
-    frameIndex: frameAt(local, clock),
-    cycle,
-  }
-}
+export const NO_SPRITE: SpriteEnvelope = { textAlpha: 0, frameIndex: -1 }
 
 /** Un sprite sostenido mientras dure el escenario: entra con fade y se queda. */
 export function holdEnvelope(elapsed: number, clock: SpriteClock, fadeMs: number): SpriteEnvelope {
@@ -61,7 +23,6 @@ export function holdEnvelope(elapsed: number, clock: SpriteClock, fadeMs: number
   return {
     textAlpha: clamp(elapsed / Math.max(1, fadeMs)),
     frameIndex: frameAt(elapsed, clock),
-    cycle: 0,
   }
 }
 

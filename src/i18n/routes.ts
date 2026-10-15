@@ -26,6 +26,14 @@ export function pathFor(locale: Locale, route: RouteRef | RouteKey): string {
   return ref.slug === undefined ? pattern : pattern.replace('[slug]', ref.slug)
 }
 
+/**
+ * La ruta como la muestra el prompt del header (`~/<ruta>`): sin el prefijo del
+ * idioma ni las barras de los extremos. La home es la ruta vacía.
+ */
+export function promptPath(locale: Locale, route: RouteRef | RouteKey): string {
+  return pathFor(locale, route).slice(pathFor(locale, 'home').length).replace(/\/$/, '')
+}
+
 export function alternates(route: RouteRef): { locale: Locale; path: string }[] {
   return LOCALES.map((locale) => ({ locale, path: pathFor(locale, route) }))
 }

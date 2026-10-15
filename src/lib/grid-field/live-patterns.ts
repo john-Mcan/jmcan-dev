@@ -1,50 +1,55 @@
 /**
- * Los patrones vivos, por nombre (`data-grid-stage="live:<nombre>"`). Este módulo se
- * baja aparte, solo en la página que tiene un escenario vivo.
+ * Los patrones vivos, por nombre (`data-grid-stage="live:<nombre>"`). Cada uno se
+ * baja aparte (`import()`), solo en la página que lo usa: la home paga el suyo y
+ * no los demás del laboratorio.
  */
 
 import type { CursorMode, LiveSource } from './live'
-import { createCosmos } from './live-cosmos'
-import { createCurrents } from './live-currents'
-import { createFlock } from './live-flock'
-import { createFrost } from './live-frost'
-import { createJulia } from './live-julia'
-import { createMold } from './live-mold'
 
-export const LIVE_PATTERNS = [
-  'mold-open',
-  'mold-reef',
-  'cosmos',
-  'cosmos-alone',
-  'flock',
-  'currents',
-  'frost',
-  'julia',
-] as const
+/** Crea el patrón; el cursor se lee en cada cuadro. */
+export type LiveFactory = (cursor: () => CursorMode) => LiveSource
 
-export type LivePattern = (typeof LIVE_PATTERNS)[number]
+const LOADERS = {
+  'mold-open': async () => {
+    const { createMold } = await import('./live-mold')
+    return (cursor) => createMold({ habitat: 'open', cursor })
+  },
+  'mold-reef': async () => {
+    const { createMold } = await import('./live-mold')
+    return (cursor) => createMold({ habitat: 'reef', cursor })
+  },
+  cosmos: async () => {
+    const { createCosmos } = await import('./live-cosmos')
+    return (cursor) => createCosmos({ cursor })
+  },
+  'cosmos-alone': async () => {
+    const { createCosmos } = await import('./live-cosmos')
+    return (cursor) => createCosmos({ cursor, alone: true })
+  },
+  flock: async () => {
+    const { createFlock } = await import('./live-flock')
+    return (cursor) => createFlock({ cursor })
+  },
+  currents: async () => {
+    const { createCurrents } = await import('./live-currents')
+    return (cursor) => createCurrents({ cursor })
+  },
+  frost: async () => {
+    const { createFrost } = await import('./live-frost')
+    return (cursor) => createFrost({ cursor })
+  },
+  julia: async () => {
+    const { createJulia } = await import('./live-julia')
+    return (cursor) => createJulia({ cursor })
+  },
+} satisfies Record<string, () => Promise<LiveFactory>>
+
+export type LivePattern = keyof typeof LOADERS
 
 export function isLivePattern(value: string): value is LivePattern {
-  return (LIVE_PATTERNS as readonly string[]).includes(value)
+  return Object.hasOwn(LOADERS, value)
 }
 
-export function createLivePattern(pattern: LivePattern, cursor: () => CursorMode): LiveSource {
-  switch (pattern) {
-    case 'mold-open':
-      return createMold({ habitat: 'open', cursor })
-    case 'mold-reef':
-      return createMold({ habitat: 'reef', cursor })
-    case 'cosmos':
-      return createCosmos({ cursor })
-    case 'cosmos-alone':
-      return createCosmos({ cursor, alone: true })
-    case 'flock':
-      return createFlock({ cursor })
-    case 'currents':
-      return createCurrents({ cursor })
-    case 'frost':
-      return createFrost({ cursor })
-    case 'julia':
-      return createJulia({ cursor })
-  }
+export function loadLivePattern(pattern: LivePattern): Promise<LiveFactory> {
+  return LOADERS[pattern]()
 }

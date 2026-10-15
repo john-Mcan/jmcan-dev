@@ -24,9 +24,11 @@ export const en: Dictionary = {
     contact: 'Contact',
   },
   hero: {
-    lead: 'I build complete web products, from the data model to the interface.',
+    lead: 'We build complete web products, from the data model to the interface.',
+    ask: 'what are we building?',
+    askPlaceholder: 'an app for…',
+    askSubmit: 'Send',
     ctaProjects: 'See projects',
-    ctaContact: 'Write to me',
     status: 'Available for projects from November',
   },
   projects: {
@@ -43,6 +45,7 @@ export const en: Dictionary = {
   },
   timeline: {
     title: 'Experience',
+    path: 'experience',
   },
   contactCta: {
     title: 'Have a project in mind?',

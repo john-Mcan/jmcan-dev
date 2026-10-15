@@ -2,7 +2,7 @@
 import Stage from '@/components/fx/Stage.astro'
 import Button from '@/components/ui/Button.astro'
 import EmailCopy from '@/components/ui/EmailCopy.astro'
-import { getDictionary, pathFor, type Locale } from '@/i18n'
+import { getDictionary, pathFor, promptPath, type Locale } from '@/i18n'
 
 interface Props {
   locale: Locale
@@ -12,7 +12,11 @@ const { locale } = Astro.props
 const t = getDictionary(locale)
 ---
 
-<section class="container-site py-20 md:py-28" aria-labelledby="cta-title">
+<section
+  class="container-site py-20 md:py-28"
+  aria-labelledby="cta-title"
+  data-prompt={promptPath(locale, 'contact')}
+>
   <div class="grid items-center gap-y-12 md:grid-cols-12 md:gap-x-10">
     <div class="md:col-span-7">
       <h2 id="cta-title" class="font-pixel text-d2 lg:text-d3">

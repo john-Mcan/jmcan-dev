@@ -1,6 +1,6 @@
 ---
 import ProjectList from '@/components/projects/ProjectList.astro'
-import { fill, getDictionary, pathFor, type Locale } from '@/i18n'
+import { fill, getDictionary, pathFor, promptPath, type Locale } from '@/i18n'
 import type { Project } from '@/lib/projects'
 
 interface Props {
@@ -13,7 +13,11 @@ const { locale, projects, total } = Astro.props
 const t = getDictionary(locale)
 ---
 
-<section class="container-site py-20 md:py-28" aria-labelledby="featured-title">
+<section
+  class="container-site py-20 md:py-28"
+  aria-labelledby="featured-title"
+  data-prompt={promptPath(locale, 'projects')}
+>
   <div class="mb-10 flex flex-wrap items-end justify-between gap-4 md:mb-14">
     <h2 id="featured-title" class="font-pixel text-d1 sm:text-d2">
       <span class="inline-block" data-grid-shape>

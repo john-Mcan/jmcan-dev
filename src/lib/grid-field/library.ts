@@ -28,19 +28,6 @@ export const GLYPHS: Record<GlyphKey, Sprite> = {
   orbit: { frames: ORBITING_DISCS, frameMs: 60 },
 }
 
-const MONOGRAM: Sprite = { frames: ['jm', 'jm_', 'jm', 'jm_'], frameMs: WORD_MS, textScale: 0.5 }
-
-const GREETING: Record<Locale, Sprite> = {
-  es: { frames: ['>', '> h', '> ho', '> hol', '> hola', '> hola_', '> hola'], frameMs: 260 },
-  en: { frames: ['>', '> h', '> he', '> hel', '> hell', '> hello', '> hello_'], frameMs: 260 },
-}
-
-/** El pool del hero: el primero (el monograma) abre siempre; después alterna al azar. */
-export const HERO_POOL: Record<Locale, readonly Sprite[]> = {
-  es: [MONOGRAM, GREETING.es, GLYPHS.cube, GLYPHS.globe, GLYPHS.scope, GLYPHS.radar],
-  en: [MONOGRAM, GREETING.en, GLYPHS.cube, GLYPHS.globe, GLYPHS.scope, GLYPHS.radar],
-}
-
 export const CONTACT_SPRITE: Sprite = { frames: ENVELOPE, frameMs: 70 }
 
 export const SENT_SPRITE: Record<Locale, Sprite> = {

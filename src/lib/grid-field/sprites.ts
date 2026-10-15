@@ -26,21 +26,3 @@ export interface Sprite {
 
 /** Medio segundo alcanza para leer dos o tres palabras. */
 export const WORD_MS = 500
-
-/**
- * El siguiente sprite al azar, nunca el que acaba de sonar: una repetición
- * inmediata es el único resultado que se lee como roto y no como azar.
- * @param exclude índice recién usado, o -1 si no ha sonado ninguno.
- * @returns -1 si el pool está vacío.
- */
-export function randomSpriteIndex(
-  total: number,
-  exclude: number,
-  random: () => number = Math.random,
-): number {
-  if (total <= 0) return -1
-  if (total === 1) return 0
-  if (exclude < 0 || exclude >= total) return Math.floor(random() * total)
-  const roll = Math.floor(random() * (total - 1))
-  return roll >= exclude ? roll + 1 : roll
-}

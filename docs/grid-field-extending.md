@@ -21,13 +21,13 @@ esa guía sin contrastarlo con este documento.
 | Archivo                             | Qué hace                                                                                       | ¿Toca el DOM?             |
 | ----------------------------------- | ---------------------------------------------------------------------------------------------- | ------------------------- |
 | `lib/grid-field/grid-field.ts`      | Motor: grilla, formas, máscaras, parpadeo, luz por celda y pintado                             | No                        |
-| `lib/grid-field/timeline.ts`        | Relojes puros: `loopEnvelope`, `holdEnvelope`, `rising`, `sweepRows`                           | No                        |
+| `lib/grid-field/timeline.ts`        | Relojes puros: `holdEnvelope`, `rising`, `sweepRows`                                           | No                        |
 | `lib/grid-field/sprites.ts`         | Tipos `Sprite` / `SpriteFrame`, `WORD_MS`, sorteo sin repetición                               | No                        |
 | `lib/grid-field/sprite-drawings.ts` | Dibujos (cubo, globo, osciloscopio, radar, sobre, `glitchText`…)                               | Solo el canvas que recibe |
 | `lib/grid-field/sprite-raster.ts`   | Cuadro → máscara de cobertura, caja alineada a la grilla                                       | Canvas fuera de pantalla  |
 | `lib/grid-field/runner.ts`          | Runtime: loop rAF, observers, tema, fuentes, escenarios, transiciones                          | Sí                        |
 | `lib/grid-field/glyph-keys.ts`      | Claves de glifos válidas en el frontmatter de proyectos                                        | No                        |
-| `lib/grid-field/library.ts`         | Los sprites del sitio: pools, glifos por proyecto, contacto, 404                               | No                        |
+| `lib/grid-field/library.ts`         | Los sprites del sitio: glifos por proyecto, contacto, 404                                      | No                        |
 | `scripts/grid-field.ts`             | Monta el runner una vez y decide qué escenario suena según la página                           | Sí                        |
 | `components/fx/GridField.astro`     | El `<canvas>` fijo, persistente entre navegaciones                                             | —                         |
 | `components/fx/Stage.astro`         | Caja vacía con marcas en las esquinas donde se imprime un sprite                               | —                         |
@@ -56,10 +56,12 @@ pinta con la paleta de señal (ámbar). Las formas se re-miden al hacer scroll, 
 (`target`), re-medido cada cuadro, así que el sprite sigue al elemento al hacer scroll o si es
 sticky. Hay dos programas:
 
-- `loop`: un pool de sprites que suena en ciclos (aparece, se sostiene y calla). El primero del
-  pool abre siempre y después se sortea sin repetir. Lo usa el hero.
 - `hold`: un sprite sostenido mientras dure el escenario. Lo usan los glifos de proyectos, el
   contacto y el 404.
+- `live`: una simulación que escribe su máscara en cada cuadro (receta 3.7). Lo usa el hero.
+
+Hubo un tercero, `loop` (un pool de sprites que sonaba en ciclos), para el hero de antes. Se quitó
+con él, el 2026-10-15: no lo usaba nadie y la home necesitaba el peso para cosmos.
 
 **Hay un solo escenario a la vez** (una sola máscara). Al cambiarlo, el sprite actual se desvanece
 antes de que entre el nuevo. `scripts/grid-field.ts` decide cuál gana:
@@ -95,8 +97,8 @@ campo del mismo nivel: siguen siendo como mucho 48 cambios de `fillStyle`.
 `paintField`) y `presence` (el campo entero, que sube en el fundido de entrada).
 
 **Entrada.** Al montar, el campo entra con un barrido de arriba hacia abajo. Una página con
-`data-grid-intro="fade"` (hoy, `/lab/cosmosv2`) entra con un fundido de `presence`: espera a su
-escenario (a lo sumo 2,5 s) y lo trae ya encendido, así entra con él listo y no a medio llegar.
+`data-grid-intro="fade"` (hoy, la home y `/lab/cosmosv2`) entra con un fundido de `presence`: espera
+a su escenario (a lo sumo 2,5 s) y lo trae ya encendido, así entra con él listo y no a medio llegar.
 
 **Transiciones de página.** `astro:before-preparation` llama a `runner.leave()` (la estructura se
 disuelve en 180 ms) y suelta los escenarios. `astro:after-swap` llama a `runner.enter()` (barrido
@@ -155,11 +157,11 @@ const MI_TEXTO: Sprite = { frames: ['hola', 'hola_'], frameMs: WORD_MS, textScal
 
 1. Pon la caja en la página: `<Stage stage="mi-escenario" class="aspect-square w-full" />`.
 2. En `parseStage` (`scripts/grid-field.ts`), traduce el valor a un `Stage` con
-   `hold(target, sprite, accent)` o un programa `loop`.
+   `hold(target, sprite, accent)`.
 3. Para cambiar un escenario en vivo (como el formulario: `contact` → `sent`), cambia el atributo
    y dispara `document.dispatchEvent(new Event('grid:refresh'))`.
 
-Valores existentes: `hero`, `contact`, `sent`, `404`, `glyph:<clave>`.
+Valores existentes: `contact`, `sent`, `404`, `glyph:<clave>` y `live:<patrón>` (3.7).
 
 ### 3.5 Halos
 
@@ -205,8 +207,11 @@ están en `docs/sesion-2026-10-02-hero-vivo.md`, sección 5. Para uno nuevo:
 
 1. Implementa `LiveSource` (`frame` y `still`) en un `live-<nombre>.ts`, en celdas de unos 6 px
    (`fineScale` con el `cellPx` del contexto), con las utilidades de `live.ts`.
-2. Regístralo en `live-patterns.ts` y agrégalo a los tests de «patrones vivos».
+2. Regístralo en `LOADERS` (`live-patterns.ts`) y agrégalo a los tests de «patrones vivos».
 3. Pruébalo en `/lab`: una entrada en `src/lab/variants.ts`.
+
+Cada patrón se baja aparte (`import()` en `LOADERS`), solo en la página que lo usa: la home paga
+cosmos (4,6 KB gz con la gravedad y `live.ts`) y no los demás del laboratorio.
 
 ## 4. Reglas que no se negocian
 
@@ -261,16 +266,16 @@ en px; lo pone la barra de `/lab`). Ignora `maxCells`: a 4 px el cuadro cuesta ~
 
 ## 6. Ideas pendientes y dónde encajan
 
-| Idea                                       | Dónde                                                                 | Notas                                                                                 |
-| ------------------------------------------ | --------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
-| `/lab` para afinar sprites y efectos       | Ruta inyectada solo en `astro dev` (integración en `astro.config.ts`) | Hoy, para previsualizar un sprite, ponlo en un `Stage` de una página o en `HERO_POOL` |
-| Onda al hacer clic en los CTA              | Receta 3.6 (distancia a un punto)                                     |                                                                                       |
-| Disolución por tramado al navegar          | Hash por celda en `measure()` + progreso en `leave()`                 | Reemplazaría o complementaría la disolución actual                                    |
-| Glitch de bandas en sprites                | Desplazar `lc` por banda de filas en `paintField`                     | Hoy el glitch del 404 se hace en el dibujo                                            |
-| Sprites de imagen/SVG (logos de proyectos) | Nuevo tipo de cuadro `{ image }` → `drawImage` en `rasteriseFrame`    | Los logos necesitan formas gruesas                                                    |
-| Texto vivo (hora, contadores)              | Cuadros generados al vuelo con caché por string                       | El caché actual es por índice de cuadro                                               |
-| Más de un sprite a la vez                  | Varias máscaras en `FrameInput`                                       | Rompe "un escenario a la vez": pensarlo antes                                         |
-| Renderer WebGL2                            | Detrás de `paintField`, sin tocar relojes ni sprites                  | Solo si las mediciones en móvil lo piden                                              |
+| Idea                                       | Dónde                                                                 | Notas                                                                |
+| ------------------------------------------ | --------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| `/lab` para afinar sprites y efectos       | Ruta inyectada solo en `astro dev` (integración en `astro.config.ts`) | Hoy, para previsualizar un sprite, ponlo en un `Stage` de una página |
+| Onda al hacer clic en los CTA              | Receta 3.6 (distancia a un punto)                                     |                                                                      |
+| Disolución por tramado al navegar          | Hash por celda en `measure()` + progreso en `leave()`                 | Reemplazaría o complementaría la disolución actual                   |
+| Glitch de bandas en sprites                | Desplazar `lc` por banda de filas en `paintField`                     | Hoy el glitch del 404 se hace en el dibujo                           |
+| Sprites de imagen/SVG (logos de proyectos) | Nuevo tipo de cuadro `{ image }` → `drawImage` en `rasteriseFrame`    | Los logos necesitan formas gruesas                                   |
+| Texto vivo (hora, contadores)              | Cuadros generados al vuelo con caché por string                       | El caché actual es por índice de cuadro                              |
+| Más de un sprite a la vez                  | Varias máscaras en `FrameInput`                                       | Rompe "un escenario a la vez": pensarlo antes                        |
+| Renderer WebGL2                            | Detrás de `paintField`, sin tocar relojes ni sprites                  | Solo si las mediciones en móvil lo piden                             |
 
 ## 7. Checklist antes de dar por terminado un cambio
 

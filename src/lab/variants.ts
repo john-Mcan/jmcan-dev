@@ -1,6 +1,6 @@
 /**
  * Los candidatos del hero que monta `/lab/[variant]` (solo en `astro dev`). Todos
- * usan el mismo layout (`HeroStage`); cambia el patrón vivo del fondo y el cursor
+ * usan el hero de la home (`Hero.astro`); cambia el patrón vivo del fondo y el cursor
  * con que se eligió. Cada patrón nombra a su modo «atrae» y «aparta». `intro: 'fade'`:
  * el fondo entra con un fundido, sin el barrido de arriba hacia abajo.
  */
