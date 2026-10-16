@@ -111,7 +111,7 @@ const GAIN = 0.85
  */
 const AXIS_LANDSCAPE = 0.76
 const AXIS_PORTRAIT = 0.62
-const AXIS_PULL = 0.06
+const AXIS_PULL = 0.08
 /**
  * El tornado nace cuando la franja (tres columnas de malla) junta COLLAPSE veces la
  * masa media, o a los FALLBACK_S. Nace sobre la franja real (el pico de materia
@@ -121,16 +121,16 @@ const AXIS_PULL = 0.06
  * de ella. El pico se mide con la materia libre, que la del tornado no lo tuerce.
  * El giro crece en SPIN_UP_S.
  */
-const COLLAPSE = 4
+const COLLAPSE = 3
 const BAND_SEARCH = 0.1
 const FOLLOW_S = 5
 const FOLLOW_TAU_S = 0.5
 const BAND_PROMINENCE = 3
-const FALLBACK_S = 4
-const SPIN_UP_S = 2.5
+const FALLBACK_S = 2.5
+const SPIN_UP_S = 1.2
 /** Captura: a qué distancia de la pared del embudo (celdas) y qué fracción de lo que llega por segundo. */
 const CAPTURE = 3
-const CAPTURE_RATE = 1.5
+const CAPTURE_RATE = 3
 /**
  * El embudo: radio arriba y abajo (fracción del alto de la caja; arriba, con un
  * tope por el ancho) y cuánto tarda una partícula en sumarse a su hebra.
@@ -146,16 +146,21 @@ const STRAND_SPREAD = 0.25
 /** Giro (rad/s). */
 const WHIRL = 2.4
 /** Succión del núcleo hacia el eje (celdas/s²; con el arrastre, la materia llega a ~1,25 veces eso en celdas/s). */
-const INFLOW = 9
+const INFLOW = 18
 /**
  * El ritmo del arranque. Las constantes de arriba son las de una caja apaisada
- * (escritorio). En una vertical (un teléfono) todo pasa antes: la materia arranca
- * más junta (más tirón hacia el eje y una parte, `gather`, ya en la franja, a
- * GATHER_WIDTH del eje), así el fondo se ve menos poblado; el tornado nace antes y
- * gira, captura y succiona más rápido. La cantidad de materia es la misma: el
- * tornado queda igual de poblado. Y el eje sigue a la franja solo mientras el
- * tornado no se ve (giro bajo `followSpin`): ya formado, corrido, se veía como un
- * ajuste; como la materia arranca en la franja, nace donde corresponde.
+ * (escritorio), apuradas para que la entrada no se sienta lenta: el tornado nace
+ * antes de que termine el barrido y gira, captura y succiona rápido. Más no se
+ * puede apurar con la succión: la materia del otro lado ya viaja a la velocidad
+ * máxima de la gravedad. En una vertical (un teléfono) la materia arranca más
+ * junta (una parte, `gather`, ya en la franja, a GATHER_WIDTH del eje), así el
+ * fondo se ve menos poblado, y el tornado nace todavía antes; la succión es menor
+ * porque la materia viene de más cerca. La cantidad de materia es la misma: el
+ * tornado queda igual de poblado.
+ *
+ * El eje sigue a la franja solo mientras el tornado casi no se ve (giro bajo
+ * `followSpin`): ya formado, corrido, se veía como un ajuste. En el teléfono, como
+ * la materia arranca en la franja, nace donde corresponde y deja de seguirla antes.
  */
 interface Tempo {
   pull: number
@@ -175,7 +180,7 @@ const LANDSCAPE_TEMPO: Tempo = {
   spinUpS: SPIN_UP_S,
   captureRate: CAPTURE_RATE,
   inflow: INFLOW,
-  followSpin: Number.POSITIVE_INFINITY,
+  followSpin: 0.5,
 }
 const PORTRAIT_TEMPO: Tempo = {
   pull: 0.08,

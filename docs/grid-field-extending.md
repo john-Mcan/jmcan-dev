@@ -272,8 +272,10 @@ Otros: `MIN_BOX_CELLS` = 8 (caja mínima para dibujar), `MIN_RATIO` = 0,3 y `WID
 Si un móvil modesto no da el ancho, lo primero es `fps: 20`, `maxCells: 40_000` o `maxDpr: 1.5`.
 
 Cosmos tiene un ritmo por forma de caja (`LANDSCAPE_TEMPO` y `PORTRAIT_TEMPO` en `live-cosmos.ts`):
-en una caja vertical (un teléfono) la materia arranca más junta y el tornado nace, gira y captura
-antes. Ver la sección 14 de `docs/sesion-2026-10-02-hero-vivo.md`.
+en una caja vertical (un teléfono) la materia arranca más junta y el tornado nace antes. Ver las
+secciones 14 (teléfono) y 16 (escritorio) de `docs/sesion-2026-10-02-hero-vivo.md`. La entrada la
+marca ese ritmo, no el costo: en escritorio la simulación cuesta ~3 ms por cuadro y corre a tiempo
+real.
 
 Para probar otra celda en escritorio sin tocar el código: `<html data-grid-cell="4:2">` (paso y punto,
 en px; lo pone la barra de `/lab`). Ignora `maxCells`: a 4 px el cuadro cuesta ~2,5 veces más.

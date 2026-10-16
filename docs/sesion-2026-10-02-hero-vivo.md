@@ -23,6 +23,7 @@ previas); nada de esto toca todavía la home de producción.
 13. [2026-10-15: header compacto, barrido y escritura](#13-2026-10-15-header-compacto-barrido-y-escritura)
 14. [2026-10-15: ajustes para móvil, tras probar en teléfonos](#14-2026-10-15-ajustes-para-móvil-tras-probar-en-teléfonos)
 15. [2026-10-15: navegación](#15-2026-10-15-navegación)
+16. [2026-10-16: cosmos entra más rápido en escritorio](#16-2026-10-16-cosmos-entra-más-rápido-en-escritorio)
 
 ## 1. Cómo ver los candidatos
 
@@ -496,3 +497,40 @@ Las páginas internas no tenían cómo volver. Lo que se acordó con el usuario:
 - Escritorio: el header se ve igual; suma las migas.
 
 Pendiente: rediseñar el detalle de proyecto antes de pasar a producción (pedido del usuario).
+
+## 16. 2026-10-16: cosmos entra más rápido en escritorio
+
+El usuario sentía lenta la entrada del hero en escritorio, el paso del cosmos al tornado (la
+animación y el lugar del tornado estaban bien), y preguntó si era el ritmo programado o falta de
+recursos.
+
+**No eran los recursos.** Medido en Chrome a 1838 × 892 (caja de 306 × 141 celdas, 25 888
+partículas): la simulación cuesta ~2,7 ms por cuadro y corre a tiempo real; ningún cuadro pasa el
+tope de 50 ms de `dt`. Con la CPU frenada 4 veces (una notebook modesta) cuesta ~14 ms y se atrasa
+~14 % respecto del reloj: tampoco explica la lentitud. Era el ritmo de `LANDSCAPE_TEMPO`.
+
+**El ritmo nuevo** (`live-cosmos.ts`): tirón inicial de 0,06 a 0,08, colapso a 3 veces la masa
+media (no 4), plazo de 2,5 s (no 4), giro en 1,2 s (no 2,5), captura al doble y succión de 9 a 18.
+El estado final no cambia: el mismo tornado, el mismo giro, en el mismo lugar. El teléfono
+(`PORTRAIT_TEMPO`, con sus propios valores) no cambia.
+
+| Escritorio (1838 px, Chrome) | Antes  | Ahora  |
+| ---------------------------- | ------ | ------ |
+| Nace el tornado              | 1,95 s | 0,95 s |
+| Orbita el 50 % de la materia | 4,7 s  | 2,8 s  |
+| Orbita el 75 %               | 6,5 s  | 4,6 s  |
+| Orbita el 90 %               | 8,2 s  | 6,8 s  |
+
+- Con el barrido de entrada (1,1 s), el tornado empieza a girar mientras termina de revelarse el
+  fondo; la materia sigue corriendo desde los dos lados hacia la franja.
+- **El final no se puede apurar con la succión:** la materia del otro lado del eje ya viaja a la
+  velocidad máxima de la gravedad (25 celdas/s, `maxSpeed`). Con succión 22 en vez de 18, el 90 %
+  llega apenas 0,1 s antes. Si hiciera falta vaciar antes el fondo, la palanca es esa velocidad
+  máxima, que también cambia cómo cae la materia en el arranque.
+- **El eje deja de seguir a la franja cuando el tornado ya se ve** (`followSpin` 0,5; en el
+  teléfono, 0,25). Naciendo antes, la franja termina de formarse con el tornado ya visible y el eje se
+  corría al seguirla (mediana 3,3 % del ancho, hasta 5,7 %, unos 100 px): el ajuste que ya se
+  había quitado en el teléfono. Ahora se corre 0,4 % (antes del cambio, 2 %) y el eje termina entre
+  0,75 y 0,77 del ancho (antes, entre 0,74 y 0,81).
+- A 1440 px pasa lo mismo: nace a los 0,7 s (antes, 1,6) y el 50 % orbita a los 2,4 s (antes,
+  4,4).
