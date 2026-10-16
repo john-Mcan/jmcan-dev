@@ -23,9 +23,6 @@ const [first] = asks
 <div class="live-open flex flex-col items-start gap-6">
   <form class="w-full" action={pathFor(locale, 'contact')} method="get" data-hero-ask>
     <label for="hero-ask" class="ask font-pixel text-d1" data-grid-island>
-      <span class="text-muted" aria-hidden="true">
-        &gt;
-      </span>
       {/* Todas las preguntas, invisibles en la misma celda: reservan el alto de la más larga. */}
       <span class="ask-lines">
         {asks.map((ask) => (
@@ -68,18 +65,30 @@ const [first] = asks
 </div>
 
 <style>
-  /* El `>` a un lado: si la pregunta ocupa dos líneas, la segunda queda alineada con la primera. */
   .ask {
-    display: flex;
+    display: block;
     width: fit-content;
     max-width: 100%;
-    gap: 1ch;
   }
   .ask-lines {
     display: grid;
   }
+  /*
+   * Abajo en la celda, junto al input: una pregunta de una línea queda en la fila de
+   * abajo y una de dos empieza ahí y sube al cortarse. El `>` abre la primera línea y
+   * la segunda queda alineada con el texto (sangría francesa de 2ch: `>` y un espacio).
+   */
   .ask-lines > * {
     grid-area: 1 / 1;
+    align-self: end;
+    padding-left: 2ch;
+    text-indent: -2ch;
+  }
+  .ask-lines > *::before {
+    content: '>';
+    content: '>' / '';
+    margin-right: 1ch;
+    color: var(--muted);
   }
   /* Desde `md:`, en una línea, como el nombre: a su derecha solo hay fondo. */
   @media (min-width: 48rem) {
@@ -90,17 +99,20 @@ const [first] = asks
       white-space: nowrap;
     }
   }
-  /* Con el ancho del cursor: así la pregunta escrita corta las líneas igual que su reserva. */
   .ask-ghost {
     visibility: hidden;
-    padding-right: 0.625em;
   }
-  /* El cursor aparece solo mientras escribe y no parpadea: el que parpadea es el del header. */
+  /*
+   * El cursor aparece solo mientras escribe y no parpadea: el que parpadea es el del header.
+   * No ocupa ancho (el margen negativo lo compensa) y sobresale al margen: así nunca salta solo
+   * a otra línea y la pregunta escrita corta las líneas igual que su reserva.
+   */
   .ask-cursor {
     display: inline-block;
     width: 0.5em;
     height: 0.8em;
     margin-left: 0.125em;
+    margin-right: -0.625em;
     background: var(--signal);
     visibility: hidden;
   }
