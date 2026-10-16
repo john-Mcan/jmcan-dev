@@ -1,6 +1,7 @@
 import {
   buildSpriteMask,
   fieldStep,
+  type FieldGeometry,
   type FieldRect,
   type GridField,
   type SpriteMask,
@@ -48,13 +49,13 @@ export function boxOnField(field: GridField, box: SpriteBox): boolean {
  */
 export function rasteriseFrame(
   scratch: HTMLCanvasElement,
-  field: GridField,
+  geometry: Pick<FieldGeometry, 'square' | 'gap'>,
   box: SpriteBox,
   frame: SpriteFrame,
   sprite: Sprite,
   font: SpriteFont,
 ): SpriteMask | null {
-  const step = fieldStep(field)
+  const step = fieldStep(geometry)
   const width = box.cols * step
   const height = box.rows * step
   // Asignar width/height limpia el canvas aunque el valor no cambie: solo si cambió.

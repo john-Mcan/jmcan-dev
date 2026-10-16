@@ -192,6 +192,12 @@
       linear-gradient(var(--tick-color), var(--tick-color)) bottom right / 1px var(--tick);
     background-repeat: no-repeat;
   }
+  /* La pantalla propia de un sprite (`screens.ts`, en un teléfono): llena su caja. */
+  .frame > .screen {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
 
   .signal-dot {
     display: inline-block;

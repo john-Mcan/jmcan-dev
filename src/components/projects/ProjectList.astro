@@ -2,7 +2,8 @@
 /**
  * Lista de proyectos con panel narrador: en escritorio, una pantalla sticky a la
  * izquierda donde la grilla imprime el glifo de la fila activa; en móvil, cada
- * fila tiene su propia caja. La lógica vive en src/scripts/grid-field.ts.
+ * fila tiene su propia caja con su glifo, que baja con ella (la activa, en ámbar).
+ * La lógica vive en src/scripts/grid-field.ts.
  */
 import { pathFor, type Locale } from '@/i18n'
 import type { Project } from '@/lib/projects'
@@ -67,10 +68,6 @@ const first = projects[0]?.entry.data
   }
   .project-row[data-active] [data-grid-row-title] {
     color: var(--signal);
-  }
-  /* En móvil solo la fila activa muestra su pantalla: un marco vacío se lee como imagen rota. */
-  .project-row:not([data-active]) [data-grid-glyph-box] {
-    --tick-color: transparent;
   }
   .project-row:focus-visible {
     outline-offset: 6px;

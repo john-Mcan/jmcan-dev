@@ -256,7 +256,12 @@ export function cellLight(
   const base = cell * (1 + 1.6 * phase.condense * level)
   const ta = phase.textAlpha
   if (glyph <= 0 || ta <= 0.01) return base
-  return base * (1 - 0.55 * ta) + ta * glyph * (0.45 + (0.55 * cell) / maxOpacity)
+  return base * (1 - 0.55 * ta) + ta * spriteLight(glyph, cell / maxOpacity)
+}
+
+/** Luz de una celda del sprite: un piso (45 %) y el resto parpadea con el ruido de la celda (0–1). */
+export function spriteLight(glyph: number, noise: number): number {
+  return glyph * (0.45 + 0.55 * noise)
 }
 
 const LEVELS = 24
@@ -272,6 +277,12 @@ const BUCKETS = LEVELS * 2 * 2
 const SHAPE_TAU_S = 0.12
 /** Desde cuánta cobertura una celda es del sprite: pinta con su paleta y su punto. */
 const SPRITE_GLYPH = 0.15
+
+/** El nivel (0–23) en que se pinta una opacidad, o -1 si no llega a verse. */
+export function levelOf(opacity: number): number {
+  if (opacity < MIN_VISIBLE) return -1
+  return Math.min(LEVELS - 1, ((opacity / LEVEL_CEILING) * LEVELS) | 0)
+}
 
 /** Un `fillStyle` por nivel, nunca por celda: parsear el color es lo que cuesta el cuadro. */
 export function levelStyles(rgb: Rgb): string[] {
@@ -391,13 +402,13 @@ export function paintField(
       const gain = rowGain ? (rowGain[row] ?? 1) : 1
       const opacity =
         cellLight(cells[i] ?? 0, level, glyph, phase, maxOpacity) * phase.presence * gain
-      if (opacity < MIN_VISIBLE) {
+      const tone = levelOf(opacity)
+      if (tone < 0) {
         levels[i] = SKIP
         continue
       }
       const inSprite = glyph > SPRITE_GLYPH
       const useAccent = (accent[i] === 1 && level > 0.02) || (spriteAccent && inSprite)
-      const tone = Math.min(LEVELS - 1, ((opacity / LEVEL_CEILING) * LEVELS) | 0)
       const bucket = ((useAccent ? LEVELS : 0) + tone) * 2 + (inSprite ? 1 : 0)
       levels[i] = bucket
       counts[bucket] = (counts[bucket] ?? 0) + 1

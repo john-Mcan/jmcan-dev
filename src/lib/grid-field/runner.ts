@@ -127,6 +127,22 @@ function forcedCell(): { step: number; square: number } | null {
   return step >= 2 && square >= 1 && square < step ? { step, square } : null
 }
 
+/** Las paletas del tema, de las variables CSS que ve `element`. */
+export function readPalettes(element: Element): Palettes {
+  const style = getComputedStyle(element)
+  const readRgb = (name: string, fallback: Rgb): Rgb => {
+    const raw = style.getPropertyValue(name).trim()
+    const [r = NaN, g = NaN, b = NaN] = raw.split(/[\s,]+/).map(Number)
+    return [r, g, b].every(Number.isFinite) ? [r, g, b] : fallback
+  }
+  const spread = Number.parseFloat(style.getPropertyValue('--grid-field-spread'))
+  return {
+    base: levelStyles(readRgb('--grid-field-rgb', FALLBACK_RGB)),
+    accent: levelStyles(readRgb('--grid-field-accent-rgb', FALLBACK_ACCENT)),
+    spread: Number.isFinite(spread) ? clamp(spread) : 0,
+  }
+}
+
 interface Sweep {
   start: number
   ms: number
@@ -157,7 +173,7 @@ export function createGridFieldRunner(
   let buffers: PaintBuffers | null = null
   let rowGain: Float32Array | null = null
   let dpr = 1
-  let palettes = readPalettes()
+  let palettes = readPalettes(canvas)
 
   let hasShapes = false
   let shapesDirty = true
@@ -208,23 +224,6 @@ export function createGridFieldRunner(
   // Una webfont que aún no cargó se rasterizaría con la de respaldo y esa máscara
   // quedaría cacheada: no se rasteriza texto hasta que las fuentes estén.
   let fontsReady = !('fonts' in document)
-
-  function readRgb(name: string, fallback: Rgb): Rgb {
-    const raw = getComputedStyle(canvas).getPropertyValue(name).trim()
-    const [r = NaN, g = NaN, b = NaN] = raw.split(/[\s,]+/).map(Number)
-    return [r, g, b].every(Number.isFinite) ? [r, g, b] : fallback
-  }
-
-  function readPalettes(): Palettes {
-    const spread = Number.parseFloat(
-      getComputedStyle(canvas).getPropertyValue('--grid-field-spread'),
-    )
-    return {
-      base: levelStyles(readRgb('--grid-field-rgb', FALLBACK_RGB)),
-      accent: levelStyles(readRgb('--grid-field-accent-rgb', FALLBACK_ACCENT)),
-      spread: Number.isFinite(spread) ? clamp(spread) : 0,
-    }
-  }
 
   function resetMasks(): void {
     masks.clear()
@@ -564,7 +563,7 @@ export function createGridFieldRunner(
 
   const onTheme = (records: MutationRecord[]) => {
     if (records.some((record) => record.attributeName === CELL_ATTRIBUTE)) measure()
-    palettes = readPalettes()
+    palettes = readPalettes(canvas)
     paintStill()
   }
   const themeObserver = new MutationObserver(onTheme)

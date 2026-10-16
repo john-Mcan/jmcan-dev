@@ -11,6 +11,11 @@
  *    La fila activa (centro del viewport, o hover/foco) se marca en ámbar y su
  *    glifo se imprime en el panel.
  *
+ * En un teléfono (bajo `md:`) las cajas no son sticky y bajan con la página: los
+ * sprites sostenidos (glifos, 404) van en su propia pantalla (`screens.ts`), que
+ * baja con ellas como una imagen. En la lista, cada fila a la vista muestra su
+ * glifo: la activa en ámbar y el resto, tenue. El campo sigue con el hero.
+ *
  * `data-grid-intro="fade"` en la página: el fondo entra con un fundido, sin barrido.
  *
  * Un `document.dispatchEvent(new Event('grid:refresh'))` vuelve a leer los escenarios
@@ -35,6 +40,8 @@ import {
   type Intro,
   type Stage,
 } from '@/lib/grid-field/runner'
+import type { Screen, Screens } from '@/lib/grid-field/screens'
+import type { SpriteFont } from '@/lib/grid-field/sprite-raster'
 import type { Sprite } from '@/lib/grid-field/sprites'
 
 /** Mismo corte que `md:` de Tailwind: desde aquí la lista de proyectos usa el panel sticky. */
@@ -47,6 +54,8 @@ const LIVE_PREFIX = 'live:'
 let mounted = false
 /** Cada patrón se baja solo en la página que lo usa: el resto del sitio no lo paga. */
 const factories = new Map<LivePattern, LiveFactory>()
+/** Las pantallas propias se bajan solo en un teléfono, en una página que las use. */
+let screens: Screens | null = null
 
 export function mountGridField(): void {
   if (mounted) return
@@ -59,12 +68,13 @@ export function mountGridField(): void {
   // así nunca compite con el contenido (LCP) ni con la primera interacción.
   whenIdle(() => {
     const family = getComputedStyle(document.documentElement).getPropertyValue('--font-departure')
+    const font: SpriteFont = { family: family.trim() || 'monospace', weight: 400 }
     const runner = createGridFieldRunner(host, canvas, {
       ...GRID_FIELD_DEFAULTS,
       intro: pageIntro(),
-      font: { family: family.trim() || 'monospace', weight: 400 },
+      font,
     })
-    const stages = createStageController(runner)
+    const stages = createStageController(runner, font)
     stages.bind()
     document.addEventListener('astro:before-preparation', () => {
       stages.unbind()
@@ -132,6 +142,12 @@ function missingPatterns(): LivePattern[] {
   return [...missing]
 }
 
+/** Si la página tiene sprites sostenidos (filas de proyectos, glifos, 404) que irían en pantallas. */
+function hasHeldStages(): boolean {
+  const held = `[data-grid-row], [data-grid-stage]:not([data-grid-stage^="${LIVE_PREFIX}"])`
+  return document.querySelector(held) !== null
+}
+
 function cursorMode(value: string | null): CursorMode {
   return value === 'repel' || value === 'off' ? value : 'attract'
 }
@@ -144,12 +160,14 @@ interface ProjectList {
   hover: HTMLElement | null
 }
 
-function createStageController(runner: GridFieldRunner) {
+function createStageController(runner: GridFieldRunner, font: SpriteFont) {
   const wide = window.matchMedia(WIDE_QUERY)
   const ratios = new Map<Element, number>()
   // Escenarios cacheados: el runner compara por identidad y no debe reiniciar el sprite.
   const stageCache = new WeakMap<Element, { value: string; stage: Stage | null }>()
   const rowCache = new Map<Element, { wide: boolean; stage: Stage | null }>()
+  /** En un teléfono, la pantalla propia de cada fila. */
+  const rowScreens = new Map<HTMLElement, Screen>()
   let list: ProjectList | null = null
   let marked: HTMLElement | null = null
   let teardown: (() => void)[] = []
@@ -163,8 +181,10 @@ function createStageController(runner: GridFieldRunner) {
     return stage
   }
 
+  /** En el campo, solo en escritorio (el panel sticky); en un teléfono la fila tiene su pantalla. */
   function rowStage(row: HTMLElement): Stage | null {
     const isWide = wide.matches
+    if (!isWide) return null
     const cached = rowCache.get(row)
     if (cached?.wide === isWide) return cached.stage
     const key = row.dataset['gridGlyph']
@@ -177,6 +197,8 @@ function createStageController(runner: GridFieldRunner) {
   /** La fila activa se enciende en ámbar (forma de señal) y el panel muestra su nombre. */
   function markRow(row: HTMLElement | null): void {
     if (row === marked) return
+    if (marked) rowScreens.get(marked)?.setAccent(false)
+    if (row) rowScreens.get(row)?.setAccent(true)
     for (const candidate of [marked, row]) {
       if (!candidate) continue
       const on = candidate === row
@@ -231,6 +253,14 @@ function createStageController(runner: GridFieldRunner) {
     }
     list = current
 
+    if (!wide.matches && screens) {
+      for (const row of rows) {
+        const box = row.querySelector<HTMLElement>('[data-grid-glyph-box]')
+        const key = row.dataset['gridGlyph']
+        if (box && isGlyphKey(key)) rowScreens.set(row, screens.add(box, GLYPHS[key], false))
+      }
+    }
+
     const listObserver = new IntersectionObserver(
       ([entry]) => {
         current.visible = entry?.isIntersecting ?? false
@@ -273,55 +303,74 @@ function createStageController(runner: GridFieldRunner) {
     })
   }
 
-  return {
-    bind(): void {
-      this.unbind()
-      const missing = missingPatterns()
-      if (missing.length > 0) {
-        const loads = missing.map((pattern) =>
-          loadLivePattern(pattern).then((create) => factories.set(pattern, create)),
-        )
-        void Promise.all(loads).then(() => this.bind())
-        return
-      }
-      const stageElements = document.querySelectorAll('[data-grid-stage]')
-      if (stageElements.length > 0) {
-        const observer = new IntersectionObserver(
-          (entries) => {
-            for (const entry of entries) {
-              ratios.set(entry.target, entry.isIntersecting ? entry.intersectionRatio : 0)
-            }
-            resolve()
-          },
-          { threshold: [0, 0.15, 0.3, 0.5, 0.75, 1] },
-        )
-        for (const element of stageElements) observer.observe(element)
-        teardown.push(() => observer.disconnect())
-      }
+  function bind(): void {
+    unbind()
+    const narrow = !wide.matches
+    const loads: Promise<unknown>[] = missingPatterns().map((pattern) =>
+      loadLivePattern(pattern).then((create) => factories.set(pattern, create)),
+    )
+    if (narrow && !screens && hasHeldStages()) {
+      loads.push(
+        import('@/lib/grid-field/screens').then(({ createScreens }) => {
+          screens ??= createScreens(font)
+        }),
+      )
+    }
+    if (loads.length > 0) {
+      void Promise.all(loads).then(bind)
+      return
+    }
 
-      const projects = document.querySelector('[data-grid-projects]')
-      if (projects) bindProjects(projects)
-
-      const onWide = () => {
-        rowCache.clear()
-        resolve()
+    const observed: Element[] = []
+    for (const element of document.querySelectorAll('[data-grid-stage]')) {
+      const stage = stageOf(element)
+      // En un teléfono, un sprite sostenido va en su pantalla, no en el campo.
+      if (narrow && screens && stage?.program.kind === 'hold' && element instanceof HTMLElement) {
+        screens.add(element, stage.program.sprite, stage.accent)
+      } else {
+        observed.push(element)
       }
-      wide.addEventListener('change', onWide)
-      document.addEventListener('grid:refresh', resolve)
-      teardown.push(() => {
-        wide.removeEventListener('change', onWide)
-        document.removeEventListener('grid:refresh', resolve)
-      })
-      resolve()
-    },
-    unbind(): void {
-      for (const undo of teardown) undo()
-      teardown = []
-      ratios.clear()
-      rowCache.clear()
-      list = null
-      marked = null
-      runner.setStage(null)
-    },
+    }
+    if (observed.length > 0) {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          for (const entry of entries) {
+            ratios.set(entry.target, entry.isIntersecting ? entry.intersectionRatio : 0)
+          }
+          resolve()
+        },
+        { threshold: [0, 0.15, 0.3, 0.5, 0.75, 1] },
+      )
+      for (const element of observed) observer.observe(element)
+      teardown.push(() => observer.disconnect())
+    }
+
+    const projects = document.querySelector('[data-grid-projects]')
+    if (projects) bindProjects(projects)
+
+    // Cambiar de ancho cambia dónde van los sprites (campo o pantallas): se vuelve a armar.
+    // En un teléfono, un escenario que cambia (`contact` → `sent`) cambia su pantalla.
+    const refresh = () => (wide.matches ? resolve() : bind())
+    wide.addEventListener('change', bind)
+    document.addEventListener('grid:refresh', refresh)
+    teardown.push(() => {
+      wide.removeEventListener('change', bind)
+      document.removeEventListener('grid:refresh', refresh)
+    })
+    resolve()
   }
+
+  function unbind(): void {
+    for (const undo of teardown) undo()
+    teardown = []
+    ratios.clear()
+    rowCache.clear()
+    rowScreens.clear()
+    screens?.clear()
+    list = null
+    marked = null
+    runner.setStage(null)
+  }
+
+  return { bind, unbind }
 }
