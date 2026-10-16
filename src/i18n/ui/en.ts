@@ -46,6 +46,7 @@ export const en: Dictionary = {
     seeAll: 'See all {count}',
     indexTitle: 'Projects',
     indexLead: 'What I have built, with the context and decisions behind each one.',
+    indexCount: '{count} projects · {years}',
     role: 'Role',
     year: 'Year',
     stack: 'Stack',

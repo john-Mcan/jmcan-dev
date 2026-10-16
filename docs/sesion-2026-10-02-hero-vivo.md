@@ -465,3 +465,9 @@ teléfono el formulario va enseguida y el correo directo queda abajo, como alter
 escritorio, dos columnas como antes. Se suma la línea de disponibilidad del hero; los campos van
 rellenos y solo con la línea de abajo (`.field-line`), en ámbar con el foco; las etiquetas, en gris
 y sin negrita; el botón, a todo el ancho en un teléfono.
+
+**La página de proyectos**, pulida según su función (un índice para elegir trabajo): el título más
+cerca del header y la bajada a 18 px en un teléfono, más una línea de índice («4 proyectos ·
+2023–2026», `projects.indexCount`). En las filas (también las de la home), el resumen va junto al
+glifo, ahora de 96 px, y el año con el stack debajo, a todo el ancho: en la columna angosta se
+cortaban en dos líneas.

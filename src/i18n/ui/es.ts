@@ -61,6 +61,7 @@ export const es = {
     seeAll: 'Ver los {count}',
     indexTitle: 'Proyectos',
     indexLead: 'Lo que he construido, con el contexto y las decisiones detrás de cada uno.',
+    indexCount: '{count} proyectos · {years}',
     role: 'Rol',
     year: 'Año',
     stack: 'Stack',

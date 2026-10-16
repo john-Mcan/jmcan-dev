@@ -1,7 +1,7 @@
 ---
 import ProjectList from '@/components/projects/ProjectList.astro'
 import { SITE } from '@/data/site'
-import { getDictionary, type Locale } from '@/i18n'
+import { fill, getDictionary, type Locale } from '@/i18n'
 import BaseLayout from '@/layouts/BaseLayout.astro'
 import { getProjects } from '@/lib/projects'
 
@@ -12,6 +12,12 @@ interface Props {
 const { locale } = Astro.props
 const t = getDictionary(locale)
 const projects = await getProjects(locale)
+const years = projects.map(({ entry }) => entry.data.year)
+const [from, to] = [Math.min(...years), Math.max(...years)]
+const count = fill(t.projects.indexCount, {
+  count: projects.length,
+  years: from === to ? from : `${from}–${to}`,
+})
 ---
 
 <BaseLayout
@@ -20,13 +26,17 @@ const projects = await getProjects(locale)
   title={`${t.meta.projectsTitle} | ${SITE.name}`}
   description={t.meta.projectsDescription}
 >
-  <section class="container-site pt-16 pb-12 md:pt-24 md:pb-16">
+  {/* Un índice: el título cerca del header, una bajada corta y cuántos hay, para orientarse. */}
+  <section class="container-site pt-10 pb-10 md:pt-24 md:pb-16">
     <h1 class="font-pixel text-d3 md:text-d4">
       <span class="inline-block" data-grid-shape>
         {t.projects.indexTitle}
       </span>
     </h1>
-    <p class="text-lead text-muted mt-6 max-w-[40ch]">{t.projects.indexLead}</p>
+    <p class="sm:text-lead text-muted mt-4 max-w-[36ch] text-lg sm:mt-6 sm:max-w-[40ch]">
+      {t.projects.indexLead}
+    </p>
+    <p class="text-muted mt-5 text-sm tabular-nums sm:mt-6">{count}</p>
   </section>
   <section class="container-site" aria-label={t.projects.indexTitle}>
     <ProjectList locale={locale} projects={projects} headingLevel="h2" />

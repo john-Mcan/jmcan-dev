@@ -3,7 +3,9 @@
  * Lista de proyectos con panel narrador: en escritorio, una pantalla sticky a la
  * izquierda donde la grilla imprime el glifo de la fila activa; en móvil, cada
  * fila tiene su propia caja con su glifo, que baja con ella (la activa, en ámbar).
- * La lógica vive en src/scripts/grid-field.ts.
+ * En móvil el resumen va junto al glifo y el año con el stack, debajo, a todo el
+ * ancho: en la columna angosta se cortaban en dos líneas. La lógica vive en
+ * src/scripts/grid-field.ts.
  */
 import { pathFor, type Locale } from '@/i18n'
 import type { Project } from '@/lib/projects'
@@ -35,7 +37,7 @@ const first = projects[0]?.entry.data
         <li class="border-line border-b">
           <a
             href={pathFor(locale, { key: 'project', slug })}
-            class="project-row group grid grid-cols-[1fr_auto] gap-x-6 py-7 md:block"
+            class="project-row group grid grid-cols-[1fr_auto] gap-x-5 gap-y-4 py-6 md:block md:py-7"
             data-grid-row
             data-grid-glyph={project.glyph}
             data-caption={`${project.title}, ${project.year}`}
@@ -46,15 +48,15 @@ const first = projects[0]?.entry.data
                   {project.title}
                 </span>
               </Heading>
-              <p class="text-fg mt-3 max-w-[44ch]">{project.summary}</p>
-              <p class="text-muted mt-4 flex flex-wrap gap-x-4 gap-y-1 text-sm">
-                <span class="tabular-nums">{project.year}</span>
-                {project.stack.map((item) => (
-                  <span>{item}</span>
-                ))}
-              </p>
+              <p class="text-fg mt-2 max-w-[44ch] md:mt-3">{project.summary}</p>
             </div>
-            <div class="frame size-28 md:hidden" data-grid-glyph-box aria-hidden="true" />
+            <div class="frame size-24 md:hidden" data-grid-glyph-box aria-hidden="true" />
+            <p class="text-muted col-span-2 flex flex-wrap gap-x-4 gap-y-1 text-sm md:mt-4">
+              <span class="tabular-nums">{project.year}</span>
+              {project.stack.map((item) => (
+                <span>{item}</span>
+              ))}
+            </p>
           </a>
         </li>
       )
