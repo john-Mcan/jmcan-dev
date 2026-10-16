@@ -10,7 +10,7 @@ proyectos, detalle de proyecto, contacto y 404, en español e inglés.
   interactividad va en `<script>` de componentes `.astro`. Presupuesto: unos 20 KB gz de JS por
   página, como referencia (puede pasarse un poco). Hoy, en archivos, 17,3 KB en todas las páginas
   y 22,6 en la home, que suma cosmos (4,7) y la pregunta que rota (0,6); en un teléfono, las
-  páginas con glifos suman las pantallas propias (1,6). Los scripts inline agregan 0,6 KB (0,9 en
+  páginas con glifos suman las pantallas propias (1,6). Los scripts inline agregan 1,1 KB (1,2 en
   la home).
 - **Idiomas.**
   - Español por defecto, sin prefijo; inglés bajo `/en/`.
@@ -139,6 +139,11 @@ en `.dev.vars` (plantilla en `.dev.vars.example`); en producción, con `pnpm wra
   ESLint 10.
 - **`session: false`** en `astro.config.ts`: sin eso, el adapter de Cloudflare activa sesiones con
   un namespace KV que no se usa.
+- **Historial en Chrome, Edge y Firefox para iOS** (script inline en `BaseLayout.astro`): el router
+  de Astro crea la entrada de cada página de forma asíncrona y esos navegadores la marcaban como
+  creada sin interacción; el gesto atrás salía del sitio
+  ([withastro/astro#11919](https://github.com/withastro/astro/issues/11919), cerrado sin arreglo).
+  El script la crea en el mismo toque. Al actualizar Astro, revisa si sigue haciendo falta.
 
 ## Documentación de referencia
 

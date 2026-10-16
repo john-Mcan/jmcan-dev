@@ -83,6 +83,49 @@ const canonical = new URL(pathFor(locale, route), site)
         document.addEventListener('astro:after-swap', apply)
       })()
     </script>
+    {/*
+      Chrome, Edge y Firefox en iOS: al volver con el gesto, se saltan las entradas del
+      historial que una página crea sin un toque reciente, y con ellas la anterior (la
+      que el usuario cree estar viendo). El router crea la de cada página al terminar de
+      bajarla, y en Chrome para iOS quedaba así marcada: atrás desde /proyectos salía
+      del sitio. Aquí se crea en el mismo toque, con la forma del estado del router, que
+      después la encuentra puesta y no la repite. Va antes del router: sus manejadores
+      corren después de estos. Las mismas condiciones que él para tomar un enlace o un
+      formulario GET (ver ClientRouter.astro de Astro).
+    */}
+    <script is:inline>
+      ;(() => {
+        if (!/(CriOS|EdgiOS|FxiOS)\//.test(navigator.userAgent)) return
+        const advance = (href) => {
+          const url = new URL(href, location.href)
+          const here = new URL(location.href)
+          if (url.origin !== here.origin || url.href === here.href) return
+          if (url.pathname === here.pathname && url.search === here.search) return
+          const state = history.state ?? { index: 0 }
+          history.replaceState({ ...state, scrollX, scrollY }, '')
+          history.pushState({ index: (state.index ?? 0) + 1, scrollX: 0, scrollY: 0 }, '', url)
+        }
+        document.addEventListener('click', (ev) => {
+          const link = ev.target instanceof Element ? ev.target.closest('a, area') : null
+          if (!link || !link.href || ev.defaultPrevented) return
+          if (ev.button || ev.metaKey || ev.ctrlKey || ev.altKey || ev.shiftKey) return
+          if (link.hasAttribute('data-astro-reload') || link.hasAttribute('download')) return
+          if (link.dataset.astroHistory === 'replace') return
+          if (link.target && link.target !== '_self') return
+          advance(link.href)
+        })
+        document.addEventListener('submit', (ev) => {
+          const form = ev.target
+          if (!(form instanceof HTMLFormElement) || ev.defaultPrevented) return
+          if (form.hasAttribute('data-astro-reload')) return
+          const method = ev.submitter?.getAttribute('formmethod') ?? form.method
+          if (method !== 'get') return
+          const url = new URL(ev.submitter?.getAttribute('formaction') ?? form.action)
+          url.search = new URLSearchParams(new FormData(form, ev.submitter)).toString()
+          advance(url.href)
+        })
+      })()
+    </script>
     {jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
     <ClientRouter />
   </head>

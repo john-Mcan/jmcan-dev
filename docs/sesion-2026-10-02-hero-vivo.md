@@ -449,6 +449,17 @@ input: una de una línea se escribe en la fila de abajo y una de dos empieza ah�
 (la celda sigue reservando el alto de la más larga). El `>` es parte de la primera línea, con
 sangría francesa, y el cursor ya no ocupa ancho: antes saltaba solo a la segunda línea.
 
+**El gesto atrás en Chrome para iOS** salía del sitio: de inicio a /proyectos, atrás llevaba a una
+pestaña vacía. En Safari, Chrome para Android y Brave para Android andaba bien. El router de Astro
+crea la entrada de cada página al terminar de bajarla, de forma asíncrona, y WebKit la marca como
+creada sin interacción; Chrome para iOS, al volver desde una entrada así, se salta también la
+anterior (la que el usuario cree estar viendo) y sale del sitio (ver
+[withastro/astro#11919](https://github.com/withastro/astro/issues/11919), cerrado sin arreglo).
+Un script inline en `BaseLayout.astro`, solo en Chrome, Edge y Firefox para iOS, crea la entrada en
+el mismo toque, con la forma del estado del router, antes que él: el router la encuentra puesta y
+no la repite. Probado emulando su user agent: una entrada por navegación, atrás y adelante a la
+página correcta, el scroll recuperado y el formulario del hero; en un iPhone falta confirmarlo.
+
 **La página de contacto** (pedido del usuario: en móvil se veía tosca), en los dos anchos: en un
 teléfono el formulario va enseguida y el correo directo queda abajo, como alternativa; en
 escritorio, dos columnas como antes. Se suma la línea de disponibilidad del hero; los campos van
