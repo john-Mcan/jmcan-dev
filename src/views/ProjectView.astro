@@ -5,7 +5,8 @@
  * en escritorio y debajo en un teléfono, para que la primera pantalla sea el
  * proyecto y no una caja decorativa. Después, el texto en secciones (en
  * escritorio, el título de cada una a la izquierda), las capturas si las hay, una
- * invitación a escribirme y el siguiente proyecto, para seguir sin volver a la lista.
+ * invitación a escribirme (o a volver al inicio) y el siguiente proyecto, para
+ * seguir sin volver a la lista.
  */
 import { Picture } from 'astro:assets'
 import Stage from '@/components/fx/Stage.astro'
@@ -142,9 +143,12 @@ const portrait = data.shots.length > 0 && data.shots.every(({ src }) => src.heig
       </span>
     </h2>
     <p class="sm:text-lead text-muted mt-4 max-w-[34ch] text-lg sm:mt-5">{t.contactCta.body}</p>
-    <Button href={pathFor(locale, 'contact')} variant="primary" class="mt-8">
-      {t.contactCta.cta}
-    </Button>
+    <div class="mt-8 flex flex-wrap gap-3">
+      <Button href={pathFor(locale, 'contact')} variant="primary">
+        {t.contactCta.cta}
+      </Button>
+      <Button href={pathFor(locale, 'home')}>{t.nav.home}</Button>
+    </div>
   </section>
 
   {next && (
