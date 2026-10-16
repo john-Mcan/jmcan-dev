@@ -115,15 +115,18 @@ const AXIS_PULL = 0.06
 /**
  * El tornado nace cuando la franja (tres columnas de malla) junta COLLAPSE veces la
  * masa media, o a los FALLBACK_S. Nace sobre la franja real (el pico de materia
- * libre a menos de BAND_SEARCH del eje, fracción del ancho) y, durante FOLLOW_S,
- * la sigue (FOLLOW_TAU_S) mientras sea marcada (BAND_PROMINENCE veces lo parejo):
- * nace antes de que la franja termine de formarse, y quieto quedaba a un costado
- * de ella. El pico se mide con la materia libre, que la del tornado no lo tuerce.
+ * libre a menos de BAND_SEARCH del eje, fracción del ancho) y la sigue
+ * (FOLLOW_TAU_S) mientras sea marcada (BAND_PROMINENCE veces lo parejo): nace
+ * antes de que la franja termine de formarse, y quieto quedaba a un costado de
+ * ella. La sigue solo mientras no se ve (giro bajo FOLLOW_SPIN, a lo sumo
+ * FOLLOW_S): formado, el tornado no se corrige; corrido, se veía como un ajuste.
+ * El pico se mide con la materia libre, que la del tornado no lo tuerce.
  * El giro crece en SPIN_UP_S.
  */
 const COLLAPSE = 4
 const BAND_SEARCH = 0.1
 const FOLLOW_S = 5
+const FOLLOW_SPIN = 0.25
 const FOLLOW_TAU_S = 0.5
 const BAND_PROMINENCE = 3
 const FALLBACK_S = 4
@@ -353,7 +356,7 @@ export function createCosmos(options: CosmosOptions): LiveSource {
    * después, la sigue un rato, hasta absorberla.
    */
   function watchCollapse(target: Gravity, dt: number): void {
-    if (born && time - bornAt > FOLLOW_S) return
+    if (born && (time - bornAt > FOLLOW_S || spin > FOLLOW_SPIN)) return
     if (!born) {
       const { meshCols, meshRows, density, count } = target
       const center = Math.floor((axisX * meshCols) / cols)
