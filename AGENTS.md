@@ -8,8 +8,8 @@ proyectos, detalle de proyecto, contacto y 404, en español e inglés.
 
 - **Rendimiento primero.** Sin frameworks de UI: React y similares están bloqueados por ESLint. La
   interactividad va en `<script>` de componentes `.astro`. Presupuesto: unos 20 KB gz de JS por
-  página, como referencia (puede pasarse un poco). Hoy, en archivos, 17,3 KB en todas las páginas
-  y 22,6 en la home, que suma cosmos (4,7) y la pregunta que rota (0,6); en un teléfono, las
+  página, como referencia (puede pasarse un poco). Hoy, en archivos, 17,5 KB en todas las páginas
+  y 22,8 en la home, que suma cosmos (4,7) y la pregunta que rota (0,6); en un teléfono, las
   páginas con glifos suman las pantallas propias (1,6). Los scripts inline agregan 1,1 KB (1,2 en
   la home).
 - **Idiomas.**
@@ -63,9 +63,15 @@ Las páginas declaran qué imprime la grilla con atributos:
 El header (`SiteHeader.astro`) mide 44 px desde la carga: transparente arriba de todo, con fondo y
 línea al bajar. Es un prompt, `jm ~/<ruta>▮`: la ruta sale de `promptPath` y, en la home, de la
 sección a la vista, marcada con `data-prompt="<ruta>"`. Cambia tecla a tecla, también al navegar
-(`src/lib/typewriter.ts`, que usa además la pregunta rotativa del hero, `hero.asks`). En un
-teléfono (bajo 640 px) la ruta no entra junto a la navegación: al bajar, el header es solo el
-prompt y escribe la ruta; al subir, la borra y vuelve la navegación. Nunca se esconde.
+(`src/lib/typewriter.ts`, que usa además la pregunta rotativa del hero, `hero.asks`). Fuera de la
+home, la ruta son migas: cada tramo lleva a su nivel (`~` al inicio, `proyectos` a la lista). En un
+teléfono (bajo 640 px) la ruta va a 11 px y no entra junto a la navegación: en la home, al bajar, el
+header es solo el prompt; al subir, vuelve la navegación. En las demás páginas, la ruta queda fija
+con el idioma y el tema, sin la navegación. Nunca se esconde.
+
+Navegación: cada página interna tiene arriba del título un enlace que sube un nivel
+(`UpLink.astro`: «← Inicio», «← Proyectos»), no que vuelve en el historial. El footer repite las
+secciones (en un teléfono, fuera de la home, el header no las muestra).
 
 ## Estructura
 
@@ -110,9 +116,11 @@ Estado al 2026-10-15: la base, la landing, el hero vivo (cosmos v2) y el header 
 4. **Sin verificar aún:** Safari de escritorio (en iPhone y Android ya se vio en la preview),
    Firefox y el rendimiento en un móvil de gama baja, sobre todo el del hero (cosmos es el patrón
    más pesado). Si no da el ancho, ver la sección 5 de `docs/grid-field-extending.md`.
-5. **Decidir** si `/lab` se queda como herramienta de dev o se borra con `src/lab/` y los patrones
+5. **Rediseñar el detalle de proyecto** antes de pasar a producción (pedido del usuario; hoy solo
+   tiene el enlace nuevo para subir a proyectos).
+6. **Decidir** si `/lab` se queda como herramienta de dev o se borra con `src/lab/` y los patrones
    que no usa la home (sección 8 de `docs/sesion-2026-10-02-hero-vivo.md`).
-6. **Opcional:** imagen OG para compartir en redes, sumar a `/lab` vistas para afinar sprites y
+7. **Opcional:** imagen OG para compartir en redes, sumar a `/lab` vistas para afinar sprites y
    efectos (hoy solo compara heroes), y el resto de las ideas de la sección 6 de
    `docs/grid-field-extending.md`.
 

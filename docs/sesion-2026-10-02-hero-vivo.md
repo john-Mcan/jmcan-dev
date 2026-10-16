@@ -22,6 +22,7 @@ previas); nada de esto toca todavía la home de producción.
 12. [2026-10-15: cosmos v2 en la home y el header](#12-2026-10-15-cosmos-v2-en-la-home-y-el-header)
 13. [2026-10-15: header compacto, barrido y escritura](#13-2026-10-15-header-compacto-barrido-y-escritura)
 14. [2026-10-15: ajustes para móvil, tras probar en teléfonos](#14-2026-10-15-ajustes-para-móvil-tras-probar-en-teléfonos)
+15. [2026-10-15: navegación](#15-2026-10-15-navegación)
 
 ## 1. Cómo ver los candidatos
 
@@ -471,3 +472,25 @@ cerca del header y la bajada a 18 px en un teléfono, más una línea de índice
 2023–2026», `projects.indexCount`). En las filas (también las de la home), el resumen va junto al
 glifo, ahora de 96 px, y el año con el stack debajo, a todo el ancho: en la columna angosta se
 cortaban en dos líneas.
+
+## 15. 2026-10-15: navegación
+
+Las páginas internas no tenían cómo volver. Lo que se acordó con el usuario:
+
+- **Subir, no volver.** Un enlace arriba del título, a la izquierda, sube un nivel: «← Inicio» en
+  proyectos y contacto, «← Proyectos» en el detalle (`UpLink.astro`). No usa el historial: quien
+  llega directo a una página, desde un buscador o un enlace compartido, saldría del sitio. Es texto
+  en blanco, del tamaño del cuerpo, con una flecha y 44 px de área de toque; reemplaza al «Todos los
+  proyectos» chico y gris del detalle, que no se veía ni estaba donde se busca la navegación.
+- **El prompt como migas**, en todos los anchos: `jm` y `~` llevan al inicio, `proyectos` a la
+  lista; la página actual va en blanco y no es enlace. Mientras escribe es texto; escrita la ruta,
+  sus tramos pasan a ser enlaces. En la home la ruta sigue a la sección y no tiene migas.
+- **El header en un teléfono:** la ruta va a 11 px (el tamaño nativo de Departure Mono) junto a `jm`
+  a 22 px, así entra completa (`jm ~/proyectos/atlas`, sin abreviar) y sus migas se tocan en todo
+  el alto del header. En la home, como antes: la navegación arriba y al subir, la ruta al bajar. En
+  las demás páginas, la ruta fija con el idioma y el tema; la navegación no aparece.
+- **El footer** suma las secciones (Inicio, Proyectos, Contacto): en un teléfono, fuera de la home,
+  son la forma de pasar de una a otra sin volver al inicio.
+- Escritorio: el header se ve igual (la ruta a 22 px); suma las migas y la página actual en blanco.
+
+Pendiente: rediseñar el detalle de proyecto antes de pasar a producción (pedido del usuario).
