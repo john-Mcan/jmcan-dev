@@ -183,11 +183,18 @@ const items: { key: RouteKey; label: string; active: boolean }[] = [
   const PROMPT_AFTER = 64
   /** Cuánto hay que moverse para que cambie de rumbo: un temblor del dedo no lo mueve. */
   const TURN = 6
+  /**
+   * En la home, la ruta es la de la última sección (`data-prompt`) cuyo borde de arriba
+   * pasó esta línea (fracción del alto de la pantalla), o la de la última si se llegó al
+   * final. Con el medio de la pantalla cambiaba antes de que se viera la sección: arriba
+   * de su título hay un buen margen.
+   */
+  const SECTION_LINE = 0.25
 
   let header: HTMLElement | null = null
   let lastY = 0
   let queued = false
-  let sections: IntersectionObserver | null = null
+  let sections: HTMLElement[] = []
   let prompt: Typewriter | null = null
   /** Dónde estás, sin `~/`: la ruta de la página o, en la home, la de la sección a la vista. */
   let current = ''
@@ -212,9 +219,24 @@ const items: { key: RouteKey; label: string; active: boolean }[] = [
     write()
   }
 
+  function follow(): void {
+    if (sections.length === 0) return
+    const line = window.innerHeight * SECTION_LINE
+    const end = window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 2
+    let at = sections[0]
+    for (const section of sections) {
+      if (end || section.getBoundingClientRect().top <= line) at = section
+    }
+    const path = at?.dataset['prompt'] ?? ''
+    if (path === current) return
+    current = path
+    write()
+  }
+
   function update(): void {
     queued = false
     if (!header) return
+    follow()
     const y = Math.max(0, window.scrollY)
     header.toggleAttribute('data-scrolled', y > SOLID_AT)
     if (ROOMY.matches || y <= PROMPT_AFTER) {
@@ -233,26 +255,6 @@ const items: { key: RouteKey; label: string; active: boolean }[] = [
     if (queued) return
     queued = true
     requestAnimationFrame(update)
-  }
-
-  /** En la home, la ruta del prompt es la de la sección que cruza el medio de la pantalla. */
-  function followSections(): void {
-    sections?.disconnect()
-    sections = null
-    const marked = document.querySelectorAll<HTMLElement>('[data-prompt]')
-    if (marked.length === 0) return
-    sections = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (entry.isIntersecting && entry.target instanceof HTMLElement) {
-            current = entry.target.dataset['prompt'] ?? ''
-            write()
-          }
-        }
-      },
-      { rootMargin: '-45% 0px -45% 0px' },
-    )
-    for (const section of marked) sections.observe(section)
   }
 
   window.addEventListener('scroll', queue, { passive: true })
@@ -276,6 +278,7 @@ const items: { key: RouteKey; label: string; active: boolean }[] = [
     const settling = header
     settling.setAttribute('data-settling', '')
     current = path.dataset['promptPath'] ?? ''
+    sections = [...document.querySelectorAll<HTMLElement>('[data-prompt]')]
     lastY = Math.max(0, window.scrollY)
     prompting = !ROOMY.matches && lastY > PROMPT_AFTER
     header.toggleAttribute('data-prompting', prompting)
@@ -288,6 +291,5 @@ const items: { key: RouteKey; label: string; active: boolean }[] = [
     requestAnimationFrame(() =>
       requestAnimationFrame(() => settling.removeAttribute('data-settling')),
     )
-    followSections()
   })
 </script>
