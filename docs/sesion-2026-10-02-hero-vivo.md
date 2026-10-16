@@ -485,10 +485,11 @@ Las páginas internas no tenían cómo volver. Lo que se acordó con el usuario:
 - **El prompt como migas**, en todos los anchos: `jm` y `~` llevan al inicio, `proyectos` a la
   lista; la página actual va en blanco y no es enlace. Mientras escribe es texto; escrita la ruta,
   sus tramos pasan a ser enlaces. En la home la ruta sigue a la sección y no tiene migas.
-- **El header en un teléfono:** la ruta va a 11 px (el tamaño nativo de Departure Mono) junto a `jm`
-  a 22 px, así entra completa (`jm ~/proyectos/atlas`, sin abreviar) y sus migas se tocan en todo
-  el alto del header. En la home, como antes: la navegación arriba y al subir, la ruta al bajar. En
-  las demás páginas, la ruta fija con el idioma y el tema; la navegación no aparece.
+- **El header en un teléfono:** en la home, como antes: la navegación arriba y al subir, la ruta al
+  bajar. En las demás páginas, la ruta fija con el idioma y el tema; la navegación no aparece. Sus
+  migas se tocan en casi todo el alto del header. La ruta llegó a ir a 11 px (el tamaño nativo de
+  Departure Mono) para que entrara completa; el usuario prefirió dejarla a 22 px, como `jm`: en el
+  detalle de un proyecto se corta con «…» (`jm ~/proyectos/…`).
 - **El footer** suma las secciones (Inicio, Proyectos, Contacto): en un teléfono, fuera de la home,
   son la forma de pasar de una a otra sin volver al inicio.
 - Escritorio: el header se ve igual (la ruta a 22 px); suma las migas y la página actual en blanco.

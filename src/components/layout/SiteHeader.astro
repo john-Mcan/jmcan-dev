@@ -7,10 +7,10 @@
  * nueva, también al cambiar de página. Fuera de la home, la ruta son migas: cada
  * tramo lleva a su nivel (`~` al inicio, `proyectos` a la lista), como `cd ..`.
  *
- * En un teléfono la ruta va más chica que `jm` y no entra junto a la navegación. En
- * la home, al bajar, el header es solo el prompt y escribe la ruta; al subir, la
- * borra y vuelve la navegación. En las demás páginas (`data-trail`) la ruta queda
- * fija, con el idioma y el tema: dice dónde estás y sube de nivel.
+ * En un teléfono la ruta no entra junto a la navegación. En la home, al bajar, el
+ * header es solo el prompt y escribe la ruta; al subir, la borra y vuelve la
+ * navegación. En las demás páginas (`data-trail`) la ruta queda fija, con el idioma
+ * y el tema: dice dónde estás y sube de nivel.
  *
  * Sin `backdrop-filter`: detrás hay un canvas que repinta a 30 fps y el blur se
  * recalcularía en cada cuadro.
@@ -157,25 +157,15 @@ const items: { key: RouteKey; label: string; active: boolean }[] = [
     color: var(--fg);
   }
   /*
-   * En un teléfono la ruta va a 11 px (el tamaño nativo de Departure Mono), apoyada en la
-   * línea de `jm`, y sus migas se tocan en todo el alto del header. O la ruta o la
+   * En un teléfono las migas se tocan en casi todo el alto del header. O la ruta o la
    * navegación: en la home, arriba de todo y al subir, `jm▮` y la navegación; al bajar
    * (`data-prompting`), solo el prompt. En las demás páginas (`data-trail`), la ruta fija,
    * con el idioma y el tema.
    */
   @media (width < 40rem) {
-    .prompt {
-      align-items: baseline;
-    }
-    .prompt-path {
-      padding-block: 0.9375rem;
-      font-size: 0.6875rem;
-    }
+    .prompt-path,
     .prompt-path :global(.crumb) {
-      padding-block: 0.9375rem;
-    }
-    .prompt-path:not(:empty) + .prompt-cursor {
-      font-size: 0.6875rem;
+      padding-block: 0.5rem;
     }
     .site-header:not([data-prompting], [data-trail]) .prompt-path,
     [data-prompting] .header-tools,
