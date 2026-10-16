@@ -483,15 +483,16 @@ Las páginas internas no tenían cómo volver. Lo que se acordó con el usuario:
   en blanco, del tamaño del cuerpo, con una flecha y 44 px de área de toque; reemplaza al «Todos los
   proyectos» chico y gris del detalle, que no se veía ni estaba donde se busca la navegación.
 - **El prompt como migas**, en todos los anchos: `jm` y `~` llevan al inicio, `proyectos` a la
-  lista; la página actual va en blanco y no es enlace. Mientras escribe es texto; escrita la ruta,
+  lista; la página actual no es enlace. Toda la ruta va en gris, como antes. Mientras escribe es texto; escrita la ruta,
   sus tramos pasan a ser enlaces. En la home la ruta sigue a la sección y no tiene migas.
 - **El header en un teléfono:** en la home, como antes: la navegación arriba y al subir, la ruta al
   bajar. En las demás páginas, la ruta fija con el idioma y el tema; la navegación no aparece. Sus
   migas se tocan en casi todo el alto del header. La ruta llegó a ir a 11 px (el tamaño nativo de
-  Departure Mono) para que entrara completa; el usuario prefirió dejarla a 22 px, como `jm`: en el
-  detalle de un proyecto se corta con «…» (`jm ~/proyectos/…`).
+  Departure Mono) para que entrara completa; el usuario prefirió dejarla a 22 px, como `jm`, y
+  abreviar los tramos de arriba a su inicial, como en fish: `jm ~/p/atlas` (la miga `p` se lee
+  «proyectos»). En escritorio la ruta va entera.
 - **El footer** suma las secciones (Inicio, Proyectos, Contacto): en un teléfono, fuera de la home,
   son la forma de pasar de una a otra sin volver al inicio.
-- Escritorio: el header se ve igual (la ruta a 22 px); suma las migas y la página actual en blanco.
+- Escritorio: el header se ve igual; suma las migas.
 
 Pendiente: rediseñar el detalle de proyecto antes de pasar a producción (pedido del usuario).

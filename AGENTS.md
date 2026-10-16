@@ -64,7 +64,8 @@ El header (`SiteHeader.astro`) mide 44 px desde la carga: transparente arriba de
 línea al bajar. Es un prompt, `jm ~/<ruta>▮`: la ruta sale de `promptPath` y, en la home, de la
 sección a la vista, marcada con `data-prompt="<ruta>"`. Cambia tecla a tecla, también al navegar
 (`src/lib/typewriter.ts`, que usa además la pregunta rotativa del hero, `hero.asks`). Fuera de la
-home, la ruta son migas: cada tramo lleva a su nivel (`~` al inicio, `proyectos` a la lista). En un
+home, la ruta son migas: cada tramo lleva a su nivel (`~` al inicio, `proyectos` a la lista); en un
+teléfono, los tramos de arriba se abrevian a su inicial (`~/p/atlas`). En un
 teléfono (bajo 640 px) la ruta no entra junto a la navegación: en la home, al bajar, el
 header es solo el prompt; al subir, vuelve la navegación. En las demás páginas, la ruta queda fija
 con el idioma y el tema, sin la navegación. Nunca se esconde.

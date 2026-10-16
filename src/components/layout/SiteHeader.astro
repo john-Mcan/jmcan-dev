@@ -5,7 +5,9 @@
  * `jm ~/<ruta>▮`: la ruta dice dónde estás y, en la home, sigue a la sección a la
  * vista (`data-prompt`). Cambia tecla a tecla: borra la ruta de antes y escribe la
  * nueva, también al cambiar de página. Fuera de la home, la ruta son migas: cada
- * tramo lleva a su nivel (`~` al inicio, `proyectos` a la lista), como `cd ..`.
+ * tramo lleva a su nivel (`~` al inicio, `proyectos` a la lista), como `cd ..`. En
+ * un teléfono, los tramos de arriba se abrevian a su inicial, como en fish:
+ * `~/p/atlas` (la ruta entera no entra junto al idioma y el tema).
  *
  * En un teléfono la ruta no entra junto a la navegación. En la home, al bajar, el
  * header es solo el prompt y escribe la ruta; al subir, la borra y vuelve la
@@ -153,9 +155,6 @@ const items: { key: RouteKey; label: string; active: boolean }[] = [
   .prompt-path :global(.crumb:hover) {
     text-decoration-color: var(--signal);
   }
-  .prompt-path :global([aria-current='page']) {
-    color: var(--fg);
-  }
   /*
    * En un teléfono las migas se tocan en casi todo el alto del header. O la ruta o la
    * navegación: en la home, arriba de todo y al subir, `jm▮` y la navegación; al bajar
@@ -243,22 +242,37 @@ const items: { key: RouteKey; label: string; active: boolean }[] = [
   let trail = false
   let crumbs: { text: string; href?: string }[] = []
 
+  /** En un teléfono, un tramo de arriba (ni `~` ni la página) se abrevia a su inicial. */
+  function short(text: string, i: number, count: number): string {
+    return !ROOMY.matches && i > 0 && i < count - 1 ? text.slice(0, 1) : text
+  }
+
+  /** La ruta como se escribe: entera, o con los tramos de arriba abreviados en un teléfono. */
+  function shown(path: string): string {
+    if (!path) return '~/'
+    const parts = ['~', ...path.split('/').filter(Boolean)]
+    return parts.map((part, i) => short(part, i, parts.length)).join('/')
+  }
+
   /**
    * Escrita la ruta, sus tramos pasan a ser enlaces (mientras escribe, es texto). Solo si
-   * lo escrito es la ruta de la página: en plena escritura de otra, no.
+   * lo escrito es la ruta de la página: en plena escritura de otra, no. Un tramo abreviado
+   * se lee entero (`aria-label`).
    */
   function linkCrumbs(): void {
     const path = header?.querySelector<HTMLElement>('[data-prompt-path]')
     if (!path || crumbs.length === 0) return
-    if (path.textContent?.trim() !== crumbs.map((crumb) => crumb.text).join('/')) return
+    const texts = crumbs.map((crumb, i) => short(crumb.text, i, crumbs.length))
+    if (path.textContent?.trim() !== texts.join('/')) return
     const nodes: (Node | string)[] = []
     crumbs.forEach((crumb, i) => {
       if (i > 0) nodes.push('/')
       const node = document.createElement(crumb.href ? 'a' : 'span')
-      node.textContent = crumb.text
+      node.textContent = texts[i] ?? crumb.text
       if (node instanceof HTMLAnchorElement && crumb.href) {
         node.href = crumb.href
         node.className = 'crumb'
+        if (node.textContent !== crumb.text) node.setAttribute('aria-label', crumb.text)
       } else {
         node.setAttribute('aria-current', 'page')
       }
@@ -272,7 +286,7 @@ const items: { key: RouteKey; label: string; active: boolean }[] = [
    * prompt, primero borra la ruta y recién entonces vuelve la navegación.
    */
   function write(): void {
-    const to = ROOMY.matches || prompting || trail ? `~/${current}` : ''
+    const to = ROOMY.matches || prompting || trail ? shown(current) : ''
     prompt?.type(to, () => {
       if (!prompting) header?.removeAttribute('data-prompting')
       linkCrumbs()
@@ -330,11 +344,15 @@ const items: { key: RouteKey; label: string; active: boolean }[] = [
     write()
   })
 
+  /** Si la página llegó navegando (con la ruta de la anterior) o se cargó de cero. */
+  let arrived = false
+
   // La página nueva muestra la ruta de la que se va: desde ahí la cambia escribiendo.
   document.addEventListener('astro:before-swap', (event) => {
     const before = document.querySelector('[data-prompt-path]')
     const after = event.newDocument.querySelector('[data-prompt-path]')
     if (before && after) after.textContent = before.textContent
+    arrived = true
   })
 
   // El header se reemplaza en cada navegación: el nuevo toma el estado del scroll de su página.
@@ -351,8 +369,11 @@ const items: { key: RouteKey; label: string; active: boolean }[] = [
     lastY = Math.max(0, window.scrollY)
     prompting = !ROOMY.matches && !trail && lastY > PROMPT_AFTER
     header.toggleAttribute('data-prompting', prompting)
-    // En un teléfono, en la home con la navegación a la vista, la ruta llega borrada.
+    // En un teléfono, en la home con la navegación a la vista, la ruta llega borrada; en
+    // las demás, cargadas de cero, ya abreviada (sin escribirla: no viene de otra página).
     if (!ROOMY.matches && !prompting && !trail) path.textContent = ''
+    else if (!ROOMY.matches && trail && !arrived) path.textContent = shown(current)
+    arrived = false
     prompt?.stop()
     prompt = createTypewriter(path, path.closest<HTMLElement>('.prompt') ?? path)
     update()
