@@ -341,4 +341,24 @@ describe('patrones vivos', () => {
     expect(light(late, 5, 55)).toBe(0)
     expect(light(late, 75, 107)).toBeGreaterThan(100)
   })
+
+  // En una caja vertical (un teléfono) el eje queda a la derecha: el embudo, ancho arriba, cruzaba
+  // el borde y el tornado asomaba a la izquierda. Con estas semillas, el eje se iba al 0,86–0,90.
+  it('cosmos solo, vertical: el tornado no cruza al otro borde', () => {
+    const cols = 60
+    const rows = 140
+    for (const seed of [2, 5, 55]) {
+      const source = createCosmos({ cursor: () => 'off', alone: true, random: seeded(seed) })
+      const ctx: LiveContext = { ...context(), islands: [] }
+      for (let frame = 1; frame <= 8 * 30; frame++) {
+        const data = source.frame(cols, rows, ctx)?.data ?? new Float32Array(0)
+        if (frame < 5 * 30) continue
+        let edge = 0
+        for (let c = 0; c < 9; c++) {
+          for (let r = 0; r < rows; r++) if ((data[c * rows + r] ?? 0) > 0.05) edge++
+        }
+        expect(edge).toBe(0)
+      }
+    }
+  })
 })

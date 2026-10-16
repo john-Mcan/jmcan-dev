@@ -148,6 +148,48 @@ const WHIRL = 2.4
 /** Succión del núcleo hacia el eje (celdas/s²; con el arrastre, la materia llega a ~1,25 veces eso en celdas/s). */
 const INFLOW = 9
 /**
+ * El ritmo del arranque. Las constantes de arriba son las de una caja apaisada
+ * (escritorio). En una vertical (un teléfono) todo pasa antes: la materia arranca
+ * más junta (más tirón hacia el eje y una parte, `gather`, ya en la franja, a
+ * GATHER_WIDTH del eje), así el fondo se ve menos poblado; el tornado nace antes y
+ * gira, captura y succiona más rápido. La cantidad de materia es la misma: el
+ * tornado queda igual de poblado.
+ */
+interface Tempo {
+  pull: number
+  gather: number
+  collapse: number
+  fallbackS: number
+  spinUpS: number
+  captureRate: number
+  inflow: number
+}
+const LANDSCAPE_TEMPO: Tempo = {
+  pull: AXIS_PULL,
+  gather: 0,
+  collapse: COLLAPSE,
+  fallbackS: FALLBACK_S,
+  spinUpS: SPIN_UP_S,
+  captureRate: CAPTURE_RATE,
+  inflow: INFLOW,
+}
+const PORTRAIT_TEMPO: Tempo = {
+  pull: 0.08,
+  gather: 0.2,
+  collapse: 3,
+  fallbackS: 1.5,
+  spinUpS: 1.2,
+  captureRate: 3,
+  inflow: 14,
+}
+const GATHER_WIDTH = 0.12
+/**
+ * Cuánto se acerca el embudo a los bordes (celdas). La caja es periódica para la
+ * gravedad, no para el tornado: con el eje cerca de un borde, la pared del embudo
+ * lo cruzaba y el tornado asomaba del otro lado.
+ */
+const EDGE = 1
+/**
  * Corriente ascendente (celdas/s) y dónde termina: la cima (fracción del alto).
  * En 0, el borde de arriba de la caja: en el hero, el tornado llega al header.
  * Cada partícula sube a su ritmo, entre 1 - LIFT_SPREAD y 1 + LIFT_SPREAD veces la
@@ -189,8 +231,9 @@ export function createCosmos(options: CosmosOptions): LiveSource {
   let scale = 1
   let cols = 0
   let rows = 0
-  /** Caja vertical: el eje va más a la izquierda que en una apaisada. */
+  /** Caja vertical: el eje va más a la izquierda que en una apaisada, y el ritmo es otro. */
   let portrait = false
+  let tempo = LANDSCAPE_TEMPO
   /** Partículas por celda de la caja, para pintar. */
   let counts = new Float32Array(0)
   let light = new Float32Array(0)
@@ -242,10 +285,18 @@ export function createCosmos(options: CosmosOptions): LiveSource {
   function begin(target: Gravity): void {
     randomDisplacement(target, SPECTRUM, random, QUIET_WAVES)
     axisX = (portrait ? AXIS_PORTRAIT : AXIS_LANDSCAPE) * cols
+    const gathered = Math.round(tempo.gather * target.count)
     for (let p = 0; p < target.count; p++) {
+      if (p < gathered) {
+        target.x[p] = axisX + (2 * random() - 1) * GATHER_WIDTH * cols
+        target.y[p] = random() * rows
+        target.vx[p] = 0
+        target.vy[p] = 0
+        continue
+      }
       const qx = random() * cols
       const qy = random() * rows
-      const toward = -Math.sin((TAU * (qx - axisX)) / cols) * AXIS_PULL * cols
+      const toward = -Math.sin((TAU * (qx - axisX)) / cols) * tempo.pull * cols
       const dx = sampleMesh(target, target.ax, qx, qy) * DISPLACE + toward
       const dy = sampleMesh(target, target.ay, qx, qy) * DISPLACE
       target.x[p] = (((qx + dx) % cols) + cols) % cols
@@ -267,6 +318,7 @@ export function createCosmos(options: CosmosOptions): LiveSource {
       cols = scaled(boxCols, scale)
       rows = scaled(boxRows, scale)
       portrait = cols < rows
+      tempo = portrait ? PORTRAIT_TEMPO : LANDSCAPE_TEMPO
       const n = cols * rows
       const count = Math.min(MAX_PARTICLES, Math.round(n * DENSITY))
       sim = createGravity(cols, rows, meshSize(cols / MESH_CELL), meshSize(rows / MESH_CELL), count)
@@ -310,7 +362,7 @@ export function createCosmos(options: CosmosOptions): LiveSource {
         const c = (center + dc + meshCols) % meshCols
         for (let r = 0; r < meshRows; r++) band += density[c * meshRows + r] ?? 0
       }
-      if (band < (COLLAPSE * 3 * count) / meshCols && time < FALLBACK_S) return
+      if (band < (tempo.collapse * 3 * count) / meshCols && time < tempo.fallbackS) return
       born = true
       bornAt = time
       const peak = bandPeak(target)
@@ -364,11 +416,12 @@ export function createCosmos(options: CosmosOptions): LiveSource {
     return axisX + SWAY * rows * Math.sin(depth * 5.5 + time * SWAY_SPEED) * (0.3 + 0.7 * depth)
   }
 
-  /** El eje y el radio del embudo de cada fila, para este cuadro. */
+  /** El eje y el radio del embudo de cada fila, para este cuadro, sin pasar de los bordes. */
   function measureFunnel(): void {
     for (let y = 0; y < rows; y++) {
-      axisRow[y] = axisAt(y + 0.5)
-      wallRow[y] = funnel(y + 0.5)
+      const axis = axisAt(y + 0.5)
+      axisRow[y] = axis
+      wallRow[y] = Math.max(0, Math.min(funnel(y + 0.5), axis - EDGE, cols - EDGE - axis))
     }
   }
 
@@ -378,18 +431,27 @@ export function createCosmos(options: CosmosOptions): LiveSource {
     return d > cols / 2 ? d - cols : d < -cols / 2 ? d + cols : d
   }
 
+  /**
+   * De la materia al eje, para succionarla y capturarla. En una caja vertical, la
+   * distancia de la caja: por el camino periódico, la materia cruzaba el borde y
+   * entraba al tornado por el otro lado.
+   */
+  function toAxis(axis: number, x: number): number {
+    return portrait ? x - axis : across(axis, x)
+  }
+
   /** La succión del núcleo, en la aceleración de la malla: horizontal, hacia el eje. */
   function suck(target: Gravity): void {
     const { meshCols, meshRows, ax } = target
     const hx = cols / meshCols
     const hy = rows / meshRows
-    const pull = INFLOW * spin
+    const pull = tempo.inflow * spin
     for (let r = 0; r < meshRows; r++) {
       const row = Math.min(rows - 1, ((r + 0.5) * hy) | 0)
       const axis = axisRow[row] ?? 0
       const wall = wallRow[row] ?? 0
       for (let c = 0; c < meshCols; c++) {
-        const u = across(axis, (c + 0.5) * hx)
+        const u = toAxis(axis, (c + 0.5) * hx)
         // Adentro del embudo ya no succiona: ahí manda la órbita.
         const d = Math.abs(u)
         if (d < wall) continue
@@ -407,13 +469,13 @@ export function createCosmos(options: CosmosOptions): LiveSource {
   /** Lo que llega al eje empieza a orbitarlo: de a poco, no todo de golpe. */
   function capture(target: Gravity, dt: number): void {
     if (spin < 0.2) return
-    const chance = CAPTURE_RATE * spin * dt
+    const chance = tempo.captureRate * spin * dt
     for (let p = 0; p < target.count; p++) {
       if (orbiting[p] === 1) continue
       const y = target.y[p] ?? 0
       const row = y | 0
       const wall = wallRow[row] ?? 0
-      const u = across(axisRow[row] ?? 0, target.x[p] ?? 0)
+      const u = toAxis(axisRow[row] ?? 0, target.x[p] ?? 0)
       if (y < SUMMIT * rows || Math.abs(u) > wall + CAPTURE || random() > chance) continue
       join(p, u, wall, y)
     }
@@ -528,7 +590,7 @@ export function createCosmos(options: CosmosOptions): LiveSource {
     time += dt
     accelerate(target, PARAMS)
     watchCollapse(target, dt)
-    spin += ((born ? 1 : 0) - spin) * (1 - Math.exp(-dt / SPIN_UP_S))
+    spin += ((born ? 1 : 0) - spin) * (1 - Math.exp(-dt / tempo.spinUpS))
     if (born) {
       measureFunnel()
       suck(target)
