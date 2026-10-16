@@ -426,10 +426,20 @@ la distancia de la caja, no la periódica (la materia libre cruzaba el borde par
 el otro lado). Con la materia más junta al inicio, el eje queda entre 0,60 y 0,71 del ancho. Lo
 cubre un test («cosmos solo, vertical: el tornado no cruza al otro borde»).
 
+**El tornado no se corrige una vez formado.** El eje seguía a la franja hasta 5 s después de
+nacer, y en el teléfono se veía correrse hacia la izquierda, como un ajuste (mediana 2,5 % del
+ancho, hasta 6,4 %; más si el dedo atrae materia). Ahora la sigue solo mientras el tornado no se ve
+(giro bajo 0,25, `FOLLOW_SPIN`): una vez visible, queda donde nació. Vale también en escritorio.
+
 **El header en un teléfono** (bajo 640 px) ya no se esconde al bajar. La ruta no entra junto a la
 navegación, así que muestra una o la otra: arriba de todo y al subir, `jm▮` y la navegación; al
 bajar (pasados 64 px), solo el prompt, que escribe `~/<ruta>` con todo el ancho. Al subir, primero
 borra la ruta y recién entonces vuelve la navegación. El `~/` ahora se escribe con la ruta.
+
+La ruta de la home cambiaba cuando el borde de la sección cruzaba el medio de la pantalla: con el
+margen de arriba de cada sección, el header decía `~/proyectos` con el título todavía abajo. Ahora
+cambia cuando ese borde pasa un cuarto de la pantalla (`SECTION_LINE`), con el título a ~37 % del
+alto; al llegar al final de la página, la ruta es la de la última sección.
 
 **El hero en un teléfono.** La bajada baja de 22 a 18 px (`text-lg`, desde `sm:` vuelve a
 `text-lead`): pesaba tanto como la pregunta. La pregunta rotativa queda abajo en su celda, junto al
