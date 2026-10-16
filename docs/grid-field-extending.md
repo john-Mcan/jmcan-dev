@@ -23,7 +23,7 @@ esa guía sin contrastarlo con este documento.
 | `lib/grid-field/grid-field.ts`      | Motor: grilla, formas, máscaras, parpadeo, luz por celda y pintado                             | No                        |
 | `lib/grid-field/timeline.ts`        | Relojes puros: `holdEnvelope`, `rising`, `sweepRows`                                           | No                        |
 | `lib/grid-field/sprites.ts`         | Tipos `Sprite` / `SpriteFrame`, `WORD_MS`, sorteo sin repetición                               | No                        |
-| `lib/grid-field/sprite-drawings.ts` | Dibujos (cubo, globo, osciloscopio, radar, sobre, `glitchText`…)                               | Solo el canvas que recibe |
+| `lib/grid-field/sprite-drawings.ts` | Dibujos (los glifos de proyecto, el sobre, `glitchText`…)                                      | Solo el canvas que recibe |
 | `lib/grid-field/sprite-raster.ts`   | Cuadro → máscara de cobertura, caja alineada a la grilla                                       | Canvas fuera de pantalla  |
 | `lib/grid-field/runner.ts`          | Runtime: loop rAF, observers, tema, fuentes, escenarios, transiciones                          | Sí                        |
 | `lib/grid-field/glyph-keys.ts`      | Claves de glifos válidas en el frontmatter de proyectos                                        | No                        |
@@ -133,8 +133,8 @@ Reglas de dibujo (medidas en el original; no son de estilo):
   el piso.
 - **Nada fuera de la caja**: lo que queda afuera se pierde.
 - **El loop debe cerrar**: lo que dibujas en `turn → 1` tiene que empalmar con `turn = 0`.
-  Aprovecha las simetrías (el cubo gira un cuarto de vuelta, el globo lo que separa dos
-  meridianos).
+  Aprovecha las simetrías (los discos de `orbit` están a media vuelta) o haz que el final vuelva
+  al principio (en `loop`, la cola alcanza a la punta donde empieza la vuelta siguiente).
 - **La profundidad es intensidad**: el campo solo lee cobertura, así que lo que está "atrás" se
   dibuja más tenue (`shade(0.3)`), nunca oculto.
 - **Tinta sobre tinta no se ve**: para recortar un símbolo dentro de una forma usa
@@ -163,6 +163,13 @@ const MI_TEXTO: Sprite = { frames: ['hola', 'hola_'], frameMs: WORD_MS, textScal
 2. Asóciale un `Sprite` en `GLYPHS` (`library.ts`); TypeScript exige que estén todas.
 3. Úsala en el frontmatter: `glyph: <clave>`. El schema (`content.config.ts`) la valida.
 
+Hoy hay uno por proyecto: `loop` (Revra, una flecha circular que se cierra), `eq` (NEX, un
+ecualizador donde una barra gana la ronda), `path` (orientame.cl, pasos hacia una meta), `orbit`
+(Fandoms.io, discos en órbita) y `zap` (Chucao, un televisor que cambia de canal). Los de ejemplo
+(cubo, globo, osciloscopio, radar, red y anillo) se borraron con los proyectos de ejemplo. Un glifo
+debe leerse en tres tamaños: el panel o el detalle (~440 px, celdas de 6 px), la caja del
+siguiente proyecto (160 px) y la fila de la lista en un teléfono (96 px, celdas de 3 px).
+
 ### 3.4 Un escenario nuevo en una página
 
 1. Pon la caja en la página: `<Stage stage="mi-escenario" class="aspect-square w-full" />`.
@@ -171,7 +178,9 @@ const MI_TEXTO: Sprite = { frames: ['hola', 'hola_'], frameMs: WORD_MS, textScal
 3. Para cambiar un escenario en vivo (como el formulario: `contact` → `sent`), cambia el atributo
    y dispara `document.dispatchEvent(new Event('grid:refresh'))`.
 
-Valores existentes: `contact`, `sent`, `404`, `glyph:<clave>` y `live:<patrón>` (3.7).
+Valores existentes: `contact`, `sent`, `404`, `glyph:<clave>` y `live:<patrón>` (3.7). Un glifo va
+en ámbar (el proyecto que se lee); con `data-grid-tone="base"` (`<Stage tone="base">`), en la
+paleta de base: lo usa el siguiente proyecto, al pie del detalle.
 
 ### 3.5 Halos
 

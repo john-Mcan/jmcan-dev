@@ -13,7 +13,10 @@ interface Props {
 const { locale } = Astro.props
 const t = getDictionary(locale)
 const projects = await getProjects(locale)
-const years = projects.map(({ entry }) => entry.data.year)
+const years = projects.flatMap(({ entry }) => [
+  entry.data.year,
+  entry.data.yearEnd ?? entry.data.year,
+])
 const [from, to] = [Math.min(...years), Math.max(...years)]
 const count = fill(t.projects.indexCount, {
   count: projects.length,

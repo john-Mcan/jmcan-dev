@@ -1,21 +1,43 @@
 ---
-import { render } from 'astro:content'
+/**
+ * El detalle de un proyecto. Arriba, lo que hay que saber de un vistazo: título,
+ * resumen, enlaces y la ficha (estado, período, rol, stack); el glifo, a la derecha
+ * en escritorio y debajo en un teléfono, para que la primera pantalla sea el
+ * proyecto y no una caja decorativa. Después, el texto en secciones (en
+ * escritorio, el título de cada una a la izquierda), las capturas si las hay, una
+ * invitación a escribirme y el siguiente proyecto, para seguir sin volver a la lista.
+ */
+import { Picture } from 'astro:assets'
 import Stage from '@/components/fx/Stage.astro'
+import Button from '@/components/ui/Button.astro'
 import UpLink from '@/components/ui/UpLink.astro'
 import { SITE } from '@/data/site'
-import { getDictionary, pathFor, type Locale } from '@/i18n'
+import { fill, getDictionary, pathFor, type Locale } from '@/i18n'
 import BaseLayout from '@/layouts/BaseLayout.astro'
-import type { Project } from '@/lib/projects'
+import { getProjects, nextProject, period, type Project } from '@/lib/projects'
 
 interface Props {
   locale: Locale
   project: Project
 }
 
+/** Donde el texto quiere las capturas; sin la marca, van al final. */
+const SHOTS_MARK = '<!-- capturas -->'
+
 const { locale, project } = Astro.props
 const t = getDictionary(locale)
 const data = project.entry.data
-const { Content } = await render(project.entry)
+const next = nextProject(await getProjects(locale), project.slug)
+
+const [before = '', after = ''] = (project.entry.rendered?.html ?? '').split(SHOTS_MARK)
+const status = t.projects.statuses[data.status]
+const links = [
+  { href: data.links.live, label: t.projects.live },
+  { href: data.links.store, label: t.projects.store },
+  { href: data.links.repo, label: t.projects.repo },
+].filter((link): link is { href: string; label: string } => link.href !== undefined)
+/** Capturas de teléfono (verticales): van en fila; las de escritorio, una debajo de otra. */
+const portrait = data.shots.length > 0 && data.shots.every(({ src }) => src.height > src.width)
 ---
 
 <BaseLayout
@@ -24,48 +46,219 @@ const { Content } = await render(project.entry)
   title={`${data.title} | ${SITE.name}`}
   description={data.summary}
 >
-  <div class="container-site pt-4 md:pt-10">
+  <article class="container-site pt-4 md:pt-10">
     <UpLink href={pathFor(locale, 'projects')} label={t.nav.projects} name={t.nav.upProjects} />
-  </div>
-  <article class="container-site grid gap-y-10 pt-4 md:grid-cols-12 md:gap-x-12 md:pt-10">
-    <aside class="md:col-span-5">
-      <div class="md:sticky md:top-[14svh]">
-        <Stage stage={`glyph:${data.glyph}`} class="aspect-[16/10] w-full md:aspect-square" />
-        <dl class="mt-6 grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 text-sm">
-          <dt class="text-muted">{t.projects.role}</dt>
-          <dd>{data.role}</dd>
-          <dt class="text-muted">{t.projects.year}</dt>
-          <dd class="tabular-nums">{data.year}</dd>
-          <dt class="text-muted">{t.projects.stack}</dt>
-          <dd>{data.stack.join(', ')}</dd>
-        </dl>
-        {(data.links.live ?? data.links.repo) && (
-          <p class="mt-6 flex gap-6 text-sm">
-            {data.links.live && (
-              <a class="link" href={data.links.live} rel="noopener" target="_blank">
-                {t.projects.live}
-              </a>
-            )}
-            {data.links.repo && (
-              <a class="link" href={data.links.repo} rel="noopener" target="_blank">
-                {t.projects.repo}
-              </a>
-            )}
-          </p>
-        )}
-      </div>
-    </aside>
 
-    <div class="md:col-span-7">
-      <h1 class="font-pixel text-d3 md:text-d4">
-        <span class="inline-block" data-grid-shape>
-          {data.title}
-        </span>
-      </h1>
-      <p class="text-lead mt-6 max-w-[34ch]">{data.summary}</p>
-      <div class="prose-case mt-12">
-        <Content />
+    <header class="mt-4 grid gap-y-10 md:mt-10 md:grid-cols-12 md:gap-x-12">
+      <div class="md:col-span-7">
+        <h1 class="font-pixel text-d3 md:text-d4">
+          <span class="inline-block" data-grid-shape>
+            {data.title}
+          </span>
+        </h1>
+        <p class="text-lead mt-5 max-w-[34ch] md:mt-6">{data.summary}</p>
+        {links.length > 0 && (
+          <div class="mt-8 flex flex-wrap gap-3">
+            {links.map((link, i) => (
+              <Button
+                href={link.href}
+                variant={i === 0 ? 'primary' : 'secondary'}
+                newTab={t.projects.newTab}
+              >
+                {link.label}
+              </Button>
+            ))}
+          </div>
+        )}
+        <dl class="spec mt-10">
+          <div>
+            <dt>{t.projects.status}</dt>
+            <dd>
+              <span
+                class:list={['status-mark', data.status === 'live' && 'signal-dot']}
+                data-status={data.status}
+                aria-hidden="true"
+              ></span>
+              {data.contributions ? fill(t.projects.contributions, { status }) : status}
+            </dd>
+          </div>
+          <div>
+            <dt>{t.projects.period}</dt>
+            <dd class="tabular-nums">{period(data)}</dd>
+          </div>
+          <div>
+            <dt>{t.projects.role}</dt>
+            <dd>{data.role}</dd>
+          </div>
+          <div>
+            <dt>{t.projects.stack}</dt>
+            <dd>{data.stack.join(', ')}</dd>
+          </div>
+        </dl>
       </div>
+      <Stage
+        stage={`glyph:${data.glyph}`}
+        class="aspect-video w-full md:col-span-5 md:aspect-square md:self-start"
+      />
+    </header>
+
+    <div class="prose-case mt-16 md:mt-24">
+      <Fragment set:html={before} />
+      {data.shots.length > 0 && (
+        <div
+          class:list={['shots', portrait && 'shots-portrait']}
+          role="group"
+          aria-label={t.projects.shots}
+        >
+          {data.shots.map((shot) => (
+            <figure>
+              <Picture
+                src={shot.src}
+                alt={shot.alt}
+                formats={['avif']}
+                fallbackFormat="webp"
+                widths={portrait ? [320, 480, 720] : [640, 960, 1488]}
+                sizes={
+                  portrait
+                    ? '(min-width: 48rem) 15rem, 70vw'
+                    : '(min-width: 72rem) 46rem, (min-width: 48rem) 68vw, 100vw'
+                }
+                loading="lazy"
+                class="shot"
+              />
+              {shot.caption && <figcaption>{shot.caption}</figcaption>}
+            </figure>
+          ))}
+        </div>
+      )}
+      <Fragment set:html={after} />
     </div>
   </article>
+
+  <section class="container-site mt-24 md:mt-32" aria-labelledby="project-cta">
+    <h2 id="project-cta" class="font-pixel text-d1 sm:text-d2">
+      <span class="inline-block" data-grid-shape>
+        {t.projects.ctaTitle}
+      </span>
+    </h2>
+    <p class="sm:text-lead text-muted mt-4 max-w-[34ch] text-lg sm:mt-5">{t.contactCta.body}</p>
+    <Button href={pathFor(locale, 'contact')} variant="primary" class="mt-8">
+      {t.contactCta.cta}
+    </Button>
+  </section>
+
+  {next && (
+    <nav class="container-site mt-20 md:mt-28" aria-label={t.projects.next}>
+      <a
+        class="next-link border-line grid grid-cols-[1fr_auto] items-center gap-x-6 border-y py-6 md:py-8"
+        href={pathFor(locale, { key: 'project', slug: next.slug })}
+      >
+        <span>
+          <span class="text-muted flex items-center gap-2 text-sm">
+            {t.projects.next}
+            <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
+              <path d="M2 8h11M8.5 3.5 13 8l-4.5 4.5" />
+            </svg>
+          </span>
+          <span class="next-title font-pixel text-d1 md:text-d2 mt-3 block">
+            {next.entry.data.title}
+          </span>
+          <span class="mt-2 block max-w-[44ch]">{next.entry.data.summary}</span>
+        </span>
+        <Stage stage={`glyph:${next.entry.data.glyph}`} tone="base" class="size-24 md:size-40" />
+      </a>
+    </nav>
+  )}
 </BaseLayout>
+
+<style>
+  /* La ficha: una tabla corta, con la etiqueta a la izquierda y una línea entre filas. */
+  .spec {
+    border-top: 1px solid var(--line);
+  }
+  .spec > div {
+    display: grid;
+    grid-template-columns: 5rem minmax(0, 1fr);
+    align-items: baseline;
+    gap: 1rem;
+    padding-block: 0.625rem;
+    border-bottom: 1px solid var(--line);
+  }
+  .spec dt {
+    color: var(--muted);
+    font-size: 0.875rem;
+  }
+
+  /* El estado: en ámbar mientras está vivo (parpadea si está en línea); en pausa, apagado. */
+  .status-mark {
+    display: inline-block;
+    width: 0.5rem;
+    height: 0.5rem;
+    margin-right: 0.625rem;
+    vertical-align: 0.08em;
+    background: var(--signal);
+  }
+  .status-mark[data-status='paused'] {
+    background: transparent;
+    box-shadow: inset 0 0 0 1px var(--muted);
+  }
+
+  .shots {
+    display: grid;
+    gap: 2rem;
+    margin-block: 2.5rem 0.5rem;
+  }
+  .shot {
+    display: block;
+    width: 100%;
+    height: auto;
+    border: 1px solid var(--line);
+  }
+  figcaption {
+    margin-top: 0.75rem;
+    color: var(--muted);
+    font-size: 0.875rem;
+  }
+  /* En un teléfono, las verticales se deslizan de lado; desde `md:`, todas en una fila. */
+  .shots-portrait {
+    display: flex;
+    gap: 1rem;
+    margin-inline: calc(-1 * clamp(1rem, 4vw, 2.5rem));
+    padding-inline: clamp(1rem, 4vw, 2.5rem);
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: clamp(1rem, 4vw, 2.5rem);
+  }
+  .shots-portrait figure {
+    flex: 0 0 min(70%, 16rem);
+    scroll-snap-align: start;
+  }
+  @media (min-width: 48rem) {
+    .shots-portrait {
+      display: grid;
+      grid-auto-flow: column;
+      grid-auto-columns: minmax(0, 15rem);
+      gap: 1.5rem;
+      margin-inline: 0;
+      padding-inline: 0;
+      overflow: visible;
+    }
+  }
+
+  .next-link svg {
+    flex: none;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.5;
+    stroke-linecap: square;
+  }
+  .next-title {
+    transition: color 120ms steps(3, end);
+  }
+  .next-link:hover .next-title {
+    color: var(--signal);
+  }
+  .next-link:focus-visible {
+    outline-offset: 6px;
+  }
+</style>

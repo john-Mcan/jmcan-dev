@@ -3,6 +3,8 @@
  * las mismas claves). Tuteo, sin voseo ni modismos regionales.
  * El copy marcado como «ejemplo» en el README es provisional.
  */
+import type { ProjectStatus } from '@/lib/project-status'
+
 /** Una pregunta del hero, con el ejemplo para el input; con `link`, termina en un enlace. */
 interface HeroAsk {
   text: string
@@ -64,13 +66,30 @@ export const es = {
     featuredTitle: 'Proyectos seleccionados',
     seeAll: 'Ver los {count}',
     indexTitle: 'Proyectos',
-    indexLead: 'Lo que he construido, con el contexto y las decisiones detrás de cada uno.',
+    indexLead: 'Lo que he construido, con el contexto y mi parte en cada uno.',
     indexCount: '{count} proyectos · {years}',
+    /** La ficha del detalle. */
+    status: 'Estado',
+    period: 'Período',
     role: 'Rol',
-    year: 'Año',
     stack: 'Stack',
+    statuses: {
+      live: 'En línea',
+      prelaunch: 'Prelanzamiento',
+      building: 'En desarrollo',
+      paused: 'En pausa',
+    } satisfies Record<ProjectStatus, string>,
+    /** El estado de un proyecto con el código publicado: «En línea, abierto a aportes». */
+    contributions: '{status}, abierto a aportes',
     live: 'Ver sitio',
     repo: 'Ver código',
+    store: 'Descargar la app',
+    /** Lo que se lee al final de un enlace que abre otra pestaña. */
+    newTab: '(se abre en otra pestaña)',
+    shots: 'Capturas',
+    next: 'Siguiente proyecto',
+    /** Al terminar de leer un proyecto; la bajada y el botón son los de `contactCta`. */
+    ctaTitle: '¿Quieres construir algo así?',
   },
   timeline: {
     title: 'Trayectoria',

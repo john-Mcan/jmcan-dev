@@ -2,13 +2,21 @@
 /**
  * Pantalla donde la grilla imprime un escenario (ver src/scripts/grid-field.ts).
  * Está vacía a propósito: lo que se ve es el fondo encendiéndose en esta caja.
+ * Un glifo va en ámbar (el proyecto que se lee); con `tone="base"`, en la paleta
+ * de base (otro proyecto, como el siguiente).
  */
 interface Props {
   stage: string
+  tone?: 'accent' | 'base'
   class?: string
 }
 
-const { stage, class: className } = Astro.props
+const { stage, tone, class: className } = Astro.props
 ---
 
-<div class:list={['frame', className]} data-grid-stage={stage} aria-hidden="true"></div>
+<div
+  class:list={['frame', className]}
+  data-grid-stage={stage}
+  data-grid-tone={tone}
+  aria-hidden="true"
+></div>

@@ -3,7 +3,8 @@
  * según lo que hay en pantalla. Las páginas declaran sus escenarios con atributos:
  *
  *  - `data-grid-stage="contact" | "sent" | "404" | "glyph:<clave>"`: una caja donde
- *    la grilla imprime ese sprite mientras la caja esté a la vista.
+ *    la grilla imprime ese sprite mientras la caja esté a la vista. Un glifo va en
+ *    ámbar; con `data-grid-tone="base"`, en la paleta de base (el siguiente proyecto).
  *  - `data-grid-stage="live:<patrón>"`: un escenario vivo (el hero).
  *  - `data-grid-projects`: lista de proyectos. Contiene `data-grid-panel` (pantalla
  *    sticky en escritorio) y filas `data-grid-row` con `data-grid-glyph="<clave>"`,
@@ -121,7 +122,8 @@ function parseStage(target: Element, value: string): Stage | null {
   if (value === 'sent') return hold(target, SENT_SPRITE[locale], true)
   if (value === '404') return hold(target, NOT_FOUND_SPRITE, true)
   const glyph = value.startsWith('glyph:') ? value.slice('glyph:'.length) : undefined
-  return isGlyphKey(glyph) ? hold(target, GLYPHS[glyph], true) : null
+  const accent = target.getAttribute('data-grid-tone') !== 'base'
+  return isGlyphKey(glyph) ? hold(target, GLYPHS[glyph], accent) : null
 }
 
 /** Un escenario vivo lee `data-grid-cursor` (atrae, aparta o nada) en cada cuadro. */

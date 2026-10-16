@@ -8,7 +8,7 @@
  * src/scripts/grid-field.ts.
  */
 import { pathFor, type Locale } from '@/i18n'
-import type { Project } from '@/lib/projects'
+import { period, type Project } from '@/lib/projects'
 
 interface Props {
   locale: Locale
@@ -25,7 +25,7 @@ const first = projects[0]?.entry.data
     <div class="sticky top-[18svh]">
       <div class="frame aspect-square w-full" data-grid-panel aria-hidden="true"></div>
       <p class="text-muted mt-4 text-sm" aria-hidden="true" data-grid-panel-caption>
-        {first ? `${first.title}, ${first.year}` : ''}
+        {first ? `${first.title}, ${period(first)}` : ''}
       </p>
     </div>
   </div>
@@ -40,7 +40,7 @@ const first = projects[0]?.entry.data
             class="project-row group grid grid-cols-[1fr_auto] gap-x-5 gap-y-4 py-6 md:block md:py-7"
             data-grid-row
             data-grid-glyph={project.glyph}
-            data-caption={`${project.title}, ${project.year}`}
+            data-caption={`${project.title}, ${period(project)}`}
           >
             <div>
               <Heading class="font-pixel text-d1 md:text-d2">
@@ -52,7 +52,7 @@ const first = projects[0]?.entry.data
             </div>
             <div class="frame size-24 md:hidden" data-grid-glyph-box aria-hidden="true" />
             <p class="text-muted col-span-2 flex flex-wrap gap-x-4 gap-y-1 text-sm md:mt-4">
-              <span class="tabular-nums">{project.year}</span>
+              <span class="tabular-nums">{period(project)}</span>
               {project.stack.map((item) => (
                 <span>{item}</span>
               ))}

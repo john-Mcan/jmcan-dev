@@ -38,8 +38,11 @@ Reemplazar antes de publicar:
 
 - `src/data/site.ts`: nombre, correo, cargo y redes.
 - `src/data/experience.ts`: trayectoria.
-- `src/content/projects/{es,en}/*.md`: proyectos (un archivo por idioma, mismo nombre).
 - Textos marcados en `src/i18n/ui/*.ts` (disponibilidad, tiempos de respuesta).
+
+Los proyectos ya son reales: `src/content/projects/{es,en}/<slug>.md` (un archivo por idioma, mismo
+nombre) y sus capturas en `src/content/projects/shots/<slug>/`. El schema, con estado, período,
+enlaces y capturas, está en `src/content.config.ts`.
 
 ## Estructura
 

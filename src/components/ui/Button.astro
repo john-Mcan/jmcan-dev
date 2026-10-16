@@ -2,16 +2,41 @@
 interface Props {
   href: string
   variant?: 'primary' | 'secondary'
+  /**
+   * Otro sitio: el enlace abre en otra pestaña, lleva la flecha ↗ y este texto
+   * para quien no la ve («(se abre en otra pestaña)»).
+   */
+  newTab?: string
   class?: string
 }
 
-const { href, variant = 'secondary', class: className } = Astro.props
+const { href, variant = 'secondary', newTab, class: className } = Astro.props
 ---
 
 <a
   href={href}
-  class:list={['btn', variant === 'primary' && 'btn-primary', className]}
+  class:list={['btn', variant === 'primary' && 'btn-primary', newTab && 'gap-2.5', className]}
+  target={newTab && '_blank'}
+  rel={newTab && 'noopener'}
   data-grid-shape
 >
   <slot />
+  {newTab && (
+    <>
+      <svg class="btn-out" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
+        <path d="M4.5 11.5 11.5 4.5M5.5 4.5h6v6" />
+      </svg>
+      <span class="sr-only">{newTab}</span>
+    </>
+  )}
 </a>
+
+<style>
+  .btn-out {
+    flex: none;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.5;
+    stroke-linecap: square;
+  }
+</style>

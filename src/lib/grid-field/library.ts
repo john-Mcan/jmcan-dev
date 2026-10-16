@@ -6,26 +6,23 @@
 import type { Locale } from '@/i18n/config'
 import type { GlyphKey } from './glyph-keys'
 import {
-  BREATHING_RING,
+  CHANNEL_ZAP,
+  CLOSING_LOOP,
   ENVELOPE,
-  GLOBE,
+  EQUALIZER,
   glitchText,
-  NETWORK_PULSE,
   ORBITING_DISCS,
-  RADAR,
-  SCOPE,
-  WIRE_CUBE,
+  STEPPING_PATH,
 } from './sprite-drawings'
 import { WORD_MS, type Sprite } from './sprites'
 
+/** Uno por proyecto: Revra, NEX, orientame.cl, Fandoms.io y Chucao. */
 export const GLYPHS: Record<GlyphKey, Sprite> = {
-  cube: { frames: WIRE_CUBE, frameMs: 60 },
-  globe: { frames: GLOBE, frameMs: 70 },
-  scope: { frames: SCOPE, frameMs: 50 },
-  radar: { frames: RADAR, frameMs: 50 },
-  network: { frames: NETWORK_PULSE, frameMs: 70 },
-  ring: { frames: BREATHING_RING, frameMs: 70 },
+  loop: { frames: CLOSING_LOOP, frameMs: 60 },
+  eq: { frames: EQUALIZER, frameMs: 70 },
+  path: { frames: STEPPING_PATH, frameMs: 80 },
   orbit: { frames: ORBITING_DISCS, frameMs: 60 },
+  zap: { frames: CHANNEL_ZAP, frameMs: 70 },
 }
 
 export const CONTACT_SPRITE: Sprite = { frames: ENVELOPE, frameMs: 70 }

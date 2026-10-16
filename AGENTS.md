@@ -8,8 +8,8 @@ proyectos, detalle de proyecto, contacto y 404, en español e inglés.
 
 - **Rendimiento primero.** Sin frameworks de UI: React y similares están bloqueados por ESLint. La
   interactividad va en `<script>` de componentes `.astro`. Presupuesto: unos 20 KB gz de JS por
-  página, como referencia (puede pasarse un poco). Hoy, en archivos, 17,5 KB en todas las páginas
-  y 22,8 en la home, que suma cosmos (4,7) y la pregunta que rota (0,6); en un teléfono, las
+  página, como referencia (puede pasarse un poco). Hoy, en archivos, 17,7 KB en todas las páginas
+  y 23,0 en la home, que suma cosmos (4,7) y la pregunta que rota (0,6); en un teléfono, las
   páginas con glifos suman las pantallas propias (1,6). Los scripts inline agregan 1,1 KB (1,2 en
   la home).
 - **Idiomas.**
@@ -46,7 +46,8 @@ Las páginas declaran qué imprime la grilla con atributos:
 - `data-grid-shape` / `data-grid-shape="accent"`: halo detrás de un elemento (marca el contenido,
   `inline-block`, no el contenedor).
 - `data-grid-stage="contact|sent|404|glyph:<clave>"`: caja donde se imprime un sprite (componente
-  `Stage.astro`).
+  `Stage.astro`). Un glifo va en ámbar; con `data-grid-tone="base"`, en la paleta de base (el
+  siguiente proyecto, al pie del detalle).
 - `data-grid-projects` + `data-grid-row`: lista de proyectos con panel narrador.
 - En un teléfono (bajo `md:`), los sprites sostenidos (glifos, 404) no van en el campo fijo sino en
   una pantalla propia, un canvas dentro de su caja (`src/lib/grid-field/screens.ts`), que baja con
@@ -65,7 +66,7 @@ línea al bajar. Es un prompt, `jm ~/<ruta>▮`: la ruta sale de `promptPath` y,
 sección a la vista, marcada con `data-prompt="<ruta>"`. Cambia tecla a tecla, también al navegar
 (`src/lib/typewriter.ts`, que usa además la pregunta rotativa del hero, `hero.asks`). Fuera de la
 home, la ruta son migas: cada tramo lleva a su nivel (`~` al inicio, `proyectos` a la lista); en un
-teléfono, los tramos de arriba se abrevian a su inicial (`~/p/atlas`). En un
+teléfono, los tramos de arriba se abrevian a su inicial (`~/p/revra`). En un
 teléfono (bajo 640 px) la ruta no entra junto a la navegación: en la home, al bajar, el
 header es solo el prompt; al subir, vuelve la navegación. En las demás páginas, la ruta queda fija
 con el idioma y el tema, sin la navegación. Nunca se esconde.
@@ -79,7 +80,8 @@ secciones (en un teléfono, fuera de la home, el header no las muestra).
 ```
 src/
 ├── components/   fx (grilla), layout, projects, sections/home, contact, ui
-├── content/      proyectos en Markdown: projects/{es,en}/<slug>.md (mismo slug en ambos)
+├── content/      proyectos en Markdown: projects/{es,en}/<slug>.md (mismo slug en ambos);
+│                 sus capturas, en projects/shots/<slug>/
 ├── data/         site.ts (datos personales), experience.ts (trayectoria)
 ├── i18n/         config, rutas tipadas, textos de UI
 ├── layouts/      BaseLayout: head/SEO, tema, ClientRouter, fondo persistente
@@ -95,17 +97,19 @@ entrada en `src/i18n/routes.ts`.
 
 ## Pendientes
 
-Estado al 2026-10-15: la base, la landing, el hero vivo (cosmos v2) y el header están listos en
-`main2`; `/lab` sigue con los candidatos (solo en `pnpm dev`). Falta, en este orden:
+Estado al 2026-10-16: la base, la landing, el hero vivo (cosmos v2), el header, los proyectos
+reales (Revra, NEX, orientame.cl, Fandoms.io y Chucao, con sus glifos) y el detalle de proyecto
+rediseñado están listos en `main2`; `/lab` sigue con los candidatos (solo en `pnpm dev`). Falta,
+en este orden:
 
 1. **Contenido real** (hoy es de ejemplo):
    - `src/data/site.ts`: nombre ("John Mcan" salió del dominio), correo (`hola@johnmcan.dev` es
      inventado), cargo y redes (falta LinkedIn).
    - `src/data/experience.ts`: trayectoria.
-   - `src/content/projects/{es,en}/*.md`: proyectos reales; Atlas, Relay, Vertex y Beacon son de
-     ejemplo.
    - En `src/i18n/ui/*.ts`, los textos de disponibilidad ("desde noviembre") y de tiempo de
      respuesta ("48 horas").
+   - Proyectos: falta una captura de Chucao (la ventana con canales) y, cuando existan, los
+     enlaces a tiendas de NEX (`links.store`).
 2. **Resend:**
    - verificar el dominio en Resend;
    - cargar `RESEND_API_KEY`, `CONTACT_TO_EMAIL` y `CONTACT_FROM_EMAIL` (`.dev.vars` en local,
@@ -117,11 +121,9 @@ Estado al 2026-10-15: la base, la landing, el hero vivo (cosmos v2) y el header 
 4. **Sin verificar aún:** Safari de escritorio (en iPhone y Android ya se vio en la preview),
    Firefox y el rendimiento en un móvil de gama baja, sobre todo el del hero (cosmos es el patrón
    más pesado). Si no da el ancho, ver la sección 5 de `docs/grid-field-extending.md`.
-5. **Rediseñar el detalle de proyecto** antes de pasar a producción (pedido del usuario; hoy solo
-   tiene el enlace nuevo para subir a proyectos).
-6. **Decidir** si `/lab` se queda como herramienta de dev o se borra con `src/lab/` y los patrones
+5. **Decidir** si `/lab` se queda como herramienta de dev o se borra con `src/lab/` y los patrones
    que no usa la home (sección 8 de `docs/sesion-2026-10-02-hero-vivo.md`).
-7. **Opcional:** imagen OG para compartir en redes, sumar a `/lab` vistas para afinar sprites y
+6. **Opcional:** imagen OG para compartir en redes, sumar a `/lab` vistas para afinar sprites y
    efectos (hoy solo compara heroes), y el resto de las ideas de la sección 6 de
    `docs/grid-field-extending.md`.
 
@@ -164,6 +166,8 @@ Interna:
 - `docs/sesion-2026-10-02-hero-vivo.md`: la sesión del hero vivo, con los escenarios vivos del
   motor, los candidatos en `/lab`, lo descartado, el diseño acordado del header y los pasos para
   pasar a producción.
+- `docs/proyectos-reales.md`: los proyectos reales (textos, glifos y enlaces), el diseño del
+  detalle y lo que quedó por confirmar.
 - `README.md`: puesta en marcha, Resend y contenido de ejemplo.
 
 Externa:
