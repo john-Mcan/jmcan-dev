@@ -48,6 +48,11 @@ Node con un contexto falso.
 debajo de 640 px de ancho). Cada celda tiene una luz base que el parpadeo re-sortea. Hay un solo
 campo y un solo loop para todo el sitio: es lo que hace que se lea como una superficie.
 
+La celda fina del teléfono es para los glifos: en sus cajas chicas, un trazo más fino que dos
+celdas cae entre ellas. El 2026-10-16 se probó la de escritorio (2 px cada 6) también en el
+teléfono, para que el grano se viera igual, y se volvió atrás: en un iPhone y un Android, los glifos
+perdían detalle.
+
 **Formas (halo).** Cualquier elemento con `data-grid-shape` hace que las celdas detrás de él se
 enciendan («condensar»); el resto del campo queda igual. Con `data-grid-shape="accent"` el halo
 pinta con la paleta de señal (ámbar). Las formas se re-miden al hacer scroll, cada segundo y con
@@ -168,7 +173,9 @@ ecualizador donde una barra gana la ronda), `path` (orientame.cl, pasos hacia un
 (Fandoms.io, discos en órbita) y `zap` (Chucao, un televisor que cambia de canal). Los de ejemplo
 (cubo, globo, osciloscopio, radar, red y anillo) se borraron con los proyectos de ejemplo. Un glifo
 debe leerse en tres tamaños: el panel o el detalle (~440 px, celdas de 6 px), la caja del
-siguiente proyecto (160 px) y la fila de la lista en un teléfono (96 px, celdas de 3 px).
+siguiente proyecto (160 px) y la fila de la lista en un teléfono (96 px, celdas de 3 px). Ninguno
+debe quedar muy por debajo de los otros en luz: `path` tenía la mitad que `loop` o `eq` y apenas se
+veía en oscuro (2026-10-16); se subió el piso de sus pasos y de la meta.
 
 ### 3.4 Un escenario nuevo en una página
 

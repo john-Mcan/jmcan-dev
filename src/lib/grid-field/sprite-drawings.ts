@@ -186,21 +186,23 @@ function steppingPath(ctx: CanvasRenderingContext2D, box: Box, turn: number): vo
     return r * r * r * p0[k] + 3 * r * r * s * p1[k] + 3 * r * s * s * p2[k] + s * s * s * p3[k]
   }
 
+  // Era el glifo más tenue (la mitad de luz que el resto): la meta y los pasos
+  // apagados tienen un piso que se lee en ámbar sobre negro.
   const goal = Math.max(0, turn - PATH_WALK)
   const glow = turn >= PATH_WALK ? Math.exp(-goal * 9) : 0
-  ctx.strokeStyle = shade(0.4 + 0.55 * glow)
-  ctx.lineWidth = stroke(unit, 0.05 + 0.015 * glow)
+  ctx.strokeStyle = shade(0.7 + 0.3 * glow)
+  ctx.lineWidth = stroke(unit, 0.065 + 0.015 * glow)
   ctx.beginPath()
-  ctx.arc(at(1, 0), at(1, 1), unit * (0.09 + 0.02 * glow), 0, TAU)
+  ctx.arc(at(1, 0), at(1, 1), unit * (0.1 + 0.02 * glow), 0, TAU)
   ctx.stroke()
 
   // La punta sigue avanzando después de la meta: así el rastro termina de apagarse.
   const headAt = (turn / PATH_WALK) * PATH_STEPS
-  const size = stroke(unit, 0.1)
+  const size = stroke(unit, 0.12)
   for (let k = 0; k < PATH_STEPS; k++) {
     const behind = headAt - k
     const lit = behind >= 0 ? Math.exp(-behind / 2.2) : 0
-    ctx.fillStyle = shade(0.2 + 0.75 * lit)
+    ctx.fillStyle = shade(0.4 + 0.6 * lit)
     const s = (k + 0.4) / (PATH_STEPS + 0.4)
     ctx.fillRect(at(s, 0) - size / 2, at(s, 1) - size / 2, size, size)
   }
