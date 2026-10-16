@@ -224,6 +224,14 @@
     outline: 1px solid var(--signal);
     outline-offset: 0;
   }
+  /* Un formulario largo (contacto): el campo relleno y solo con la línea de abajo; con el foco, más gruesa y en ámbar. */
+  .field-line {
+    border-width: 0 0 1px;
+  }
+  .field-line:focus-visible {
+    outline: none;
+    box-shadow: 0 1px 0 var(--signal);
+  }
 
   /*
    * Sobre un fondo vivo, en cualquier ancho, los recuadros (input y botones) no

@@ -20,20 +20,31 @@ const t = getDictionary(locale)
   title={`${t.meta.contactTitle} | ${SITE.name}`}
   description={t.meta.contactDescription}
 >
-  <section class="container-site grid gap-y-12 pt-16 md:grid-cols-12 md:gap-x-12 md:pt-24">
+  {/*
+    En un teléfono, el formulario va enseguida y el correo directo queda abajo, como
+    alternativa. En escritorio, dos columnas: el texto, el correo y el sobre a la
+    izquierda; el formulario a la derecha, a todo el alto.
+  */}
+  <section class="container-site grid gap-y-10 pt-12 md:grid-cols-12 md:grid-rows-[auto_1fr] md:gap-x-12 md:gap-y-0 md:pt-24">
     <div class="md:col-span-5">
       <h1 class="font-pixel text-d3 md:text-d4">
         <span class="inline-block" data-grid-shape>
           {t.contact.title}
         </span>
       </h1>
-      <p class="text-lead text-muted mt-6 max-w-[30ch]">{t.contact.lead}</p>
-      <p class="text-muted mt-10 text-sm">{t.contact.direct}</p>
+      <p class="sm:text-lead text-muted mt-5 max-w-[30ch] text-lg sm:mt-6">{t.contact.lead}</p>
+      <p class="text-muted mt-6 flex items-center gap-3 text-sm">
+        <span class="signal-dot" aria-hidden="true"></span>
+        {t.hero.status}
+      </p>
+    </div>
+    <div class="md:col-span-7 md:col-start-6 md:row-span-2 md:row-start-1">
+      <ContactForm locale={locale} />
+    </div>
+    <div class="border-line border-t pt-6 md:col-span-5 md:row-start-2 md:mt-10">
+      <p class="text-muted text-sm">{t.contact.direct}</p>
       <EmailCopy locale={locale} class="mt-2" />
       <Stage stage="contact" class="mt-12 hidden aspect-[4/3] w-full md:block" />
-    </div>
-    <div class="md:col-span-7">
-      <ContactForm locale={locale} />
     </div>
   </section>
 </BaseLayout>

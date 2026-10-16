@@ -36,13 +36,20 @@ const errorSend = fill(t.contact.errorSend, { email: SITE.email })
 
   <div class="grid gap-6 sm:grid-cols-2">
     <label class="grid gap-2">
-      <span class="text-sm font-semibold">{t.contact.name}</span>
-      <input class="field" type="text" name="name" required maxlength="80" autocomplete="name" />
+      <span class="text-muted text-sm">{t.contact.name}</span>
+      <input
+        class="field field-line"
+        type="text"
+        name="name"
+        required
+        maxlength="80"
+        autocomplete="name"
+      />
     </label>
     <label class="grid gap-2">
-      <span class="text-sm font-semibold">{t.contact.email}</span>
+      <span class="text-muted text-sm">{t.contact.email}</span>
       <input
-        class="field"
+        class="field field-line"
         type="email"
         name="email"
         required
@@ -53,9 +60,9 @@ const errorSend = fill(t.contact.errorSend, { email: SITE.email })
   </div>
 
   <label class="grid gap-2">
-    <span class="text-sm font-semibold">{t.contact.message}</span>
+    <span class="text-muted text-sm">{t.contact.message}</span>
     <textarea
-      class="field min-h-48 resize-y"
+      class="field field-line min-h-40 resize-y"
       name="message"
       required
       minlength="10"
@@ -68,7 +75,7 @@ const errorSend = fill(t.contact.errorSend, { email: SITE.email })
   </label>
 
   <div class="flex flex-wrap items-center gap-x-6 gap-y-4">
-    <button type="submit" class="btn btn-primary cursor-pointer" data-grid-shape>
+    <button type="submit" class="btn btn-primary w-full cursor-pointer sm:w-auto" data-grid-shape>
       <span data-idle>{t.contact.submit}</span>
       <span data-busy hidden>
         {t.contact.sending}
