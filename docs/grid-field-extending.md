@@ -35,6 +35,7 @@ esa guía sin contrastarlo con este documento.
 | `lib/grid-field/live.ts`            | Escenarios vivos: contrato (`LiveSource`, `LiveContext`) y utilidades compartidas              | No                        |
 | `lib/grid-field/live-*.ts`          | Los patrones vivos (moho, cosmos, enjambre, corrientes, escarcha, Julia) y su registro         | No                        |
 | `lib/grid-field/physarum.ts`        | Simulación del moho (Physarum) que usa `live-mold.ts`                                          | No                        |
+| `lib/grid-field/screens.ts`         | Pantallas propias: sprites sostenidos en un canvas dentro de su caja (teléfono)                | Sí                        |
 | `lib/grid-field/gravity.ts`         | Gravedad: N-cuerpos de partícula-malla (Poisson por FFT) que usa `live-cosmos.ts`              | No                        |
 | `lib/grid-field/grid-field.test.ts` | Tests de los módulos puros (`pnpm test`)                                                       | —                         |
 
@@ -62,6 +63,15 @@ sticky. Hay dos programas:
 
 Hubo un tercero, `loop` (un pool de sprites que sonaba en ciclos), para el hero de antes. Se quitó
 con él, el 2026-10-15: no lo usaba nadie y la home necesitaba el peso para cosmos.
+
+**Pantallas propias (teléfono).** Bajo `md:` las cajas no son sticky y bajan con la página. El
+campo fijo se repinta a 30 fps desde el hilo principal y el scroll va por su cuenta (en el
+compositor): el sprite quedaba atrás y se entrecortaba, sobre todo en iOS. Por eso, en un teléfono,
+los sprites sostenidos (glifos de proyecto, 404) se dibujan en un canvas dentro de su caja
+(`screens.ts`, que se baja solo ahí), con la misma celda, los mismos niveles y el mismo piso con
+parpadeo (`spriteLight`, `levelOf`), sin el ruido de fondo. Pueden sonar varias a la vez: en la
+lista, cada fila a la vista muestra su glifo, la activa en ámbar y el resto en la paleta de base al
+50 %. Solo animan las que están a la vista. El campo sigue con el hero (escenario vivo).
 
 **Hay un solo escenario a la vez** (una sola máscara). Al cambiarlo, el sprite actual se desvanece
 antes de que entre el nuevo. `scripts/grid-field.ts` decide cuál gana:
@@ -260,6 +270,10 @@ Otros: `MIN_BOX_CELLS` = 8 (caja mínima para dibujar), `MIN_RATIO` = 0,3 y `WID
 (desde ahí la lista usa el panel sticky).
 
 Si un móvil modesto no da el ancho, lo primero es `fps: 20`, `maxCells: 40_000` o `maxDpr: 1.5`.
+
+Cosmos tiene un ritmo por forma de caja (`LANDSCAPE_TEMPO` y `PORTRAIT_TEMPO` en `live-cosmos.ts`):
+en una caja vertical (un teléfono) la materia arranca más junta y el tornado nace, gira y captura
+antes. Ver la sección 14 de `docs/sesion-2026-10-02-hero-vivo.md`.
 
 Para probar otra celda en escritorio sin tocar el código: `<html data-grid-cell="4:2">` (paso y punto,
 en px; lo pone la barra de `/lab`). Ignora `maxCells`: a 4 px el cuadro cuesta ~2,5 veces más.

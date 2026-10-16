@@ -8,9 +8,10 @@ proyectos, detalle de proyecto, contacto y 404, en español e inglés.
 
 - **Rendimiento primero.** Sin frameworks de UI: React y similares están bloqueados por ESLint. La
   interactividad va en `<script>` de componentes `.astro`. Presupuesto: unos 20 KB gz de JS por
-  página, como referencia (puede pasarse un poco). Hoy, en archivos, 16,9 KB en todas las páginas
-  y 22,1 en la home, que suma cosmos (4,6) y la pregunta que rota (0,6); los scripts inline
-  agregan 0,6 KB (0,9 en la home).
+  página, como referencia (puede pasarse un poco). Hoy, en archivos, 17,3 KB en todas las páginas
+  y 22,6 en la home, que suma cosmos (4,7) y la pregunta que rota (0,6); en un teléfono, las
+  páginas con glifos suman las pantallas propias (1,6). Los scripts inline agregan 0,6 KB (0,9 en
+  la home).
 - **Idiomas.**
   - Español por defecto, sin prefijo; inglés bajo `/en/`.
   - Español **neutro**: tuteo, sin voseo ni modismos regionales.
@@ -47,18 +48,24 @@ Las páginas declaran qué imprime la grilla con atributos:
 - `data-grid-stage="contact|sent|404|glyph:<clave>"`: caja donde se imprime un sprite (componente
   `Stage.astro`).
 - `data-grid-projects` + `data-grid-row`: lista de proyectos con panel narrador.
+- En un teléfono (bajo `md:`), los sprites sostenidos (glifos, 404) no van en el campo fijo sino en
+  una pantalla propia, un canvas dentro de su caja (`src/lib/grid-field/screens.ts`), que baja con
+  la página como una imagen. En la lista, cada fila a la vista muestra su glifo: la activa en
+  ámbar y el resto, tenue.
 - `data-grid-intro="fade"`: el fondo entra con un fundido en vez del barrido (hoy, solo
   `/lab/cosmosv2`; la home volvió al barrido).
 - `data-grid-stage="live:<patrón>"` + `data-grid-cursor="attract|repel|off"`: escenario vivo (una
   simulación en vez de un sprite: moho, cosmos, enjambre, corrientes, escarcha, Julia). El contenido
   dentro de su caja es isla (`data-grid-shape` o `data-grid-island`): el patrón no imprime ahí. Lo
   usa el hero de la home (cosmos solo, `Hero.astro`) y los candidatos de `/lab`; ver
-  `docs/sesion-2026-10-02-hero-vivo.md` (secciones 5, 9, 12 y 13).
+  `docs/sesion-2026-10-02-hero-vivo.md` (secciones 5, 9, 12, 13 y 14).
 
 El header (`SiteHeader.astro`) mide 44 px desde la carga: transparente arriba de todo, con fondo y
 línea al bajar. Es un prompt, `jm ~/<ruta>▮`: la ruta sale de `promptPath` y, en la home, de la
 sección a la vista, marcada con `data-prompt="<ruta>"`. Cambia tecla a tecla, también al navegar
-(`src/lib/typewriter.ts`, que usa además la pregunta rotativa del hero, `hero.asks`).
+(`src/lib/typewriter.ts`, que usa además la pregunta rotativa del hero, `hero.asks`). En un
+teléfono (bajo 640 px) la ruta no entra junto a la navegación: al bajar, el header es solo el
+prompt y escribe la ruta; al subir, la borra y vuelve la navegación. Nunca se esconde.
 
 ## Estructura
 
@@ -100,9 +107,9 @@ Estado al 2026-10-15: la base, la landing, el hero vivo (cosmos v2) y el header 
 3. **Deploy:** la preview ya corre en `preview.johnmcan.dev` (Worker `jmcan-dev-preview`,
    `pnpm deploy:preview`). Falta producción: primer `pnpm deploy` y el dominio `johnmcan.dev`
    (hoy en Vercel) apuntando al Worker.
-4. **Sin verificar aún:** Safari de escritorio (en iPhone ya se vio en la preview), Firefox y el
-   rendimiento en un móvil de gama baja, sobre todo el del hero (cosmos es el patrón más pesado) y
-   el del header fijo. Si no da el ancho, ver la sección 5 de `docs/grid-field-extending.md`.
+4. **Sin verificar aún:** Safari de escritorio (en iPhone y Android ya se vio en la preview),
+   Firefox y el rendimiento en un móvil de gama baja, sobre todo el del hero (cosmos es el patrón
+   más pesado). Si no da el ancho, ver la sección 5 de `docs/grid-field-extending.md`.
 5. **Decidir** si `/lab` se queda como herramienta de dev o se borra con `src/lab/` y los patrones
    que no usa la home (sección 8 de `docs/sesion-2026-10-02-hero-vivo.md`).
 6. **Opcional:** imagen OG para compartir en redes, sumar a `/lab` vistas para afinar sprites y

@@ -21,6 +21,7 @@ previas); nada de esto toca todavía la home de producción.
 11. [Ajustes del 2026-10-15: cosmos v2](#11-ajustes-del-2026-10-15-cosmos-v2)
 12. [2026-10-15: cosmos v2 en la home y el header](#12-2026-10-15-cosmos-v2-en-la-home-y-el-header)
 13. [2026-10-15: header compacto, barrido y escritura](#13-2026-10-15-header-compacto-barrido-y-escritura)
+14. [2026-10-15: ajustes para móvil, tras probar en teléfonos](#14-2026-10-15-ajustes-para-móvil-tras-probar-en-teléfonos)
 
 ## 1. Cómo ver los candidatos
 
@@ -388,3 +389,56 @@ completos…»), como el resto del sitio; el «nosotros» quedó atrás.
 archivo (importa la escritura) y ya no va inline, y se suma `typewriter` (0,9). Los inline bajan de
 1,5 a 0,6 KB. La home suma cosmos (4,6) y la rotación (0,6): 22,1 KB en archivos más 0,9 inline. El
 presupuesto de 20 KB es una referencia que se puede pasar un poco.
+
+## 14. 2026-10-15: ajustes para móvil, tras probar en teléfonos
+
+La preview (`preview.johnmcan.dev`, `pnpm deploy:preview`) se probó en iPhone (Safari y Chrome) y en
+Android.
+
+**El fondo parpadeaba en Safari de iOS al hacer scroll.** Con `inset: 0`, el fondo fijo seguía el
+alto de la barra del navegador, que se encoge al bajar: cada cuadro cambiaba su tamaño, el runner
+re-medía el canvas y eso lo borraba. Ahora mide `100lvh` (`GridField.astro`).
+
+**Los glifos, en su propia pantalla.** En un teléfono, el glifo se imprimía en el campo fijo y no
+acompañaba al scroll (en iOS se entrecortaba), y como había un solo escenario, solo la fila del
+centro mostraba el suyo: el resto de las cajas a la vista quedaba vacío. Ahora, bajo `md:`, cada
+sprite sostenido se dibuja en un canvas dentro de su caja (`screens.ts`; ver la guía de la grilla,
+«Pantallas propias»). En la lista, cada fila a la vista muestra su glifo: la activa en ámbar y el
+resto en blanco al 50 % (lo eligió el usuario entre tres opciones). Lo mismo en el detalle de un
+proyecto y en el 404. Escritorio sigue igual: el panel sticky en el campo.
+
+**Cosmos en una caja vertical** (`PORTRAIT_TEMPO`): el usuario pidió que en el teléfono empiece y
+llegue al tornado más rápido, con menos materia dispersa al inicio y el mismo tornado.
+
+- Una parte de la materia (20 %) arranca ya en la franja, a 0,12 del ancho del eje, y el tirón
+  inicial sube de 0,06 a 0,08 (con 0,12 la densidad del eje ya cumplía el colapso y el tornado
+  nacía al instante, sin arranque).
+- Colapso a 3 veces la masa media (no 4), plazo de 1,5 s (no 4), giro en 1,2 s (no 2,5), captura
+  al doble y succión de 9 a 14.
+- Medido en una caja de teléfono: nace a los ~0,7 s (antes, 2,2), arranca con el 20 % de la materia
+  lejos del eje (antes, 28 %) y a los 3 s orbita el 86 % (antes, a los 6). La cantidad de materia
+  no cambia: al final orbita toda.
+
+**El tornado ya no cruza el borde.** El eje sigue a la franja y, en una caja vertical, se iba hasta
+el 0,90 del ancho: el embudo, ancho arriba, cruzaba el borde derecho y asomaba por la izquierda.
+Ahora la pared del embudo no pasa de los bordes (`EDGE`), y en vertical la succión y la captura usan
+la distancia de la caja, no la periódica (la materia libre cruzaba el borde para llegar al eje por
+el otro lado). Con la materia más junta al inicio, el eje queda entre 0,60 y 0,71 del ancho. Lo
+cubre un test («cosmos solo, vertical: el tornado no cruza al otro borde»).
+
+**El header en un teléfono** (bajo 640 px) ya no se esconde al bajar. La ruta no entra junto a la
+navegación, así que muestra una o la otra: arriba de todo y al subir, `jm▮` y la navegación; al
+bajar (pasados 64 px), solo el prompt, que escribe `~/<ruta>` con todo el ancho. Al subir, primero
+borra la ruta y recién entonces vuelve la navegación. El `~/` ahora se escribe con la ruta.
+
+**El hero en un teléfono.** La bajada baja de 22 a 18 px (`text-lg`, desde `sm:` vuelve a
+`text-lead`): pesaba tanto como la pregunta. La pregunta rotativa queda abajo en su celda, junto al
+input: una de una línea se escribe en la fila de abajo y una de dos empieza ahí y sube al cortarse
+(la celda sigue reservando el alto de la más larga). El `>` es parte de la primera línea, con
+sangría francesa, y el cursor ya no ocupa ancho: antes saltaba solo a la segunda línea.
+
+**La página de contacto** (pedido del usuario: en móvil se veía tosca), en los dos anchos: en un
+teléfono el formulario va enseguida y el correo directo queda abajo, como alternativa; en
+escritorio, dos columnas como antes. Se suma la línea de disponibilidad del hero; los campos van
+rellenos y solo con la línea de abajo (`.field-line`), en ámbar con el foco; las etiquetas, en gris
+y sin negrita; el botón, a todo el ancho en un teléfono.
