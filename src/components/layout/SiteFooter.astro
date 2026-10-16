@@ -1,21 +1,39 @@
 ---
 import { SITE } from '@/data/site'
-import { getDictionary, type Locale } from '@/i18n'
+import { getDictionary, pathFor, type Locale, type RouteKey } from '@/i18n'
 
 interface Props {
   locale: Locale
 }
 
-const t = getDictionary(Astro.props.locale)
+const { locale } = Astro.props
+const t = getDictionary(locale)
 const year = new Date().getFullYear()
+/** Las secciones, también aquí: en un teléfono, fuera de la home, el header muestra la ruta. */
+const sections: { key: RouteKey; label: string }[] = [
+  { key: 'home', label: t.nav.home },
+  { key: 'projects', label: t.nav.projects },
+  { key: 'contact', label: t.nav.contact },
+]
 ---
 
 <footer class="site-layer border-line mt-24 border-t">
-  <div class="container-site text-muted flex flex-col gap-4 py-8 text-sm sm:flex-row sm:items-center sm:justify-between">
-    <p>
-      © {year} {SITE.name}. {t.footer.rights}
-    </p>
-    <ul class="flex gap-6">
+  <div class="container-site grid gap-6 py-8 sm:grid-cols-[1fr_auto] sm:items-center">
+    <nav aria-label={t.a11y.footerNav}>
+      <ul class="flex flex-wrap gap-x-6 gap-y-2">
+        {sections.map((section) => (
+          <li>
+            <a
+              class="footer-link inline-flex min-h-11 items-center"
+              href={pathFor(locale, section.key)}
+            >
+              {section.label}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+    <ul class="text-muted flex flex-wrap gap-x-6 gap-y-2 text-sm">
       <li>
         <a class="hover:text-fg" href={`mailto:${SITE.email}`}>
           {SITE.email}
@@ -29,5 +47,21 @@ const year = new Date().getFullYear()
         </li>
       ))}
     </ul>
+    <p class="text-muted text-sm sm:col-span-2">
+      © {year} {SITE.name}. {t.footer.rights}
+    </p>
   </div>
 </footer>
+
+<style>
+  .footer-link {
+    text-decoration: underline;
+    text-decoration-color: transparent;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.3em;
+    transition: text-decoration-color 120ms steps(3, end);
+  }
+  .footer-link:hover {
+    text-decoration-color: var(--signal);
+  }
+</style>

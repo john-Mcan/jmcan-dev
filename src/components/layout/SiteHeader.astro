@@ -4,10 +4,16 @@
  * transparente y, al bajar, toma fondo y una línea fina. El logo es un prompt,
  * `jm ~/<ruta>▮`: la ruta dice dónde estás y, en la home, sigue a la sección a la
  * vista (`data-prompt`). Cambia tecla a tecla: borra la ruta de antes y escribe la
- * nueva, también al cambiar de página. En un teléfono la ruta no entra junto a la
- * navegación: al bajar, el header es solo el prompt y escribe la ruta; al subir, la
- * borra y vuelve la navegación. Sin `backdrop-filter`: detrás hay un canvas que
- * repinta a 30 fps y el blur se recalcularía en cada cuadro.
+ * nueva, también al cambiar de página. Fuera de la home, la ruta son migas: cada
+ * tramo lleva a su nivel (`~` al inicio, `proyectos` a la lista), como `cd ..`.
+ *
+ * En un teléfono la ruta va más chica que `jm` y no entra junto a la navegación. En
+ * la home, al bajar, el header es solo el prompt y escribe la ruta; al subir, la
+ * borra y vuelve la navegación. En las demás páginas (`data-trail`) la ruta queda
+ * fija, con el idioma y el tema: dice dónde estás y sube de nivel.
+ *
+ * Sin `backdrop-filter`: detrás hay un canvas que repinta a 30 fps y el blur se
+ * recalcularía en cada cuadro.
  */
 import LangSwitch from '@/components/layout/LangSwitch.astro'
 import ThemeToggle from '@/components/layout/ThemeToggle.astro'
@@ -30,6 +36,15 @@ const { locale, route } = Astro.props
 const t = getDictionary(locale)
 const path = promptPath(locale, route)
 
+/** Las migas de la ruta (`~`, los niveles de arriba y la página), con a dónde lleva cada una. */
+const crumbs: { text: string; href?: string }[] = []
+if (route.key !== 'home') {
+  crumbs.push({ text: '~', href: pathFor(locale, 'home') })
+  const parent = route.key === 'project' ? promptPath(locale, 'projects') : ''
+  if (parent) crumbs.push({ text: parent, href: pathFor(locale, 'projects') })
+  crumbs.push({ text: parent ? path.slice(parent.length + 1) : path })
+}
+
 const items: { key: RouteKey; label: string; active: boolean }[] = [
   {
     key: 'projects',
@@ -40,20 +55,23 @@ const items: { key: RouteKey; label: string; active: boolean }[] = [
 ]
 ---
 
-<header class="site-header" data-site-header>
+<header
+  class="site-header"
+  data-site-header
+  data-trail={crumbs.length > 0 ? '' : undefined}
+  data-crumbs={crumbs.length > 0 ? JSON.stringify(crumbs) : undefined}
+>
   <div class="header-bar" transition:name="site-header" transition:animate="none">
     <div class="container-site flex h-full items-center justify-between gap-4">
-      <a
-        href={pathFor(locale, 'home')}
-        class="prompt font-pixel text-d1"
-        aria-label={`${SITE.name}, ${t.nav.home}`}
-      >
-        <span>jm</span>
+      <div class="prompt font-pixel text-d1">
+        <a href={pathFor(locale, 'home')} aria-label={`${SITE.name}, ${t.nav.home}`}>
+          jm
+        </a>
         <span class="prompt-path text-muted" data-prompt-path={path}>
           ~/{path}
         </span>
         <span class="prompt-cursor" aria-hidden="true"></span>
-      </a>
+      </div>
       <div class="header-tools flex flex-none items-center gap-5 sm:gap-8">
         <nav aria-label={t.a11y.mainNav}>
           <ul class="flex gap-4 text-[0.9375rem] sm:gap-6">
@@ -124,13 +142,44 @@ const items: { key: RouteKey; label: string; active: boolean }[] = [
   .prompt-path:empty {
     display: none;
   }
+  /* Las migas: el color de la ruta; subrayadas en ámbar (interacción) al pasar el puntero. */
+  .prompt-path :global(.crumb) {
+    text-decoration: underline;
+    text-decoration-color: transparent;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.25em;
+    transition: text-decoration-color 120ms steps(3, end);
+  }
+  .prompt-path :global(.crumb:hover) {
+    text-decoration-color: var(--signal);
+  }
+  .prompt-path :global([aria-current='page']) {
+    color: var(--fg);
+  }
   /*
-   * En un teléfono, o la ruta o la navegación: arriba de todo y al subir, `jm▮` y la
-   * navegación; al bajar (`data-prompting`), solo el prompt, con todo el ancho para la ruta.
+   * En un teléfono la ruta va a 11 px (el tamaño nativo de Departure Mono), apoyada en la
+   * línea de `jm`, y sus migas se tocan en todo el alto del header. O la ruta o la
+   * navegación: en la home, arriba de todo y al subir, `jm▮` y la navegación; al bajar
+   * (`data-prompting`), solo el prompt. En las demás páginas (`data-trail`), la ruta fija,
+   * con el idioma y el tema.
    */
   @media (width < 40rem) {
-    .site-header:not([data-prompting]) .prompt-path,
-    [data-prompting] .header-tools {
+    .prompt {
+      align-items: baseline;
+    }
+    .prompt-path {
+      padding-block: 0.9375rem;
+      font-size: 0.6875rem;
+    }
+    .prompt-path :global(.crumb) {
+      padding-block: 0.9375rem;
+    }
+    .prompt-path:not(:empty) + .prompt-cursor {
+      font-size: 0.6875rem;
+    }
+    .site-header:not([data-prompting], [data-trail]) .prompt-path,
+    [data-prompting] .header-tools,
+    [data-trail] nav {
       display: none;
     }
   }
@@ -198,17 +247,45 @@ const items: { key: RouteKey; label: string; active: boolean }[] = [
   let prompt: Typewriter | null = null
   /** Dónde estás, sin `~/`: la ruta de la página o, en la home, la de la sección a la vista. */
   let current = ''
-  /** En un teléfono, bajando: el header es solo el prompt con la ruta. */
+  /** En un teléfono, en la home y bajando: el header es solo el prompt con la ruta. */
   let prompting = false
+  /** Fuera de la home: la ruta, con sus migas, queda siempre a la vista. */
+  let trail = false
+  let crumbs: { text: string; href?: string }[] = []
+
+  /**
+   * Escrita la ruta, sus tramos pasan a ser enlaces (mientras escribe, es texto). Solo si
+   * lo escrito es la ruta de la página: en plena escritura de otra, no.
+   */
+  function linkCrumbs(): void {
+    const path = header?.querySelector<HTMLElement>('[data-prompt-path]')
+    if (!path || crumbs.length === 0) return
+    if (path.textContent?.trim() !== crumbs.map((crumb) => crumb.text).join('/')) return
+    const nodes: (Node | string)[] = []
+    crumbs.forEach((crumb, i) => {
+      if (i > 0) nodes.push('/')
+      const node = document.createElement(crumb.href ? 'a' : 'span')
+      node.textContent = crumb.text
+      if (node instanceof HTMLAnchorElement && crumb.href) {
+        node.href = crumb.href
+        node.className = 'crumb'
+      } else {
+        node.setAttribute('aria-current', 'page')
+      }
+      nodes.push(node)
+    })
+    path.replaceChildren(...nodes)
+  }
 
   /**
    * Lleva el prompt a lo que corresponde. En un teléfono, al dejar de ser solo el
    * prompt, primero borra la ruta y recién entonces vuelve la navegación.
    */
   function write(): void {
-    const to = ROOMY.matches || prompting ? `~/${current}` : ''
+    const to = ROOMY.matches || prompting || trail ? `~/${current}` : ''
     prompt?.type(to, () => {
       if (!prompting) header?.removeAttribute('data-prompting')
+      linkCrumbs()
     })
   }
 
@@ -239,7 +316,7 @@ const items: { key: RouteKey; label: string; active: boolean }[] = [
     follow()
     const y = Math.max(0, window.scrollY)
     header.toggleAttribute('data-scrolled', y > SOLID_AT)
-    if (ROOMY.matches || y <= PROMPT_AFTER) {
+    if (ROOMY.matches || trail || y <= PROMPT_AFTER) {
       setPrompting(false)
       lastY = y
       return
@@ -279,11 +356,13 @@ const items: { key: RouteKey; label: string; active: boolean }[] = [
     settling.setAttribute('data-settling', '')
     current = path.dataset['promptPath'] ?? ''
     sections = [...document.querySelectorAll<HTMLElement>('[data-prompt]')]
+    trail = header.hasAttribute('data-trail')
+    crumbs = JSON.parse(header.dataset['crumbs'] ?? '[]') as typeof crumbs
     lastY = Math.max(0, window.scrollY)
-    prompting = !ROOMY.matches && lastY > PROMPT_AFTER
+    prompting = !ROOMY.matches && !trail && lastY > PROMPT_AFTER
     header.toggleAttribute('data-prompting', prompting)
-    // En un teléfono, con la navegación a la vista, la ruta llega borrada.
-    if (!ROOMY.matches && !prompting) path.textContent = ''
+    // En un teléfono, en la home con la navegación a la vista, la ruta llega borrada.
+    if (!ROOMY.matches && !prompting && !trail) path.textContent = ''
     prompt?.stop()
     prompt = createTypewriter(path, path.closest<HTMLElement>('.prompt') ?? path)
     update()

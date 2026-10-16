@@ -1,9 +1,10 @@
 ---
 import ContactForm from '@/components/contact/ContactForm.astro'
 import Stage from '@/components/fx/Stage.astro'
+import UpLink from '@/components/ui/UpLink.astro'
 import EmailCopy from '@/components/ui/EmailCopy.astro'
 import { SITE } from '@/data/site'
-import { getDictionary, type Locale } from '@/i18n'
+import { getDictionary, pathFor, type Locale } from '@/i18n'
 import BaseLayout from '@/layouts/BaseLayout.astro'
 
 interface Props {
@@ -25,7 +26,10 @@ const t = getDictionary(locale)
     alternativa. En escritorio, dos columnas: el texto, el correo y el sobre a la
     izquierda; el formulario a la derecha, a todo el alto.
   */}
-  <section class="container-site grid gap-y-10 pt-12 md:grid-cols-12 md:grid-rows-[auto_1fr] md:gap-x-12 md:gap-y-0 md:pt-24">
+  <div class="container-site pt-4 md:pt-10">
+    <UpLink href={pathFor(locale, 'home')} label={t.nav.home} name={t.nav.upHome} />
+  </div>
+  <section class="container-site grid gap-y-10 pt-4 md:grid-cols-12 md:grid-rows-[auto_1fr] md:gap-x-12 md:gap-y-0 md:pt-10">
     <div class="md:col-span-5">
       <h1 class="font-pixel text-d3 md:text-d4">
         <span class="inline-block" data-grid-shape>

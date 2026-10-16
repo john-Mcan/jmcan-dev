@@ -14,6 +14,7 @@ export const en: Dictionary = {
   a11y: {
     skip: 'Skip to content',
     mainNav: 'Main navigation',
+    footerNav: 'Sections',
     language: 'Language',
     themeToLight: 'Switch to light theme',
     themeToDark: 'Switch to dark theme',
@@ -22,6 +23,8 @@ export const en: Dictionary = {
     home: 'Home',
     projects: 'Projects',
     contact: 'Contact',
+    upHome: 'Back to home',
+    upProjects: 'Back to projects',
   },
   hero: {
     lead: 'I build complete web products, from the data model to the interface.',
@@ -52,7 +55,6 @@ export const en: Dictionary = {
     stack: 'Stack',
     live: 'Visit site',
     repo: 'View code',
-    back: 'All projects',
   },
   timeline: {
     title: 'Experience',

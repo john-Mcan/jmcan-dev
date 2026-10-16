@@ -1,7 +1,8 @@
 ---
 import ProjectList from '@/components/projects/ProjectList.astro'
+import UpLink from '@/components/ui/UpLink.astro'
 import { SITE } from '@/data/site'
-import { fill, getDictionary, type Locale } from '@/i18n'
+import { fill, getDictionary, pathFor, type Locale } from '@/i18n'
 import BaseLayout from '@/layouts/BaseLayout.astro'
 import { getProjects } from '@/lib/projects'
 
@@ -27,8 +28,9 @@ const count = fill(t.projects.indexCount, {
   description={t.meta.projectsDescription}
 >
   {/* Un índice: el título cerca del header, una bajada corta y cuántos hay, para orientarse. */}
-  <section class="container-site pt-10 pb-10 md:pt-24 md:pb-16">
-    <h1 class="font-pixel text-d3 md:text-d4">
+  <section class="container-site pt-4 pb-10 md:pt-10 md:pb-16">
+    <UpLink href={pathFor(locale, 'home')} label={t.nav.home} name={t.nav.upHome} />
+    <h1 class="font-pixel text-d3 md:text-d4 mt-4 md:mt-10">
       <span class="inline-block" data-grid-shape>
         {t.projects.indexTitle}
       </span>

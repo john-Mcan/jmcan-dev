@@ -24,6 +24,7 @@ export const es = {
   a11y: {
     skip: 'Saltar al contenido',
     mainNav: 'Navegación principal',
+    footerNav: 'Secciones',
     language: 'Idioma',
     themeToLight: 'Cambiar a tema claro',
     themeToDark: 'Cambiar a tema oscuro',
@@ -32,6 +33,9 @@ export const es = {
     home: 'Inicio',
     projects: 'Proyectos',
     contact: 'Contacto',
+    /** El enlace que sube un nivel: lo que se lee (incluye lo que se ve, «Inicio» o «Proyectos»). */
+    upHome: 'Volver al inicio',
+    upProjects: 'Volver a proyectos',
   },
   hero: {
     lead: 'Construyo productos web completos, del modelo de datos a la interfaz.',
@@ -67,7 +71,6 @@ export const es = {
     stack: 'Stack',
     live: 'Ver sitio',
     repo: 'Ver código',
-    back: 'Todos los proyectos',
   },
   timeline: {
     title: 'Trayectoria',
