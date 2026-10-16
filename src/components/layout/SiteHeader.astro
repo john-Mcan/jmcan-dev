@@ -4,9 +4,10 @@
  * transparente y, al bajar, toma fondo y una línea fina. El logo es un prompt,
  * `jm ~/<ruta>▮`: la ruta dice dónde estás y, en la home, sigue a la sección a la
  * vista (`data-prompt`). Cambia tecla a tecla: borra la ruta de antes y escribe la
- * nueva, también al cambiar de página. En móvil se esconde al bajar y vuelve al
- * subir. Sin `backdrop-filter`: detrás hay un canvas que repinta a 30 fps y el blur
- * se recalcularía en cada cuadro.
+ * nueva, también al cambiar de página. En un teléfono la ruta no entra junto a la
+ * navegación: al bajar, el header es solo el prompt y escribe la ruta; al subir, la
+ * borra y vuelve la navegación. Sin `backdrop-filter`: detrás hay un canvas que
+ * repinta a 30 fps y el blur se recalcularía en cada cuadro.
  */
 import LangSwitch from '@/components/layout/LangSwitch.astro'
 import ThemeToggle from '@/components/layout/ThemeToggle.astro'
@@ -48,12 +49,12 @@ const items: { key: RouteKey; label: string; active: boolean }[] = [
         aria-label={`${SITE.name}, ${t.nav.home}`}
       >
         <span>jm</span>
-        <span class="prompt-path text-muted">
-          ~/<span data-prompt-path={path}>{path}</span>
+        <span class="prompt-path text-muted" data-prompt-path={path}>
+          ~/{path}
         </span>
         <span class="prompt-cursor" aria-hidden="true"></span>
       </a>
-      <div class="flex flex-none items-center gap-5 sm:gap-8">
+      <div class="header-tools flex flex-none items-center gap-5 sm:gap-8">
         <nav aria-label={t.a11y.mainNav}>
           <ul class="flex gap-4 text-[0.9375rem] sm:gap-6">
             {items.map((item) => (
@@ -82,7 +83,7 @@ const items: { key: RouteKey; label: string; active: boolean }[] = [
 </header>
 
 <style>
-  /* Ocupa su alto en el flujo; la barra va fija encima, así esconderla no mueve la página. */
+  /* Ocupa su alto en el flujo; la barra va fija encima. */
   .site-header {
     position: relative;
     z-index: 10;
@@ -95,16 +96,11 @@ const items: { key: RouteKey; label: string; active: boolean }[] = [
     border-bottom: 1px solid transparent;
     transition:
       background-color 160ms steps(4, end),
-      border-color 160ms steps(4, end),
-      transform 200ms steps(5, end);
+      border-color 160ms steps(4, end);
   }
   [data-scrolled] .header-bar {
     border-bottom-color: var(--line);
     background: color-mix(in srgb, var(--bg) 90%, transparent);
-  }
-  /* Escondido al bajar (móvil), salvo que algo suyo tenga el foco. */
-  [data-hidden]:not(:focus-within) .header-bar {
-    transform: translateY(-100%);
   }
   /* La página nueva toma su estado de golpe, sin animarlo. */
   [data-settling] .header-bar {
@@ -117,18 +113,25 @@ const items: { key: RouteKey; label: string; active: boolean }[] = [
     align-items: center;
     white-space: nowrap;
   }
-  /* En un teléfono no entra junto a la navegación: queda `jm▮`. */
   .prompt-path {
-    display: none;
     min-width: 0;
     /* El espacio entre `jm` y `~/`: en la fuente mono, 1ch es justo un espacio. */
     margin-left: 1ch;
     overflow: hidden;
     text-overflow: ellipsis;
   }
-  @media (min-width: 40rem) {
-    .prompt-path {
-      display: block;
+  /* Borrada del todo, sin su espacio: queda `jm▮`. */
+  .prompt-path:empty {
+    display: none;
+  }
+  /*
+   * En un teléfono, o la ruta o la navegación: arriba de todo y al subir, `jm▮` y la
+   * navegación; al bajar (`data-prompting`), solo el prompt, con todo el ancho para la ruta.
+   */
+  @media (width < 40rem) {
+    .site-header:not([data-prompting]) .prompt-path,
+    [data-prompting] .header-tools {
+      display: none;
     }
   }
   /*
@@ -173,11 +176,11 @@ const items: { key: RouteKey; label: string; active: boolean }[] = [
 <script>
   import { createTypewriter, type Typewriter } from '@/lib/typewriter'
 
-  /** Mismo corte que `md:` de Tailwind: desde aquí el header no se esconde. */
-  const WIDE = window.matchMedia('(min-width: 48rem)')
-  /** Desde cuántos px toma fondo y desde cuántos puede esconderse (móvil). */
+  /** Mismo corte que `sm:` de Tailwind: desde aquí la ruta entra junto a la navegación. */
+  const ROOMY = window.matchMedia('(min-width: 40rem)')
+  /** Desde cuántos px toma fondo y, en un teléfono, desde cuántos puede quedar solo el prompt. */
   const SOLID_AT = 8
-  const HIDE_AFTER = 64
+  const PROMPT_AFTER = 64
   /** Cuánto hay que moverse para que cambie de rumbo: un temblor del dedo no lo mueve. */
   const TURN = 6
 
@@ -186,20 +189,43 @@ const items: { key: RouteKey; label: string; active: boolean }[] = [
   let queued = false
   let sections: IntersectionObserver | null = null
   let prompt: Typewriter | null = null
+  /** Dónde estás, sin `~/`: la ruta de la página o, en la home, la de la sección a la vista. */
+  let current = ''
+  /** En un teléfono, bajando: el header es solo el prompt con la ruta. */
+  let prompting = false
+
+  /**
+   * Lleva el prompt a lo que corresponde. En un teléfono, al dejar de ser solo el
+   * prompt, primero borra la ruta y recién entonces vuelve la navegación.
+   */
+  function write(): void {
+    const to = ROOMY.matches || prompting ? `~/${current}` : ''
+    prompt?.type(to, () => {
+      if (!prompting) header?.removeAttribute('data-prompting')
+    })
+  }
+
+  function setPrompting(next: boolean): void {
+    if (next === prompting) return
+    prompting = next
+    if (next) header?.setAttribute('data-prompting', '')
+    write()
+  }
 
   function update(): void {
     queued = false
     if (!header) return
     const y = Math.max(0, window.scrollY)
     header.toggleAttribute('data-scrolled', y > SOLID_AT)
-    if (WIDE.matches || y <= HIDE_AFTER) {
-      header.removeAttribute('data-hidden')
+    if (ROOMY.matches || y <= PROMPT_AFTER) {
+      setPrompting(false)
       lastY = y
       return
     }
     const delta = y - lastY
     if (Math.abs(delta) < TURN) return
-    header.toggleAttribute('data-hidden', delta > 0)
+    // Bajando, solo el prompt; subiendo, la navegación. No la saca si algo suyo tiene el foco.
+    if (delta < 0 || !header.matches(':focus-within')) setPrompting(delta > 0)
     lastY = y
   }
 
@@ -207,19 +233,6 @@ const items: { key: RouteKey; label: string; active: boolean }[] = [
     if (queued) return
     queued = true
     requestAnimationFrame(update)
-  }
-
-  /**
-   * El prompt escribe la ruta de la página (`data-prompt-path`). Al llegar de otra,
-   * arranca con la ruta que había (la deja `astro:before-swap`) y la cambia tecla a tecla.
-   */
-  function typePath(): void {
-    prompt?.stop()
-    prompt = null
-    const path = header?.querySelector<HTMLElement>('[data-prompt-path]')
-    if (!path) return
-    prompt = createTypewriter(path, path.closest<HTMLElement>('.prompt') ?? path)
-    prompt.type(path.dataset['promptPath'] ?? '')
   }
 
   /** En la home, la ruta del prompt es la de la sección que cruza el medio de la pantalla. */
@@ -232,7 +245,8 @@ const items: { key: RouteKey; label: string; active: boolean }[] = [
       (entries) => {
         for (const entry of entries) {
           if (entry.isIntersecting && entry.target instanceof HTMLElement) {
-            prompt?.type(entry.target.dataset['prompt'] ?? '')
+            current = entry.target.dataset['prompt'] ?? ''
+            write()
           }
         }
       },
@@ -242,7 +256,10 @@ const items: { key: RouteKey; label: string; active: boolean }[] = [
   }
 
   window.addEventListener('scroll', queue, { passive: true })
-  WIDE.addEventListener('change', queue)
+  ROOMY.addEventListener('change', () => {
+    update()
+    write()
+  })
 
   // La página nueva muestra la ruta de la que se va: desde ahí la cambia escribiendo.
   document.addEventListener('astro:before-swap', (event) => {
@@ -254,15 +271,23 @@ const items: { key: RouteKey; label: string; active: boolean }[] = [
   // El header se reemplaza en cada navegación: el nuevo toma el estado del scroll de su página.
   document.addEventListener('astro:page-load', () => {
     header = document.querySelector('[data-site-header]')
-    if (!header) return
+    const path = header?.querySelector<HTMLElement>('[data-prompt-path]')
+    if (!header || !path) return
     const settling = header
     settling.setAttribute('data-settling', '')
+    current = path.dataset['promptPath'] ?? ''
     lastY = Math.max(0, window.scrollY)
+    prompting = !ROOMY.matches && lastY > PROMPT_AFTER
+    header.toggleAttribute('data-prompting', prompting)
+    // En un teléfono, con la navegación a la vista, la ruta llega borrada.
+    if (!ROOMY.matches && !prompting) path.textContent = ''
+    prompt?.stop()
+    prompt = createTypewriter(path, path.closest<HTMLElement>('.prompt') ?? path)
     update()
+    write()
     requestAnimationFrame(() =>
       requestAnimationFrame(() => settling.removeAttribute('data-settling')),
     )
-    typePath()
     followSections()
   })
 </script>
