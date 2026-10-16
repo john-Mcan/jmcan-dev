@@ -428,8 +428,10 @@ cubre un test («cosmos solo, vertical: el tornado no cruza al otro borde»).
 
 **El tornado no se corrige una vez formado.** El eje seguía a la franja hasta 5 s después de
 nacer, y en el teléfono se veía correrse hacia la izquierda, como un ajuste (mediana 2,5 % del
-ancho, hasta 6,4 %; más si el dedo atrae materia). Ahora la sigue solo mientras el tornado no se ve
-(giro bajo 0,25, `FOLLOW_SPIN`): una vez visible, queda donde nació. Vale también en escritorio.
+ancho, hasta 6,4 %; más si el dedo atrae materia). Ahora, en una caja vertical, la sigue solo
+mientras el tornado no se ve (giro bajo 0,25, `followSpin` de `PORTRAIT_TEMPO`): una vez visible,
+queda donde nació. Escritorio sigue igual (ahí la franja se forma más tarde y el eje la acompaña):
+comparado cuadro a cuadro con la versión anterior, no cambia ni un píxel.
 
 **El header en un teléfono** (bajo 640 px) ya no se esconde al bajar. La ruta no entra junto a la
 navegación, así que muestra una o la otra: arriba de todo y al subir, `jm▮` y la navegación; al

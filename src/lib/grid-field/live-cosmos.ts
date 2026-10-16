@@ -115,18 +115,15 @@ const AXIS_PULL = 0.06
 /**
  * El tornado nace cuando la franja (tres columnas de malla) junta COLLAPSE veces la
  * masa media, o a los FALLBACK_S. Nace sobre la franja real (el pico de materia
- * libre a menos de BAND_SEARCH del eje, fracción del ancho) y la sigue
- * (FOLLOW_TAU_S) mientras sea marcada (BAND_PROMINENCE veces lo parejo): nace
- * antes de que la franja termine de formarse, y quieto quedaba a un costado de
- * ella. La sigue solo mientras no se ve (giro bajo FOLLOW_SPIN, a lo sumo
- * FOLLOW_S): formado, el tornado no se corrige; corrido, se veía como un ajuste.
- * El pico se mide con la materia libre, que la del tornado no lo tuerce.
+ * libre a menos de BAND_SEARCH del eje, fracción del ancho) y, durante FOLLOW_S,
+ * la sigue (FOLLOW_TAU_S) mientras sea marcada (BAND_PROMINENCE veces lo parejo):
+ * nace antes de que la franja termine de formarse, y quieto quedaba a un costado
+ * de ella. El pico se mide con la materia libre, que la del tornado no lo tuerce.
  * El giro crece en SPIN_UP_S.
  */
 const COLLAPSE = 4
 const BAND_SEARCH = 0.1
 const FOLLOW_S = 5
-const FOLLOW_SPIN = 0.25
 const FOLLOW_TAU_S = 0.5
 const BAND_PROMINENCE = 3
 const FALLBACK_S = 4
@@ -156,7 +153,9 @@ const INFLOW = 9
  * más junta (más tirón hacia el eje y una parte, `gather`, ya en la franja, a
  * GATHER_WIDTH del eje), así el fondo se ve menos poblado; el tornado nace antes y
  * gira, captura y succiona más rápido. La cantidad de materia es la misma: el
- * tornado queda igual de poblado.
+ * tornado queda igual de poblado. Y el eje sigue a la franja solo mientras el
+ * tornado no se ve (giro bajo `followSpin`): ya formado, corrido, se veía como un
+ * ajuste; como la materia arranca en la franja, nace donde corresponde.
  */
 interface Tempo {
   pull: number
@@ -166,6 +165,7 @@ interface Tempo {
   spinUpS: number
   captureRate: number
   inflow: number
+  followSpin: number
 }
 const LANDSCAPE_TEMPO: Tempo = {
   pull: AXIS_PULL,
@@ -175,6 +175,7 @@ const LANDSCAPE_TEMPO: Tempo = {
   spinUpS: SPIN_UP_S,
   captureRate: CAPTURE_RATE,
   inflow: INFLOW,
+  followSpin: Number.POSITIVE_INFINITY,
 }
 const PORTRAIT_TEMPO: Tempo = {
   pull: 0.08,
@@ -184,6 +185,7 @@ const PORTRAIT_TEMPO: Tempo = {
   spinUpS: 1.2,
   captureRate: 3,
   inflow: 14,
+  followSpin: 0.25,
 }
 const GATHER_WIDTH = 0.12
 /**
@@ -356,7 +358,7 @@ export function createCosmos(options: CosmosOptions): LiveSource {
    * después, la sigue un rato, hasta absorberla.
    */
   function watchCollapse(target: Gravity, dt: number): void {
-    if (born && (time - bornAt > FOLLOW_S || spin > FOLLOW_SPIN)) return
+    if (born && (time - bornAt > FOLLOW_S || spin > tempo.followSpin)) return
     if (!born) {
       const { meshCols, meshRows, density, count } = target
       const center = Math.floor((axisX * meshCols) / cols)
