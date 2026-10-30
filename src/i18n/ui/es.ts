@@ -40,7 +40,8 @@ export const es = {
     upProjects: 'Volver a proyectos',
   },
   hero: {
-    lead: 'Construyo productos web completos, del modelo de datos a la interfaz.',
+    title: 'Soy John',
+    lead: 'Construyo productos web y aplicaciones completas, del modelo de datos a la interfaz.',
     /**
      * La pregunta sobre el input rota entre estas, tecla a tecla; cada una trae su
      * ejemplo para el input. La primera es la que se ve al cargar y el nombre del

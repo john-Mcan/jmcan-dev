@@ -7,7 +7,6 @@
  * ancho de la columna: a su derecha solo hay fondo.
  */
 import HeroAsk from '@/components/sections/home/HeroAsk.astro'
-import { SITE } from '@/data/site'
 import { getDictionary, type Locale } from '@/i18n'
 import type { CursorMode } from '@/lib/grid-field/live'
 import type { LivePattern } from '@/lib/grid-field/live-patterns'
@@ -34,7 +33,7 @@ const t = getDictionary(locale)
     <div class="md:col-span-6">
       <h1 class="font-pixel text-d3 sm:text-d4 md:whitespace-nowrap lg:text-d5 xl:text-d6">
         <span class="inline-block" data-grid-shape>
-          {SITE.name}
+          {t.hero.title}
         </span>
       </h1>
       <p class="mt-5 mb-9 max-w-[30ch] text-lg sm:text-lead sm:mt-6 sm:mb-10">

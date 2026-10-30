@@ -27,7 +27,8 @@ export const en: Dictionary = {
     upProjects: 'Back to projects',
   },
   hero: {
-    lead: 'I build complete web products, from the data model to the interface.',
+    title: "I'm John",
+    lead: 'I build complete web products and apps, from the data model to the interface.',
     asks: [
       { text: 'what do you want to build?', placeholder: 'an app for…' },
       { text: 'have a question?', placeholder: 'I would like to know if…' },
