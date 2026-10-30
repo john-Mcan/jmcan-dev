@@ -16,11 +16,15 @@ export const es = {
   meta: {
     homeTitle: 'John Mcan | Desarrollo web full-stack',
     homeDescription:
-      'Portafolio de John Mcan: productos web rápidos y completos, del modelo de datos a la interfaz.',
+      'Portafolio de John Mcan, desarrollador full-stack: productos web y aplicaciones completas, del modelo de datos a la interfaz.',
     projectsTitle: 'Proyectos',
-    projectsDescription: 'Proyectos seleccionados de John Mcan, con el detalle de cada uno.',
+    projectsDescription:
+      'Los proyectos de John Mcan: productos web, aplicaciones y plataformas, con el contexto, el stack y mi parte en cada uno.',
+    /** La de cada proyecto: su resumen, de quién, cuándo y con qué (`stack`, ya enumerado). */
+    projectDescription: '{summary}. Proyecto de {name} ({period}), con {stack}.',
     contactTitle: 'Contacto',
-    contactDescription: 'Escríbeme para conversar sobre tu proyecto.',
+    contactDescription:
+      'Escríbeme para conversar sobre tu producto web o tu aplicación: cuéntame qué necesitas por el formulario o por correo.',
     notFoundTitle: 'Página no encontrada',
   },
   a11y: {
@@ -41,6 +45,11 @@ export const es = {
   },
   hero: {
     title: 'Soy John',
+    /**
+     * El resto del H1, que no se ve: buscadores y lectores de pantalla leen «Soy John
+     * Mcan, desarrollador web full-stack». `{surname}` sale de `SITE.name`.
+     */
+    titleTail: '{surname}, desarrollador web full-stack',
     lead: 'Construyo productos web y aplicaciones completas, del modelo de datos a la interfaz.',
     /**
      * La pregunta sobre el input rota entre estas, tecla a tecla; cada una trae su

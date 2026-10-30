@@ -28,4 +28,10 @@ export default defineConfig(
       ],
     },
   },
+  {
+    // El aviso de derechos va a la consola desde un script inline de BaseLayout, que se
+    // publica tal cual: la excepción vive aquí y no en un comentario dentro del script.
+    files: ['src/layouts/BaseLayout.astro/*.js', 'src/layouts/BaseLayout.astro/*.ts'],
+    rules: { 'no-console': ['warn', { allow: ['error', 'info'] }] },
+  },
 )

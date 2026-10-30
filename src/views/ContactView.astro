@@ -6,6 +6,7 @@ import EmailCopy from '@/components/ui/EmailCopy.astro'
 import { SITE } from '@/data/site'
 import { getDictionary, pathFor, type Locale } from '@/i18n'
 import BaseLayout from '@/layouts/BaseLayout.astro'
+import { breadcrumbs, pageNode, PERSON_REF } from '@/lib/seo'
 
 interface Props {
   locale: Locale
@@ -13,13 +14,28 @@ interface Props {
 
 const { locale } = Astro.props
 const t = getDictionary(locale)
+const route = { key: 'contact' } as const
+const title = `${t.meta.contactTitle} | ${SITE.name}`
+
+const schema = [
+  pageNode('ContactPage', locale, route, {
+    name: title,
+    description: t.meta.contactDescription,
+    about: PERSON_REF,
+  }),
+  breadcrumbs(locale, [
+    { name: t.nav.home, route: { key: 'home' } },
+    { name: t.nav.contact, route },
+  ]),
+]
 ---
 
 <BaseLayout
   locale={locale}
-  route={{ key: 'contact' }}
-  title={`${t.meta.contactTitle} | ${SITE.name}`}
+  route={route}
+  title={title}
   description={t.meta.contactDescription}
+  schema={schema}
 >
   {/*
     En un teléfono, el formulario va enseguida y el correo directo queda abajo, como

@@ -3,6 +3,11 @@ import sitemap from '@astrojs/sitemap'
 import tailwindcss from '@tailwindcss/vite'
 import type { AstroIntegration } from 'astro'
 import { defineConfig, envField, fontProviders } from 'astro/config'
+import { SITE } from './src/data/site'
+import { alternates, pathFor, routeAt } from './src/i18n/routes'
+import { DEFAULT_LOCALE } from './src/i18n/config'
+import { ogImages } from './src/integrations/og-images'
+import { rightsBanner } from './src/integrations/rights-banner'
 
 /** `/lab/*`: vistas previas que solo existen en `astro dev`; nunca llegan al build. */
 const lab: AstroIntegration = {
@@ -15,15 +20,34 @@ const lab: AstroIntegration = {
   },
 }
 
+/**
+ * El sitemap con las versiones de cada página en los dos idiomas (y `x-default`), las
+ * mismas que el `hreflang` del head: los segmentos cambian (`proyectos` ↔ `projects`),
+ * así que salen de `routes.ts` y no del prefijo del idioma.
+ */
+const sitemapWithAlternates = sitemap({
+  filter: (page) => !/\/404\/?$/.test(page),
+  serialize(item) {
+    const match = routeAt(new URL(item.url).pathname)
+    if (!match) return item
+    const url = (path: string) => new URL(path, SITE.url).href
+    item.links = [
+      ...alternates(match.route).map(({ locale, path }) => ({ lang: locale, url: url(path) })),
+      { lang: 'x-default', url: url(pathFor(DEFAULT_LOCALE, match.route)) },
+    ]
+    return item
+  },
+})
+
 export default defineConfig({
-  site: 'https://johnmcan.dev',
+  site: SITE.url,
   // Todo se prerenderiza; solo /api/contact y el 404 de /en/* corren en el Worker.
   output: 'static',
   adapter: cloudflare({ imageService: 'compile' }),
   // Sin sesiones: el adapter las activaría con un namespace KV que no necesitamos.
   session: false,
   prefetch: { prefetchAll: true, defaultStrategy: 'hover' },
-  integrations: [sitemap({ filter: (page) => !/\/404\/?$/.test(page) }), lab],
+  integrations: [sitemapWithAlternates, ogImages(), rightsBanner(), lab],
   vite: { plugins: [tailwindcss()] },
   fonts: [
     {

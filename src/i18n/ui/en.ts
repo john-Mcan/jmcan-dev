@@ -4,11 +4,14 @@ export const en: Dictionary = {
   meta: {
     homeTitle: 'John Mcan | Full-stack web development',
     homeDescription:
-      'Portfolio of John Mcan: fast, complete web products, from the data model to the interface.',
+      'Portfolio of John Mcan, full-stack developer: complete web products and apps, from the data model to the interface.',
     projectsTitle: 'Projects',
-    projectsDescription: 'Selected projects by John Mcan, with the details of each one.',
+    projectsDescription:
+      'Projects by John Mcan: web products, apps and platforms, with the context, the stack and my part in each one.',
+    projectDescription: '{summary}. A project by {name} ({period}), built with {stack}.',
     contactTitle: 'Contact',
-    contactDescription: 'Write to me to talk about your project.',
+    contactDescription:
+      'Write to me about your web product or app: tell me what you need through the form or by email.',
     notFoundTitle: 'Page not found',
   },
   a11y: {
@@ -28,6 +31,7 @@ export const en: Dictionary = {
   },
   hero: {
     title: "I'm John",
+    titleTail: '{surname}, full-stack web developer',
     lead: 'I build complete web products and apps, from the data model to the interface.',
     asks: [
       { text: 'what do you want to build?', placeholder: 'an app for…' },

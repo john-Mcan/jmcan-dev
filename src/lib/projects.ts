@@ -21,6 +21,16 @@ export function period({ year, yearEnd }: Pick<ProjectData, 'year' | 'yearEnd'>)
   return yearEnd === undefined ? String(year) : `${year}–${yearEnd}`
 }
 
+/** Los años que cubre la lista: `2026`, o `2023–2026`. */
+export function yearSpan(projects: Project[]): string {
+  const years = projects.flatMap(({ entry }) => [
+    entry.data.year,
+    entry.data.yearEnd ?? entry.data.year,
+  ])
+  const [from, to] = [Math.min(...years), Math.max(...years)]
+  return from === to ? String(from) : `${from}–${to}`
+}
+
 /** El que sigue en la lista; después del último, el primero: el recorrido no termina. */
 export function nextProject(projects: Project[], slug: string): Project | undefined {
   const index = projects.findIndex((project) => project.slug === slug)

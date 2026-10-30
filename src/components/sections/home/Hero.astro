@@ -7,7 +7,8 @@
  * ancho de la columna: a su derecha solo hay fondo.
  */
 import HeroAsk from '@/components/sections/home/HeroAsk.astro'
-import { getDictionary, type Locale } from '@/i18n'
+import { SITE } from '@/data/site'
+import { fill, getDictionary, type Locale } from '@/i18n'
 import type { CursorMode } from '@/lib/grid-field/live'
 import type { LivePattern } from '@/lib/grid-field/live-patterns'
 
@@ -21,6 +22,8 @@ interface Props {
 
 const { locale, pattern = 'cosmos-alone', cursor = 'attract', intro = 'sweep' } = Astro.props
 const t = getDictionary(locale)
+/** Lo que el H1 dice sin mostrarlo: el apellido y el oficio, para buscadores y lectores de pantalla. */
+const titleTail = fill(t.hero.titleTail, { surname: SITE.name.split(' ').slice(1).join(' ') })
 ---
 
 <section
@@ -35,6 +38,7 @@ const t = getDictionary(locale)
         <span class="inline-block" data-grid-shape>
           {t.hero.title}
         </span>
+        <span class="sr-only">{` ${titleTail}`}</span>
       </h1>
       <p class="mt-5 mb-9 max-w-[30ch] text-lg sm:text-lead sm:mt-6 sm:mb-10">
         <span data-grid-island class="inline-block">

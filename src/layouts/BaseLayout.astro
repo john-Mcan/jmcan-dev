@@ -4,16 +4,18 @@ import { ClientRouter } from 'astro:transitions'
 import GridField from '@/components/fx/GridField.astro'
 import SiteFooter from '@/components/layout/SiteFooter.astro'
 import SiteHeader from '@/components/layout/SiteHeader.astro'
+import { rightsNotice, shortNotice } from '@/data/rights'
 import { SITE } from '@/data/site'
 import {
   alternates,
   DEFAULT_LOCALE,
   getDictionary,
-  pathFor,
+  LOCALES,
   type Locale,
   type RouteRef,
 } from '@/i18n'
 import { OG_LOCALES } from '@/i18n/config'
+import { absolute, OG_SIZE, ogImagePath, PREVIEW, schemaGraph, urlFor } from '@/lib/seo'
 import { pageTransition } from '@/lib/transitions'
 import '@/styles/global.css'
 
@@ -23,35 +25,45 @@ interface Props {
   title: string
   description: string
   noindex?: boolean
-  jsonLd?: Record<string, unknown>
+  /** Los nodos de schema.org propios de la página; el sitio y la persona se suman solos. */
+  schema?: Record<string, unknown>[]
 }
 
-const { locale, route, title, description, noindex = false, jsonLd } = Astro.props
+const { locale, route, title, description, noindex = false, schema } = Astro.props
 const t = getDictionary(locale)
-const site = Astro.site ?? new URL(SITE.url)
-const canonical = new URL(pathFor(locale, route), site)
+const canonical = urlFor(locale, route)
+const ogImage = absolute(ogImagePath(locale, route))
+const jsonLd = schema && (await schemaGraph(locale, schema))
+
+/**
+ * El aviso de derechos como comentarios HTML. El corto va antes de `<html>`: es lo
+ * primero en «Elementos» y en el código fuente. El entero, al inicio de `<body>`: entra
+ * en lo que se copia del documento o del body. El corto se repite en la consola.
+ */
+const policy = absolute('/llms.txt')
+const comment = (lines: string[]) =>
+  `<!--\n${lines.map((line) => (line ? `  ${line}` : '')).join('\n')}\n-->`
+const consoleNotice = shortNotice(policy)
 ---
 
 <!doctype html>
+<Fragment set:html={comment(consoleNotice)} />
 <html lang={locale} data-theme="dark">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     <meta name="description" content={description} />
-    {noindex ? (
+    <meta name="author" content={SITE.name} />
+    {noindex || PREVIEW ? (
       <meta name="robots" content="noindex" />
     ) : (
       <>
         <link rel="canonical" href={canonical} />
         {alternates(route).map((alt) => (
-          <link rel="alternate" hreflang={alt.locale} href={new URL(alt.path, site)} />
+          <link rel="alternate" hreflang={alt.locale} href={absolute(alt.path)} />
         ))}
-        <link
-          rel="alternate"
-          hreflang="x-default"
-          href={new URL(pathFor(DEFAULT_LOCALE, route), site)}
-        />
+        <link rel="alternate" hreflang="x-default" href={urlFor(DEFAULT_LOCALE, route)} />
       </>
     )}
     <meta property="og:type" content="website" />
@@ -60,24 +72,37 @@ const canonical = new URL(pathFor(locale, route), site)
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
     <meta property="og:locale" content={OG_LOCALES[locale]} />
-    <meta name="twitter:card" content="summary" />
+    {LOCALES.filter((other) => other !== locale).map((other) => (
+      <meta property="og:locale:alternate" content={OG_LOCALES[other]} />
+    ))}
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content={String(OG_SIZE.width)} />
+    <meta property="og:image:height" content={String(OG_SIZE.height)} />
+    <meta property="og:image:alt" content={title} />
+    <meta name="twitter:card" content="summary_large_image" />
     <meta name="color-scheme" content="dark light" />
     <meta name="theme-color" content="#000000" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="sitemap" href="/sitemap-index.xml" />
     <Font cssVariable="--font-departure" preload />
     <Font cssVariable="--font-instrument" />
-    {/* Bloqueante a propósito: el tema guardado se aplica antes del primer pintado. */}
+    {/*
+      Bloqueante a propósito: el tema guardado se aplica antes del primer pintado. Sin
+      almacenamiento disponible, queda el oscuro. Los scripts `is:inline` se publican tal
+      cual: sus comentarios van aquí afuera, nunca adentro.
+    */}
     <script is:inline>
       ;(() => {
-        const apply = () => {
-          let theme = 'dark'
+        const stored = () => {
           try {
-            if (localStorage.getItem('theme') === 'light') theme = 'light'
+            return localStorage.getItem('theme')
           } catch {
-            // Sin almacenamiento disponible: queda el oscuro por defecto.
+            return null
           }
-          document.documentElement.dataset.theme = theme
+        }
+        const apply = () => {
+          document.documentElement.dataset.theme = stored() === 'light' ? 'light' : 'dark'
         }
         apply()
         document.addEventListener('astro:after-swap', apply)
@@ -126,10 +151,14 @@ const canonical = new URL(pathFor(locale, route), site)
         })
       })()
     </script>
-    {jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
+    {jsonLd && <script type="application/ld+json" set:html={jsonLd} />}
+    <script is:inline define:vars={{ consoleNotice }}>
+      console.info(`%c${consoleNotice.join('\n')}`, 'color:#ffb000;font-weight:bold')
+    </script>
     <ClientRouter />
   </head>
   <body>
+    <Fragment set:html={comment(rightsNotice(policy))} />
     <a class="skip-link" href="#main">
       {t.a11y.skip}
     </a>

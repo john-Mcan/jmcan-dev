@@ -37,3 +37,24 @@ export function promptPath(locale: Locale, route: RouteRef | RouteKey): string {
 export function alternates(route: RouteRef): { locale: Locale; path: string }[] {
   return LOCALES.map((locale) => ({ locale, path: pathFor(locale, route) }))
 }
+
+/**
+ * Al revés que `pathFor`: el idioma y la ruta de un path del sitio
+ * (`/en/projects/revra/` → en, project, revra). El sitemap lo usa para sus alternates.
+ */
+export function routeAt(path: string): { locale: Locale; route: RouteRef } | undefined {
+  for (const key of Object.keys(PATHS) as RouteKey[]) {
+    for (const locale of LOCALES) {
+      const [prefix = '', suffix] = PATHS[key][locale].split('[slug]')
+      if (suffix === undefined) {
+        if (path === prefix) return { locale, route: { key } }
+        continue
+      }
+      const slug = path.slice(prefix.length, path.length - suffix.length)
+      if (path.startsWith(prefix) && path.endsWith(suffix) && /^[^/]+$/.test(slug)) {
+        return { locale, route: { key, slug } }
+      }
+    }
+  }
+  return undefined
+}

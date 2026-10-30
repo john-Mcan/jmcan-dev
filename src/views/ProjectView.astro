@@ -16,6 +16,7 @@ import { SITE } from '@/data/site'
 import { fill, getDictionary, pathFor, type Locale } from '@/i18n'
 import BaseLayout from '@/layouts/BaseLayout.astro'
 import { getProjects, nextProject, period, type Project } from '@/lib/projects'
+import { absolute, breadcrumbs, ogImagePath, pageNode, PERSON_REF } from '@/lib/seo'
 
 interface Props {
   locale: Locale
@@ -39,14 +40,41 @@ const links = [
 ].filter((link): link is { href: string; label: string } => link.href !== undefined)
 /** Capturas de teléfono (verticales): van en fila; las de escritorio, una debajo de otra. */
 const portrait = data.shots.length > 0 && data.shots.every(({ src }) => src.height > src.width)
+
+const route = { key: 'project', slug: project.slug } as const
+const title = `${data.title} | ${SITE.name}`
+/** El resumen dice qué es; la descripción suma de quién, cuándo y con qué (las cuatro primeras). */
+const description = fill(t.meta.projectDescription, {
+  summary: data.summary,
+  name: SITE.name,
+  period: period(data),
+  stack: new Intl.ListFormat(locale, { type: 'conjunction' }).format(data.stack.slice(0, 4)),
+})
+const elsewhere = [data.links.live, data.links.store, data.links.repo].filter(Boolean)
+const schema = [
+  pageNode('WebPage', locale, route, {
+    name: title,
+    description,
+    mainEntity: {
+      '@type': 'CreativeWork',
+      name: data.title,
+      description: data.summary,
+      creator: PERSON_REF,
+      dateCreated: String(data.year),
+      keywords: data.stack.join(', '),
+      image: absolute(ogImagePath(locale, route)),
+      ...(elsewhere.length > 0 && { sameAs: elsewhere }),
+    },
+  }),
+  breadcrumbs(locale, [
+    { name: t.nav.home, route: { key: 'home' } },
+    { name: t.nav.projects, route: { key: 'projects' } },
+    { name: data.title, route },
+  ]),
+]
 ---
 
-<BaseLayout
-  locale={locale}
-  route={{ key: 'project', slug: project.slug }}
-  title={`${data.title} | ${SITE.name}`}
-  description={data.summary}
->
+<BaseLayout locale={locale} route={route} title={title} description={description} schema={schema}>
   <article class="container-site pt-4 md:pt-10">
     <UpLink href={pathFor(locale, 'projects')} label={t.nav.projects} name={t.nav.upProjects} />
 

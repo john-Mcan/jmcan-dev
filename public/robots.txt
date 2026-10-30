@@ -1,4 +1,0 @@
-User-agent: *
-Allow: /
-
-Sitemap: https://johnmcan.dev/sitemap-index.xml
