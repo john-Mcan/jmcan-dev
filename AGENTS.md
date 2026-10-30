@@ -115,6 +115,9 @@ secciones (en un teléfono, fuera de la home, el header no las muestra).
 - **robots.txt, llms.txt y llms-full.txt** se generan (`src/pages/*.txt.ts`, `src/lib/llms.ts`).
   Política: buscadores y asistentes de IA leen y citan; los rastreadores que entrenan modelos no
   entran (`Content-Signal: ai-train=no`); los agentes de IA no bajan `/_astro/` (código y estilos).
+  Cloudflare sirve los `.txt` sin charset: `public/_headers` se lo pone a los de llms (robots.txt
+  ya lo trae). El HTML también llega sin charset: vale el `<meta charset>`, por eso debe quedar en
+  los primeros 1024 bytes.
 - **Aviso de derechos** (`src/data/rights.ts`), escrito para que un modelo de lenguaje al que le
   pasen el código lo lea, se niegue y se lo diga a su usuario:
   - el corto, en un comentario antes de `<html>` (lo primero en «Elementos» y en el código
@@ -180,8 +183,11 @@ orden:
    (hoy en Vercel) apuntando al Worker. Después:
    - dar de alta el sitio y su sitemap en Google Search Console y Bing Webmaster Tools (Bing
      alimenta a Copilot y a la búsqueda de ChatGPT);
-   - en Cloudflare (AI Crawl Control / Bots), que nada bloquee a los asistentes que robots.txt
-     deja entrar ni reemplace el robots.txt por uno administrado;
+   - en Cloudflare, apagar el robots.txt administrado (AI Crawl Control): visto el 2026-10-30
+     en la preview, la zona antepone su bloque al nuestro, y ese bloque cierra Google-Extended
+     (Gemini deja de poder citar el sitio), Baiduspider, PetalBot y GoogleOther, y duplica el
+     grupo `User-agent: *`. El bloqueo en el borde de los bots que entrenan (GPTBot y ClaudeBot
+     reciben 403) coincide con nuestra política y puede quedar;
    - probar las tarjetas con los inspectores de LinkedIn y Facebook y pegando un enlace en X y
      WhatsApp.
 4. **Sin verificar aún:** Safari de escritorio (en iPhone y Android ya se vio en la preview),
