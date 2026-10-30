@@ -20,7 +20,8 @@ esa guía sin contrastarlo con este documento.
 
 | Archivo                             | Qué hace                                                                                       | ¿Toca el DOM?             |
 | ----------------------------------- | ---------------------------------------------------------------------------------------------- | ------------------------- |
-| `lib/grid-field/grid-field.ts`      | Motor: grilla, formas, máscaras, parpadeo, luz por celda y pintado                             | No                        |
+| `lib/grid-field/grid-field.ts`      | Motor: grilla, formas, máscaras, parpadeo, luz por celda y pintado 2D                          | No                        |
+| `lib/grid-field/gl-paint.ts`        | Pintor WebGL2: la placa de video dibuja los puntos (el runner lo prefiere al 2D)               | Solo el canvas que recibe |
 | `lib/grid-field/timeline.ts`        | Relojes puros: `holdEnvelope`, `rising`, `sweepRows`                                           | No                        |
 | `lib/grid-field/sprites.ts`         | Tipos `Sprite` / `SpriteFrame`, `WORD_MS`, sorteo sin repetición                               | No                        |
 | `lib/grid-field/sprite-drawings.ts` | Dibujos (los glifos de proyecto, el sobre, `glitchText`…)                                      | Solo el canvas que recibe |
@@ -47,6 +48,21 @@ Node con un contexto falso.
 **Campo.** Un canvas fijo a pantalla completa con celdas de 2 px cada 6 px (1 px cada 3 px por
 debajo de 640 px de ancho). Cada celda tiene una luz base que el parpadeo re-sortea. Hay un solo
 campo y un solo loop para todo el sitio: es lo que hace que se lea como una superficie.
+
+**Pintado.** Cada cuadro, `classifyField` decide el grupo de cada celda (nivel × paleta × punto)
+y un pintor lo dibuja:
+
+- **WebGL2** (`gl-paint.ts`), el de siempre: los grupos suben como una textura y un shader dibuja
+  los puntos. El JS del pintado baja de ~8 ms a ~0,8 ms por cuadro en escritorio. Pinta igual que
+  el 2D, píxel a píxel (medido con dpr 1, 1,25, 1,5 y 2, en los dos temas).
+- **2D** (`paintField`), si no hay WebGL2: un `fillRect` por celda encendida, unas 42 mil por
+  cuadro en escritorio. Con él, el campo se queda en 30 fps.
+
+**Cuadros por segundo.** Se pinta cada N refrescos de la pantalla, con N entero, así los cuadros
+caen parejos. `fps` (30) es un tope; un escenario vivo puede pedir un piso (`LiveSource.fps`):
+cosmos pide 60, y en escritorio con WebGL pinta en cada refresco a 60 o 75 Hz y cada dos a 144.
+Si un cuadro se come más del 60 % del intervalo (`MAX_SHARE`), N sube: en una máquina modesta
+el campo baja de cuadros en vez de dejar sin aire al hilo principal.
 
 La celda fina del teléfono es para los glifos: en sus cajas chicas, un trazo más fino que dos
 celdas cae entre ellas. El 2026-10-16 se probó la de escritorio (2 px cada 6) también en el
@@ -232,20 +248,24 @@ reglas (islas, cursor sin rastro, cuadro quieto que se asienta una vez), los pat
 están en `docs/sesion-2026-10-02-hero-vivo.md`, sección 5. Para uno nuevo:
 
 1. Implementa `LiveSource` (`frame` y `still`) en un `live-<nombre>.ts`, en celdas de unos 6 px
-   (`fineScale` con el `cellPx` del contexto), con las utilidades de `live.ts`.
+   (`fineScale` con el `cellPx` del contexto), con las utilidades de `live.ts`. Si mueve materia
+   y avanza por `dt`, pide `fps: 60` (como cosmos); si avanza por cuadro, no lo pidas.
 2. Regístralo en `LOADERS` (`live-patterns.ts`) y agrégalo a los tests de «patrones vivos».
 3. Pruébalo en `/lab`: una entrada en `src/lab/variants.ts`.
 
 Cada patrón se baja aparte (`import()` en `LOADERS`), solo en la página que lo usa: la home paga
-cosmos (4,6 KB gz con la gravedad y `live.ts`) y no los demás del laboratorio.
+cosmos (4,7 KB gz con la gravedad y `live.ts`) y no los demás del laboratorio.
 
 ## 4. Reglas que no se negocian
 
 - **Cero asignaciones por cuadro.** Los buffers se reservan en `measure()`. Nada de arrays nuevos,
   closures ni objetos dentro de `tick`/`paintField`.
-- **Como mucho 48 cambios de `fillStyle` por cuadro** (24 niveles × 2 paletas). Una tercera paleta
-  sube `BUCKETS` a 72: justifícalo.
-- **Nada caro por celda fuera de su caja.** El campo tiene entre 30 y 90 mil celdas a 30 fps.
+- **Como mucho 48 cambios de `fillStyle` por cuadro** (24 niveles × 2 paletas) en el pintor 2D.
+  Una tercera paleta sube `BUCKETS` a 72 (y los colores del shader): justifícalo.
+- **Lo que cambia el pintado, en los dos pintores.** `classifyField` es de los dos; el tamaño del
+  punto sale de `dotSize` y `dotInset`. Si tocas uno, compara los dos píxel a píxel.
+- **Nada caro por celda fuera de su caja.** El campo tiene entre 30 y 90 mil celdas, a 30 fps o
+  más (el hero de escritorio, a 60–75).
 - **Identidad estable.** Pools, sprites y escenarios son constantes de módulo o están cacheados: el
   runner compara por identidad y un objeto nuevo reinicia el sprite.
 - **Movimiento reducido.** Sin loop: un cuadro quieto (`paintStill`) con el halo en reposo y el
@@ -267,7 +287,7 @@ cosmos (4,6 KB gz con la gravedad y `live.ts`) y no los demás del laboratorio.
 
 | Campo                    | Valor      | Efecto                                                 |
 | ------------------------ | ---------- | ------------------------------------------------------ |
-| `fps`                    | 30         | Tope de cuadros por segundo                            |
+| `fps`                    | 30         | Tope de cuadros por segundo (sin escenario que pida)   |
 | `maxOpacity`             | 0,22       | Luz máxima de una celda de ruido                       |
 | `chance`                 | 0,45       | Fracción de celdas re-sorteadas por segundo            |
 | `maxCells`               | 90 000     | Presupuesto de celdas; por encima la grilla se engrosa |
@@ -283,15 +303,18 @@ cosmos (4,6 KB gz con la gravedad y `live.ts`) y no los demás del laboratorio.
 `LOOP_DEFAULTS` (`timeline.ts`): `firstMs` 600, `everyMs` 7000, `spriteMs` 4600, `fadeMs` 260.
 
 Otros: `MIN_BOX_CELLS` = 8 (caja mínima para dibujar), `MIN_RATIO` = 0,3 y `WIDE_QUERY` = 48rem
-(desde ahí la lista usa el panel sticky).
+(desde ahí la lista usa el panel sticky). En `runner.ts`: `MAX_SHARE` = 0,6 (lo más del intervalo
+que el campo usa del hilo principal) y `LIVE_FPS_FROM` = 640 px (desde ahí un escenario vivo pinta
+a los cuadros que pide, `LiveSource.fps`).
 
 Si un móvil modesto no da el ancho, lo primero es `fps: 20`, `maxCells: 40_000` o `maxDpr: 1.5`.
 
 Cosmos tiene un ritmo por forma de caja (`LANDSCAPE_TEMPO` y `PORTRAIT_TEMPO` en `live-cosmos.ts`):
 en una caja vertical (un teléfono) la materia arranca más junta y el tornado nace antes. Ver las
 secciones 14 (teléfono) y 16 (escritorio) de `docs/sesion-2026-10-02-hero-vivo.md`. La entrada la
-marca ese ritmo, no el costo: en escritorio la simulación cuesta ~3 ms por cuadro y corre a tiempo
-real.
+marca ese ritmo, no el costo: en escritorio la simulación cuesta ~4 ms por cuadro y corre a tiempo
+real. Que se vea fluida depende de los cuadros por segundo (sección 17 de esa nota): a 25 se veía
+a saltos.
 
 Para probar otra celda en escritorio sin tocar el código: `<html data-grid-cell="4:2">` (paso y punto,
 en px; lo pone la barra de `/lab`). Ignora `maxCells`: a 4 px el cuadro cuesta ~2,5 veces más.
@@ -307,12 +330,13 @@ en px; lo pone la barra de `/lab`). Ignora `maxCells`: a 4 px el cuadro cuesta ~
 | Sprites de imagen/SVG (logos de proyectos) | Nuevo tipo de cuadro `{ image }` → `drawImage` en `rasteriseFrame`    | Los logos necesitan formas gruesas                                   |
 | Texto vivo (hora, contadores)              | Cuadros generados al vuelo con caché por string                       | El caché actual es por índice de cuadro                              |
 | Más de un sprite a la vez                  | Varias máscaras en `FrameInput`                                       | Rompe "un escenario a la vez": pensarlo antes                        |
-| Renderer WebGL2                            | Detrás de `paintField`, sin tocar relojes ni sprites                  | Solo si las mediciones en móvil lo piden                             |
+| Simulación de cosmos a medio ritmo         | `live-cosmos.ts`: avanzar cada dos cuadros e interpolar la luz        | Hoy es casi todo el costo del cuadro; solo si una máquina no da      |
 
 ## 7. Checklist antes de dar por terminado un cambio
 
 - [ ] `pnpm check`, `pnpm lint` y `pnpm test` en verde; el reloj nuevo tiene su test.
 - [ ] Se ve en oscuro y en claro, en escritorio y en móvil (390 px).
+- [ ] Si tocaste el pintado, el 2D y el WebGL pintan igual.
 - [ ] Con `prefers-reduced-motion` queda un cuadro quieto y legible.
 - [ ] El JS de la página sigue bajo ~20 KB gz (revisa `dist/client/_astro` después de `pnpm build`).
 - [ ] Ningún sprite cae detrás de texto.

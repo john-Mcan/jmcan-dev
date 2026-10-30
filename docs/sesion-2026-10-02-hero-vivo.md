@@ -24,6 +24,7 @@ previas); nada de esto toca todavía la home de producción.
 14. [2026-10-15: ajustes para móvil, tras probar en teléfonos](#14-2026-10-15-ajustes-para-móvil-tras-probar-en-teléfonos)
 15. [2026-10-15: navegación](#15-2026-10-15-navegación)
 16. [2026-10-16: cosmos entra más rápido en escritorio](#16-2026-10-16-cosmos-entra-más-rápido-en-escritorio)
+17. [2026-10-30: el hero, fluido en escritorio](#17-2026-10-30-el-hero-fluido-en-escritorio)
 
 ## 1. Cómo ver los candidatos
 
@@ -534,3 +535,49 @@ El estado final no cambia: el mismo tornado, el mismo giro, en el mismo lugar. E
   0,75 y 0,77 del ancho (antes, entre 0,74 y 0,81).
 - A 1440 px pasa lo mismo: nace a los 0,7 s (antes, 1,6) y el 50 % orbita a los 2,4 s (antes,
   4,4).
+
+## 17. 2026-10-30: el hero, fluido en escritorio
+
+El usuario veía bien la entrada del hero en escritorio, pero con la impresión de que «al navegador
+le cuesta renderizarlo», y preguntó si había que bajar partículas o mejorar el código. En el
+teléfono se veía bien.
+
+**No eran las partículas.** Medido en Chrome a 1838 × 892, en su pantalla (75 Hz):
+
+- El loop tenía un tope de 30 fps con 2 ms de margen. A 75 Hz, dos refrescos (27 ms) no llegaban
+  y pintaba cada tres: **25 cuadros por segundo**. La materia que corre y gira a 25 se ve a saltos.
+- Un cuadro costaba ~11 ms del hilo principal, y ~8 eran el pintado: un `fillRect` por celda
+  encendida, unas 42 mil por cuadro (el ruido de fondo también se repinta). La simulación costaba
+  ~3. Bajar partículas no habría cambiado casi nada.
+
+**Lo que se hizo:**
+
+- **Pinta la placa de video** (`gl-paint.ts`, WebGL2): el grupo de cada celda (`classifyField`,
+  el mismo cálculo de antes) sube como una textura y un shader dibuja los puntos. Comparado píxel a
+  píxel con el 2D, en oscuro y en claro y con dpr 1, 1,25, 1,5 y 2: la diferencia máxima es 1,6
+  de 255 (redondeo). En una esquina cortada en los dos ejes, el 2D de Chrome toma la menor de las
+  dos coberturas, no el área; el shader hace lo mismo. Sin WebGL2, sigue el pintor 2D.
+- **Cosmos pide 60 cuadros por segundo, al menos** (`fps` en `LiveSource`), en escritorio y con
+  WebGL: a 75 Hz pinta en cada refresco y a 144 Hz, cada dos. El resto queda con su tope de 30
+  (el ruido, el teléfono, las demás páginas y los patrones del laboratorio). El enjambre y las
+  corrientes avanzan por cuadro: a más fps irían más rápido.
+- **Cuadros parejos:** se pinta cada N refrescos, con N entero, según el refresco medido.
+- **Nunca más del 60 % del hilo principal:** si un cuadro cuesta más que eso, N sube (y baja solo
+  con margen).
+
+| Escritorio, 1838 px, 75 Hz     | Antes       | Ahora                             |
+| ------------------------------ | ----------- | --------------------------------- |
+| Cuadros por segundo en el hero | 25          | 75                                |
+| JS por cuadro                  | ~11 ms      | ~5 ms                             |
+| Pintado (JS)                   | ~8 ms       | ~0,8 ms                           |
+| Con la CPU 4 veces más lenta   | (sin medir) | ~20 fps, ~50 % del hilo principal |
+
+- Hoy el cuadro lo paga la simulación de cosmos (~3,9 ms con el tornado formado). El hilo principal
+  trabaja algo más por segundo que antes (75 × 5 ms contra 25 × 11 ms), a cambio de tres veces los
+  cuadros.
+- La coreografía no cambia: todo avanza por `dt`. La luz cerca del eje sigue la misma curva a 25 y
+  a 75 fps (a menos de 1 %).
+- El peso: la grilla pasó de 9,9 a 11,6 KB gz (+1,7, en todas las páginas): todas quedan en
+  19,4 KB en archivos y la home en 24,7.
+- Falta ver el pintor WebGL en Safari de escritorio, Firefox y los teléfonos reales (en la
+  preview).

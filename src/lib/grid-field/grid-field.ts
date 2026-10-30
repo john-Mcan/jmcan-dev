@@ -264,10 +264,11 @@ export function spriteLight(glyph: number, noise: number): number {
   return glyph * (0.45 + 0.55 * noise)
 }
 
-const LEVELS = 24
+export const LEVELS = 24
 const LEVEL_CEILING = 0.92
 const MIN_VISIBLE = 0.02
-const SKIP = 255
+/** El grupo de una celda que no se pinta (en `PaintBuffers.levels`). */
+export const NO_PAINT = 255
 /**
  * Grupos de pintado: nivel × paleta (base, señal) × punto (campo, sprite). El
  * campo y el sprite de un mismo nivel van seguidos y comparten color.
@@ -327,8 +328,14 @@ export function dotSize(
   return Math.round((square + spread * geometry.gap * t) * dpr) / dpr
 }
 
+/** Cuánto se corre un punto hacia arriba y a la izquierda: crece desde su centro y la grilla no se corre. */
+export function dotInset(square: number, size: number, dpr: number): number {
+  return Math.round(((size - square) / 2) * dpr) / dpr
+}
+
 /** Memoria del pintado, reservada UNA vez por tamaño: el loop no asigna nada. */
 export interface PaintBuffers {
+  /** El grupo de pintado de cada celda (`NO_PAINT` si no se ve), column-major. */
   levels: Uint8Array
   order: Int32Array
   counts: Int32Array
@@ -348,26 +355,17 @@ export function createPaintBuffers(field: GridField): PaintBuffers {
 }
 
 /**
- * Cuantiza cada celda a uno de 24 niveles por paleta y las pinta agrupadas
- * (counting sort): como mucho 48 cambios de `fillStyle` por cuadro. El tamaño del
- * punto sale del grupo, así que se calcula una vez por grupo y no por celda.
+ * Cuantiza cada celda a uno de 24 niveles por paleta y la asigna a su grupo de
+ * pintado (`buffers.levels`; nivel × paleta × punto), y avanza el suavizado de las
+ * formas. Lo comparten los dos pintores: `paintField` (2D) y el de WebGL
+ * (`gl-paint.ts`). Devuelve false si el campo no se ve: no hay nada que pintar.
  */
-export function paintField(
-  ctx: FieldCanvas,
-  field: GridField,
-  frame: FrameInput,
-  buffers: PaintBuffers,
-  palettes: Palettes,
-  dpr: number,
-): void {
-  ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
-  ctx.clearRect(0, 0, field.width, field.height)
+export function classifyField(field: GridField, frame: FrameInput, buffers: PaintBuffers): boolean {
   const { phase, sprite, rowGain } = frame
-  if (phase.presence <= 0) return
+  if (phase.presence <= 0) return false
 
-  const { levels, order, counts, starts, cursor } = buffers
+  const { levels, counts } = buffers
   const { cols, rows, cells, shapes, shapeLevel, accent, maxOpacity } = field
-  const step = fieldStep(field)
   const ease = frame.dt > 0 ? 1 - Math.exp(-frame.dt / SHAPE_TAU_S) : 1
 
   const mask = sprite && phase.textAlpha > 0.01 ? sprite.mask : null
@@ -404,7 +402,7 @@ export function paintField(
         cellLight(cells[i] ?? 0, level, glyph, phase, maxOpacity) * phase.presence * gain
       const tone = levelOf(opacity)
       if (tone < 0) {
-        levels[i] = SKIP
+        levels[i] = NO_PAINT
         continue
       }
       const inSprite = glyph > SPRITE_GLYPH
@@ -414,7 +412,30 @@ export function paintField(
       counts[bucket] = (counts[bucket] ?? 0) + 1
     }
   }
+  return true
+}
 
+/**
+ * Pinta en 2D las celdas agrupadas (counting sort): como mucho 48 cambios de
+ * `fillStyle` por cuadro. El tamaño del punto sale del grupo, así que se calcula
+ * una vez por grupo y no por celda. Es un `fillRect` por celda encendida: en
+ * escritorio, unas 42 mil por cuadro. El runner usa el pintor WebGL cuando hay.
+ */
+export function paintField(
+  ctx: FieldCanvas,
+  field: GridField,
+  frame: FrameInput,
+  buffers: PaintBuffers,
+  palettes: Palettes,
+  dpr: number,
+): void {
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+  ctx.clearRect(0, 0, field.width, field.height)
+  if (!classifyField(field, frame, buffers)) return
+
+  const { levels, order, counts, starts, cursor } = buffers
+  const { cells, rows } = field
+  const step = fieldStep(field)
   let running = 0
   for (let bucket = 0; bucket < BUCKETS; bucket++) {
     starts[bucket] = running
@@ -423,8 +444,8 @@ export function paintField(
   }
   const len = cells.length
   for (let i = 0; i < len; i++) {
-    const bucket = levels[i] ?? SKIP
-    if (bucket === SKIP) continue
+    const bucket = levels[i] ?? NO_PAINT
+    if (bucket === NO_PAINT) continue
     const at = cursor[bucket] ?? 0
     order[at] = i
     cursor[bucket] = at + 1
@@ -441,9 +462,8 @@ export function paintField(
       ctx.fillStyle = next
       style = next
     }
-    // El punto crece desde su centro: la grilla no se corre.
     const size = dotSize(field, palettes.spread, tone, (bucket & 1) === 1, dpr)
-    const inset = Math.round(((size - field.square) / 2) * dpr) / dpr
+    const inset = dotInset(field.square, size, dpr)
     const start = starts[bucket] ?? 0
     for (let k = start; k < start + count; k++) {
       const index = order[k] ?? 0

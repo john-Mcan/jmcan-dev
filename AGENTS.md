@@ -8,8 +8,9 @@ proyectos, detalle de proyecto, contacto y 404, en español e inglés.
 
 - **Rendimiento primero.** Sin frameworks de UI: React y similares están bloqueados por ESLint. La
   interactividad va en `<script>` de componentes `.astro`. Presupuesto: unos 20 KB gz de JS por
-  página, como referencia (puede pasarse un poco). Hoy, en archivos, 17,7 KB en todas las páginas
-  y 23,0 en la home, que suma cosmos (4,7) y la pregunta que rota (0,6); en un teléfono, las
+  página, como referencia (puede pasarse un poco). Hoy, en archivos, 19,4 KB en todas las páginas
+  (la grilla con su pintor WebGL, 11,6) y 24,7 en la home, que suma cosmos (4,7) y la pregunta que
+  rota (0,6); en un teléfono, las
   páginas con glifos suman las pantallas propias (1,6). Los scripts inline agregan 1,1 KB (1,2 en
   la home).
 - **Idiomas.**
@@ -40,6 +41,10 @@ El motor está en `src/lib/grid-field/` y lo monta `src/scripts/grid-field.ts`. 
 efectos, animaciones o sprites, lee **`docs/grid-field-extending.md`**: mapa de archivos,
 conceptos, recetas (sprites dibujados y de texto, glifos de proyecto, escenarios, halos, efectos
 nuevos), reglas de rendimiento y parámetros.
+
+Los puntos los pinta la placa de video (WebGL2, `gl-paint.ts`; sin él, el pintor 2D). El campo va
+a 30 fps; en escritorio, el hero (cosmos) pide 60 o más y pinta en cada refresco de una pantalla
+de 60 o 75 Hz, sin pasar del 60 % del hilo principal.
 
 Las páginas declaran qué imprime la grilla con atributos:
 
@@ -120,7 +125,9 @@ en este orden:
    (hoy en Vercel) apuntando al Worker.
 4. **Sin verificar aún:** Safari de escritorio (en iPhone y Android ya se vio en la preview),
    Firefox y el rendimiento en un móvil de gama baja, sobre todo el del hero (cosmos es el patrón
-   más pesado). Si no da el ancho, ver la sección 5 de `docs/grid-field-extending.md`.
+   más pesado). Si no da el ancho, ver la sección 5 de `docs/grid-field-extending.md`. El pintor
+   WebGL (2026-10-30) solo se probó en Chrome de escritorio: falta verlo en los teléfonos (preview),
+   Safari y Firefox.
 5. **Decidir** si `/lab` se queda como herramienta de dev o se borra con `src/lab/` y los patrones
    que no usa la home (sección 8 de `docs/sesion-2026-10-02-hero-vivo.md`).
 6. **Opcional:** imagen OG para compartir en redes, sumar a `/lab` vistas para afinar sprites y

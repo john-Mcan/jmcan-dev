@@ -34,6 +34,13 @@ export interface LiveContext {
 }
 
 export interface LiveSource {
+  /**
+   * Cuadros por segundo que pide, al menos, en escritorio (con el pintor WebGL);
+   * sin él, el tope del campo (30). La materia que se mueve a 30 se ve a saltos.
+   * Solo para un patrón que avanza por tiempo (`dt`): el enjambre y las corrientes
+   * avanzan por cuadro e irían más rápido.
+   */
+  fps?: number
   /** Avanza un cuadro y devuelve la máscara de la caja (`cols × rows`). */
   frame(cols: number, rows: number, context: LiveContext): SpriteMask | null
   /** Movimiento reducido: un cuadro ya asentado, sin animar. */

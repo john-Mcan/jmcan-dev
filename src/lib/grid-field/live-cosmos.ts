@@ -615,6 +615,9 @@ export function createCosmos(options: CosmosOptions): LiveSource {
   }
 
   return {
+    // La materia corre y gira: a 30 cuadros por segundo se veía a saltos.
+    fps: 60,
+
     frame(boxCols, boxRows, context) {
       const target = ensure(boxCols, boxRows, context)
       advance(target, Math.min(context.dt, 1 / 20), pointerFor(context))

@@ -13,9 +13,11 @@ import {
   type Palettes,
   type Rgb,
   type ShapeRect,
+  type FrameInput,
   type SpriteMask,
   type SpritePlacement,
 } from './grid-field'
+import { createGlPainter } from './gl-paint'
 import type { CellRect, LiveContext, LiveSource } from './live'
 import { boxOnField, rasteriseFrame, spriteBoxFor, type SpriteFont } from './sprite-raster'
 import type { Sprite } from './sprites'
@@ -42,7 +44,10 @@ export interface Stage {
 }
 
 export interface GridFieldOptions {
-  /** Tope de cuadros por segundo. El parpadeo se ve igual a 30 que a 60. */
+  /**
+   * Tope de cuadros por segundo. El parpadeo se ve igual a 30 que a 60. Un
+   * escenario vivo puede pedir más (`LiveSource.fps`).
+   */
   fps: number
   maxOpacity: number
   /** Fracción de celdas re-sorteadas por segundo. */
@@ -111,6 +116,16 @@ const FADE_WAIT_MS = 2500
 /** Un escenario vivo no tiene cuadros: suena como un sprite sostenido de uno solo. */
 const LIVE_CLOCK = { frameCount: 1, frameMs: 0 }
 
+/**
+ * Desde este ancho (el de la celda de escritorio) un escenario vivo puede pintar a
+ * los cuadros que pide. En un teléfono se queda en `fps`: ahí se ve fluido y la
+ * batería cuenta.
+ */
+const LIVE_FPS_FROM = 640
+
+/** Lo más del intervalo entre cuadros que el campo usa del hilo principal. */
+const MAX_SHARE = 0.6
+
 const FALLBACK_RGB: Rgb = [255, 255, 255]
 const FALLBACK_ACCENT: Rgb = [255, 176, 0]
 
@@ -165,7 +180,10 @@ export function createGridFieldRunner(
   canvas: HTMLCanvasElement,
   options: GridFieldOptions,
 ): GridFieldRunner {
-  const ctx = canvas.getContext('2d')
+  // La placa de video pinta los puntos; sin WebGL2, el pintor 2D (un `fillRect` por
+  // celda: ~8 ms por cuadro en escritorio, y el campo se queda en `fps`).
+  const gl = createGlPainter(canvas)
+  const ctx = gl ? null : canvas.getContext('2d')
   const scratch = document.createElement('canvas')
   const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
 
@@ -219,6 +237,12 @@ export function createGridFieldRunner(
   let running = false
   let destroyed = false
   let lastTick = 0
+  // Lo que dura un refresco de la pantalla, estimado con los rAF (60 Hz al empezar),
+  // lo que cuesta un cuadro y cada cuántos refrescos se pinta (ver `due`).
+  let lastRaf = 0
+  let refreshMs = 1000 / 60
+  let tickMs = 0
+  let every = 1
   let pageVisible = document.visibilityState !== 'hidden'
   let reduced = motionQuery.matches
   // Una webfont que aún no cargó se rasterizaría con la de respaldo y esa máscara
@@ -441,12 +465,61 @@ export function createGridFieldRunner(
 
   // ─── Loop ──────────────────────────────────────────────────────────────────
 
+  function paint(frame: FrameInput): void {
+    if (!field || !buffers) return
+    if (gl) gl.paint(field, frame, buffers, palettes, dpr)
+    else if (ctx) paintField(ctx, field, frame, buffers, palettes, dpr)
+  }
+
+  /** Los cuadros que pide el escenario vivo (0 si no pide): solo en escritorio y con WebGL. */
+  function liveFps(): number {
+    if (!gl || !field || field.width < LIVE_FPS_FROM || stage?.program.kind !== 'live') return 0
+    return stage.program.source.fps ?? 0
+  }
+
+  /**
+   * ¿Toca pintar? Cada N refrescos, con N entero: así los cuadros caen parejos.
+   *  - `fps` es un tope: N es el menor que no lo pasa. En una pantalla de 75 Hz
+   *    pinta cada 3 refrescos (25 cuadros), como siempre.
+   *  - Lo que pide un escenario vivo es un piso: N es el mayor que lo alcanza. A
+   *    75 Hz, cosmos pinta en cada refresco (75 cuadros); a 144 Hz, cada 2 (72).
+   * El 0,1 evita que N salte entre dos valores en una pantalla justa (60 Hz a 30).
+   *
+   * N también sube si un cuadro se come más de `MAX_SHARE` del intervalo, y baja
+   * solo con margen (sin saltar entre dos valores): en una máquina modesta, pintar a
+   * todo lo que da dejaba el hilo principal sin aire y los cuadros, desparejos.
+   */
+  function due(now: number): boolean {
+    const delta = now - lastRaf
+    lastRaf = now
+    if (delta > 0 && delta < 50) refreshMs += (delta - refreshMs) * 0.05
+    const live = liveFps()
+    const wanted = Math.max(
+      1,
+      live > 0
+        ? Math.floor(1000 / live / refreshMs + 0.1)
+        : Math.ceil(1000 / options.fps / refreshMs - 0.1),
+    )
+    const budget = MAX_SHARE * refreshMs
+    let n = Math.max(wanted, every)
+    while (tickMs > budget * n) n++
+    while (n > wanted && tickMs < budget * (n - 1) * 0.8) n--
+    every = n
+    return now - lastTick >= (every - 0.5) * refreshMs
+  }
+
   function tick(now: number): void {
     raf = requestAnimationFrame(tick)
-    if (now - lastTick < 1000 / options.fps - 2) return
+    if (!due(now)) return
+    const start = performance.now()
+    step(now)
+    tickMs += (performance.now() - start - tickMs) * 0.1
+  }
+
+  function step(now: number): void {
     const dt = lastTick === 0 ? 0 : Math.min((now - lastTick) / 1000, 0.1)
     lastTick = now
-    if (!field || !buffers || !ctx) return
+    if (!field || !buffers) return
     if (condenseFrom === 0) condenseFrom = now
 
     if (shapesDirty || now - lastShapeScan > 1000) {
@@ -460,24 +533,17 @@ export function createGridFieldRunner(
     // Después del escenario: el fundido lo espera y arranca en el cuadro en que entra.
     const presence = presenceAt(now)
     flickerCells(field, { dt, chance: options.chance, condense })
-    paintField(
-      ctx,
-      field,
-      {
-        phase: { condense, textAlpha, presence },
-        sprite: placement,
-        rowGain: sweepGain(now),
-        dt,
-      },
-      buffers,
-      palettes,
-      dpr,
-    )
+    paint({
+      phase: { condense, textAlpha, presence },
+      sprite: placement,
+      rowGain: sweepGain(now),
+      dt,
+    })
   }
 
   /** Movimiento reducido: un único cuadro quieto, repintado solo cuando algo cambia. */
   function paintStill(): void {
-    if (destroyed || running || !reduced || !field || !buffers || !ctx) return
+    if (destroyed || running || !reduced || !field || !buffers) return
     scanShapes()
     const condense = hasShapes ? options.restCondense : 0
     // Un cuadro quieto también para los sprites: el primero, sin animar.
@@ -486,19 +552,12 @@ export function createGridFieldRunner(
       lastAlpha = 1
       placement = stage.program.kind === 'live' ? placeLive(0, true) : placeSprite(0)
     }
-    paintField(
-      ctx,
-      field,
-      {
-        phase: { condense, textAlpha: placement ? 1 : 0, presence: 1 },
-        sprite: placement,
-        rowGain: null,
-        dt: 0,
-      },
-      buffers,
-      palettes,
-      dpr,
-    )
+    paint({
+      phase: { condense, textAlpha: placement ? 1 : 0, presence: 1 },
+      sprite: placement,
+      rowGain: null,
+      dt: 0,
+    })
   }
 
   function sync(): void {
