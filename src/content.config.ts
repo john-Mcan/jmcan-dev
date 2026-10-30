@@ -20,7 +20,7 @@ const projects = defineCollection({
         /** El último año, si el proyecto abarca más de uno (2025–2026). */
         yearEnd: z.number().int().optional(),
         role: z.string(),
-        stack: z.array(z.string()).min(1).max(6),
+        stack: z.array(z.string()).min(1).max(10),
         status: z.enum(PROJECT_STATUSES),
         /** El código está publicado y se aceptan aportes (con `links.repo`). */
         contributions: z.boolean().default(false),

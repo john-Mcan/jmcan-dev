@@ -2,8 +2,8 @@
 title: Revra
 summary: Agentes que se hacen cargo de las cuentas por cobrar, de la factura al pago
 year: 2026
-role: Cofundador; integraciones y producto
-stack: [TypeScript, Node.js, Next.js, PostgreSQL, Supabase]
+role: 'Cofundador: integraciones y producto'
+stack: [TypeScript, Node.js, Next.js, PostgreSQL, Supabase, API, Microsoft Azure]
 status: building
 glyph: loop
 featured: true
@@ -18,27 +18,28 @@ shots:
 
 ## Contexto
 
-El software para empresas suele ser una herramienta más que aprender a usar: registra, ordena y
-avisa, pero el trabajo lo siguen haciendo personas. En cobranza B2B, ese trabajo es repetitivo,
-está repartido en varios sistemas y depende de mucha coordinación manual.
+La mayoría del software para empresas es una herramienta más que hay que aprender a usar: registra,
+ordena y avisa, pero el trabajo lo siguen haciendo las personas. En la cobranza B2B, ese trabajo es
+repetitivo, está repartido en varios sistemas y exige mucha coordinación manual.
 
 ## Qué es
 
-Revra recibe un objetivo, cobrar, y se hace cargo del proceso completo: entiende qué se debe, sigue
-cada factura, conversa con los clientes, resuelve lo que se traba y concilia el pago. Las personas
-intervienen solo cuando una decisión necesita criterio humano.
+Revra recibe un objetivo definido, por ejemplo cobrar, y se hace cargo del proceso completo:
+entiende las cuentas y el flujo de la empresa, sigue cada factura, conversa con los clientes,
+resuelve los problemas que aparecen en el camino y concilia el pago. Las personas solo intervienen
+cuando una decisión requiere criterio humano.
 
-Lo vemos como el paso siguiente al uso simple de agentes: delegar más y recibir resultados, no
-asistencia.
+Es el paso que sigue a usar agentes como asistentes: en vez de pedirles ayuda, les delegas un
+trabajo completo y recibes el resultado.
 
 <!-- capturas -->
 
 ## Qué hice
 
-Soy cofundador. Construimos desde cero las integraciones que conectan los agentes con los sistemas
-que la empresa ya usa, y el producto web.
+Soy cofundador. Construimos desde cero el producto web y las integraciones que conectan a los
+agentes con los sistemas que cada empresa ya usa.
 
 ## Estado
 
-MVP en desarrollo, por fases; parte en Chile. Las empresas interesadas pueden pedir acceso al
-programa piloto en [revra.io](https://revra.io).
+El MVP está en desarrollo y se lanza por etapas, partiendo por Chile. Las empresas interesadas
+pueden pedir acceso al programa piloto en [revra.io](https://revra.io).

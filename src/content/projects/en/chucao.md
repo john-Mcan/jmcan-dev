@@ -19,14 +19,14 @@ as a long list that is hard to browse.
 
 ## What it is
 
-A player for Windows: paste the address of an IPTV playlist and get the channels sorted by category,
-with search, favorites, full screen and a floating window. If the signal drops, it reconnects on its
-own.
+A player for Windows: paste the address of an IPTV playlist and the channels show up sorted by
+category, with search, favorites, full screen and a floating window. If the signal drops, it
+reconnects on its own.
 
 ## What I did
 
-Everything: interface and development. It is named after the chucao, a bird from the forests of
-southern Chile.
+I did everything: the interface and the development. It's named after the chucao, a bird from the
+forests of southern Chile.
 
 ## Contribute
 

@@ -2,8 +2,8 @@
 title: Revra
 summary: Agents that take over accounts receivable, from invoice to payment
 year: 2026
-role: Co-founder; integrations and product
-stack: [TypeScript, Node.js, Next.js, PostgreSQL, Supabase]
+role: 'Co-founder: integrations and product'
+stack: [TypeScript, Node.js, Next.js, PostgreSQL, Supabase, API, Microsoft Azure]
 status: building
 glyph: loop
 featured: true
@@ -18,27 +18,28 @@ shots:
 
 ## Context
 
-Business software is usually one more tool to learn: it records, organizes and notifies, but people
-still do the work. In B2B collections that work is repetitive, spread across several systems and
-dependent on a lot of manual coordination.
+Most business software is one more tool you have to learn: it records, organizes and sends
+reminders, but people still do the work. In B2B collections, that work is repetitive, spread across
+several systems and takes a lot of manual coordination.
 
 ## What it is
 
-Revra takes a goal, getting paid, and handles the whole process: it understands what is owed,
-follows up on every invoice, talks to customers, sorts out whatever gets stuck and reconciles the
-payment. People step in only when a decision needs human judgment.
+Revra takes a defined goal, such as getting paid, and handles the whole process: it understands the
+company's accounts and workflow, follows up on every invoice, talks to customers, solves the
+problems that come up along the way and reconciles the payment. People only step in when a decision
+needs human judgment.
 
-We see it as the step after simply using agents: delegating more and getting results, not
-assistance.
+It's the next step after using agents as assistants: instead of asking them for help, you hand them
+a whole job and get the result back.
 
 <!-- capturas -->
 
 ## What I did
 
-I am a co-founder. We built from scratch the integrations that connect the agents to the systems
-the company already uses, and the web product.
+I'm a co-founder. We built the web product from scratch, along with the integrations that connect
+the agents to the systems each company already uses.
 
 ## Status
 
-MVP in development, in phases, starting in Chile. Interested companies can request access to the
-pilot program at [revra.io](https://revra.io).
+The MVP is in development and rolling out in stages, starting in Chile. Interested companies can
+request access to the pilot program at [revra.io](https://revra.io).

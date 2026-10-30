@@ -50,6 +50,17 @@ datos de Supabase) y el reproductor se llama «Chucao». Queda pendiente:
 - Una captura de Chucao (la ventana con canales).
 - Los enlaces a tiendas de NEX, cuando se publiquen las apps.
 
+## Revisión del 2026-10-30
+
+- **Stack**, a pedido del usuario: Revra suma API y Microsoft Azure; NEX, Cloudflare, Firebase
+  y Vercel. El schema admite hasta 10 (antes, 6). En la lista, el de NEX ocupa dos líneas en
+  escritorio.
+- **Redacción:** se reescribieron los cinco proyectos en los dos idiomas, porque varias frases
+  sonaban poco naturales (el usuario dio el ejemplo de Revra: «recibe un objetivo definido, por
+  ejemplo cobrar…», «entiende las cuentas y el flujo de la empresa…»). Fuera las frases sueltas
+  sin verbo, los «Todo:» como oración y las enumeraciones mezcladas. Los textos de abajo son el
+  borrador original; los vigentes están en `src/content/projects/`.
+
 ## Resumen
 
 | #   | Proyecto      | Destacado | Período   | Estado                 | Glifo propuesto            | Enlaces                       |

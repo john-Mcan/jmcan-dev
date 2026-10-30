@@ -15,7 +15,7 @@ links:
 shots:
   - src: ../shots/orientame/inicio.jpg
     alt: The orientame.cl home page, with the headline “No tienes que saber qué te pasa para empezar” (You don’t need to know what is wrong to start), a search box and a list of situations to choose from.
-    caption: The home page. You pick what is closest to your situation; if it was not, you go back.
+    caption: The home page. You pick what's closest to your situation and, if it wasn't that, you go back.
   - src: ../shots/orientame/orientador.jpg
     alt: The page “No saber si lo que sientes necesita ayuda” (Not knowing if what you feel needs help), asking how long you have felt this way, with its options.
     caption: A guided path. One question at a time, nothing stored.
@@ -23,14 +23,14 @@ shots:
 
 ## Context
 
-Taking the first step to look for mental health support is hard: you don't know where to start,
-what options exist or what to say at a first appointment.
+Taking the first step toward mental health support is hard: you often don't know where to start,
+what options there are or what to say at a first appointment.
 
 ## What it is
 
-A non-profit site, built for Chile to begin with, that helps people understand their options and
-take a possible next step, if they decide to: learn more, prepare what to say, find a public or
-low-cost option, use a self-assessment for guidance, or stop and come back later.
+A non-profit site, built for Chile for now, that helps you understand your options and take the
+next step, if you decide to: learn more, prepare what to say, find a public or low-cost option, take
+a self-assessment for guidance, or simply stop and come back later.
 
 It doesn't diagnose or replace professional care, and urgent help information is always at hand.
 The site is in Spanish.
@@ -44,7 +44,7 @@ you write never leaves your device.
 
 ## What I did
 
-Everything: product, content and development.
+I did everything: the product, the content and the development.
 
 ## Contribute
 

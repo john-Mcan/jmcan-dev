@@ -18,14 +18,14 @@ shots:
 
 ## Contexto
 
-Los fans latinoamericanos se reunían en redes generales, donde las comunidades se pierden entre todo
-lo demás.
+Los fans latinoamericanos se juntaban en redes sociales generales, donde sus comunidades se perdían
+entre todo lo demás.
 
 ## Qué es
 
-Un prototipo de red social hecha para fandoms: cada comunidad con su espacio, sus publicaciones,
-votaciones, insignias y moderación propia. Empezó en marzo de 2025 como 7Kpop y llegó a 34.000
-usuarios registrados.
+Es un prototipo de red social pensada para fandoms, donde cada comunidad tiene su propio espacio,
+publicaciones, votaciones, insignias y moderación. Empezó en marzo de 2025 como 7Kpop y llegó a
+34.000 usuarios registrados.
 
 <!-- capturas -->
 
@@ -36,5 +36,5 @@ seguridad.
 
 ## Estado
 
-Hoy está en pausa. Lo considero mi gran escuela: moderación, comunidades reales, rendimiento y
-seguridad con usuarios de verdad. Mucho de lo que hay en NEX nació aquí.
+Hoy está en pausa. Fue mi gran escuela: moderar comunidades reales y cuidar el rendimiento y la
+seguridad con miles de usuarios. Mucho de lo que hay en NEX nació aquí.

@@ -15,7 +15,7 @@ links:
 shots:
   - src: ../shots/orientame/inicio.jpg
     alt: Inicio de orientame.cl, con el título «No tienes que saber qué te pasa para empezar», un buscador y una lista de situaciones para elegir.
-    caption: El inicio. Eliges lo que más se parece a tu situación; si no era, vuelves atrás.
+    caption: El inicio. Eliges lo que más se parece a tu situación y, si no era eso, vuelves atrás.
   - src: ../shots/orientame/orientador.jpg
     alt: La página «No saber si lo que sientes necesita ayuda», con la pregunta «¿Hace cuánto te sientes así?» y sus opciones.
     caption: Un camino guiado. Una pregunta a la vez, sin guardar nada.
@@ -23,29 +23,29 @@ shots:
 
 ## Contexto
 
-Dar el primer paso para buscar ayuda en salud mental cuesta: no se sabe por dónde empezar, qué
-opciones existen ni qué decir en una primera atención.
+Dar el primer paso para buscar ayuda en salud mental cuesta: muchas veces no sabes por dónde empezar,
+qué opciones hay ni qué decir en la primera consulta.
 
 ## Qué es
 
-Un sitio sin fines de lucro, pensado inicialmente para Chile, que ayuda a entender las opciones y a
-dar un siguiente paso posible, si la persona decide darlo: informarse, preparar qué decir, encontrar
-una alternativa pública o de bajo costo, usar una autoevaluación orientativa, o detenerse y volver
-después.
+Es un sitio sin fines de lucro, pensado por ahora para Chile, que te ayuda a entender tus opciones y
+a dar el siguiente paso, si decides darlo: informarte, preparar qué decir, encontrar una alternativa
+pública o de bajo costo, hacer una autoevaluación orientativa, o simplemente parar y volver más
+tarde.
 
-No diagnostica ni reemplaza una atención profesional, y la información de urgencia está siempre a
-mano.
+No diagnostica ni reemplaza la atención de un profesional, y la información para urgencias está
+siempre a mano.
 
 <!-- capturas -->
 
 ## Privacidad
 
-Todo ocurre en el navegador: sin cuentas, sin cookies, sin trackers y sin guardar respuestas. Lo
-que escribes no sale de tu dispositivo.
+Todo ocurre en el navegador: sin cuentas, sin cookies, sin rastreadores y sin guardar respuestas.
+Lo que escribes no sale de tu dispositivo.
 
 ## Qué hice
 
-Todo: producto, contenido y desarrollo.
+Lo hice todo: el producto, el contenido y el desarrollo.
 
 ## Aporta
 

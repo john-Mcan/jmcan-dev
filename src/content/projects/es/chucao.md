@@ -19,13 +19,14 @@ general la muestran como una lista larga y difícil de recorrer.
 
 ## Qué es
 
-Un reproductor para Windows: pegas la dirección de una lista IPTV y tienes los canales ordenados
-por categoría, búsqueda, favoritos, pantalla completa y ventana flotante. Si la señal se corta, se
-reconecta solo.
+Es un reproductor para Windows: pegas la dirección de una lista IPTV y los canales aparecen
+ordenados por categoría, con búsqueda, favoritos, pantalla completa y ventana flotante. Si la señal
+se corta, se reconecta solo.
 
 ## Qué hice
 
-Todo: interfaz y desarrollo. Lleva el nombre del chucao, un pájaro del bosque del sur de Chile.
+Lo hice todo: la interfaz y el desarrollo. Se llama así por el chucao, un pájaro de los bosques del
+sur de Chile.
 
 ## Aporta
 

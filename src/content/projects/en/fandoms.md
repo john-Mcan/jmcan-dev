@@ -18,12 +18,12 @@ shots:
 
 ## Context
 
-Latin American fans gathered on general-purpose social networks, where communities get lost among
-everything else.
+Latin American fans gathered on general-purpose social networks, where their communities got lost
+among everything else.
 
 ## What it is
 
-A prototype social network made for fandoms: each community with its own space, posts, polls,
+A prototype social network made for fandoms, where each community has its own space, posts, polls,
 badges and moderation. It started in March 2025 as 7Kpop and reached 34,000 registered users.
 
 <!-- capturas -->
@@ -35,5 +35,5 @@ security.
 
 ## Status
 
-It is on hold today. I see it as my great school: moderation, real communities, performance and
-security with real users. Much of what is in NEX was born here.
+It's on hold today. It was my great school: moderating real communities and taking care of
+performance and security with thousands of users. Much of what's in NEX was born here.
