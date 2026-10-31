@@ -174,17 +174,19 @@ direcciones se descarta); Resend aceptó la prueba en producción. `/lab` sigue 
      el autor la confirme.
    - Proyectos: falta una captura de Chucao (la ventana con canales) y, cuando existan, los
      enlaces a tiendas de NEX (`links.store`).
-2. **Después del paso a producción:**
-   - en Cloudflare, una regla de la zona que redirija www a la raíz (Rules → Templates →
-     «Redirect from WWW to root»); mientras no exista, www sirve el mismo sitio con el canonical
-     en la raíz;
+2. **Después del paso a producción** (ya hechos: la regla de la zona que redirige
+   `https://www.*` a la raíz con un 301, y el proyecto de Vercel, borrado):
+   - en Cloudflare, encender «Always Use HTTPS» (SSL/TLS → Edge Certificates): hoy
+     `http://johnmcan.dev` y `http://www…` responden 200 por HTTP. Los navegadores no lo ven
+     (todo `.dev` va por HTTPS), pero un rastreador sí; con eso, la regla de www también cubre
+     `http://`;
+   - en GitHub, borrar los entornos «Production» y «Preview» que dejó Vercel (Settings →
+     Environments), con sus 41 deployments;
    - en Cloudflare, apagar el robots.txt administrado (AI Crawl Control): visto el 2026-10-30
      en la preview, la zona antepone su bloque al nuestro, y ese bloque cierra Google-Extended
      (Gemini deja de poder citar el sitio), Baiduspider, PetalBot y GoogleOther, y duplica el
      grupo `User-agent: *`. El bloqueo en el borde de los bots que entrenan (GPTBot y ClaudeBot
      reciben 403) coincide con nuestra política y puede quedar;
-   - en Vercel, quitar el dominio del proyecto viejo y desconectarle el repo, para que los push a
-     `main` no se construyan allá;
    - dar de alta el sitio y su sitemap en Google Search Console (la zona ya tiene un TXT de
      verificación de Google) y Bing Webmaster Tools (Bing alimenta a Copilot y a la búsqueda de
      ChatGPT);
