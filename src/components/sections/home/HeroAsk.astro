@@ -1,6 +1,6 @@
 ---
 /**
- * El llamado del hero: una pregunta con un input que lleva a /contacto con el
+ * El llamado del hero: una pregunta con un campo que lleva a /contacto con el
  * mensaje ya escrito (`?m=`, lo lee `ContactForm`), más «Ver proyectos» y la
  * disponibilidad. La pregunta rota tecla a tecla (`hero.asks`), como el prompt del
  * header, y cada una cambia el ejemplo del input; la última trae un enlace a la
@@ -41,15 +41,17 @@ const [first] = asks
         </span>
       </span>
     </label>
-    <div class="mt-3 flex max-w-md gap-3" data-grid-island>
-      <input
+    <div class="mt-3 flex max-w-md items-end gap-3" data-grid-island>
+      {/* Crece hasta dos filas con el texto (sin JS, se desplaza). Enter envía; Mayús + Enter, salto de línea. */}
+      <textarea
         id="hero-ask"
         name="m"
-        class="field"
+        class="field ask-field"
+        rows="1"
         autocomplete="off"
         aria-label={first.text}
         placeholder={first.placeholder}
-      />
+      ></textarea>
       <button class="btn btn-primary" type="submit">
         {t.hero.askSubmit}
       </button>
@@ -119,6 +121,18 @@ const [first] = asks
   .ask[data-typing] .ask-cursor {
     visibility: visible;
   }
+  /*
+   * 16 px siempre (en iOS, menos hace zoom al enfocar). Con una fila mide lo mismo que el
+   * botón (48 px); el script lo estira hasta dos filas y desde ahí se desplaza.
+   */
+  .ask-field {
+    display: block;
+    resize: none;
+    padding-block: 11px;
+    font-size: 16px;
+    line-height: 1.5;
+    max-height: calc(2lh + 24px);
+  }
 </style>
 
 <script>
@@ -142,7 +156,7 @@ const [first] = asks
     const form = document.querySelector<HTMLFormElement>('[data-hero-ask]')
     const label = form?.querySelector<HTMLElement>('label')
     const line = form?.querySelector<HTMLElement>('[data-ask-line]')
-    const input = form?.querySelector('input')
+    const input = form?.querySelector('textarea')
     if (!form || !label || !line || !input) return
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
 
@@ -184,7 +198,27 @@ const [first] = asks
     }
   }
 
+  /** El campo crece con el texto hasta dos filas (el tope lo pone el CSS). Enter envía. */
+  function fitField(): void {
+    const field = document.querySelector<HTMLTextAreaElement>('#hero-ask')
+    if (!field) return
+    const fit = () => {
+      field.style.height = 'auto'
+      const style = getComputedStyle(field)
+      const borders = parseFloat(style.borderTopWidth) + parseFloat(style.borderBottomWidth)
+      field.style.height = `${field.scrollHeight + borders}px`
+    }
+    field.addEventListener('input', fit)
+    field.addEventListener('keydown', (event) => {
+      if (event.key !== 'Enter' || event.shiftKey || event.isComposing) return
+      event.preventDefault()
+      field.form?.requestSubmit()
+    })
+    fit()
+  }
+
   document.addEventListener('astro:page-load', rotate)
+  document.addEventListener('astro:page-load', fitField)
   document.addEventListener('astro:before-swap', () => {
     stop?.()
     stop = null
