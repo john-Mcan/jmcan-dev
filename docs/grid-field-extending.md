@@ -243,9 +243,9 @@ Para elegir la forma del efecto, según de qué dependa:
 ### 3.7 Un escenario vivo
 
 Un programa `live`: una simulación que escribe su máscara en cada cuadro, en vez de cuadros
-rasterizados. Se declara con `data-grid-stage="live:<patrón>"` y `data-grid-cursor`. El contexto, las
-reglas (islas, cursor sin rastro, cuadro quieto que se asienta una vez), los patrones y su peso
-están en `docs/sesion-2026-10-02-hero-vivo.md`, sección 5. Para uno nuevo:
+rasterizados. Se declara con `data-grid-stage="live:<patrón>"` y `data-grid-cursor`. Las reglas: el
+contenido de la caja es isla, el cursor no deja rastro y el cuadro quieto se asienta una vez. Los
+patrones viven en `src/lib/grid-field/live-*.ts`. Para uno nuevo:
 
 1. Implementa `LiveSource` (`frame` y `still`) en un `live-<nombre>.ts`, en celdas de unos 6 px
    (`fineScale` con el `cellPx` del contexto), con las utilidades de `live.ts`. Si mueve materia
@@ -310,11 +310,9 @@ a los cuadros que pide, `LiveSource.fps`).
 Si un móvil modesto no da el ancho, lo primero es `fps: 20`, `maxCells: 40_000` o `maxDpr: 1.5`.
 
 Cosmos tiene un ritmo por forma de caja (`LANDSCAPE_TEMPO` y `PORTRAIT_TEMPO` en `live-cosmos.ts`):
-en una caja vertical (un teléfono) la materia arranca más junta y el tornado nace antes. Ver las
-secciones 14 (teléfono) y 16 (escritorio) de `docs/sesion-2026-10-02-hero-vivo.md`. La entrada la
-marca ese ritmo, no el costo: en escritorio la simulación cuesta ~4 ms por cuadro y corre a tiempo
-real. Que se vea fluida depende de los cuadros por segundo (sección 17 de esa nota): a 25 se veía
-a saltos.
+en una caja vertical (un teléfono) la materia arranca más junta y el tornado nace antes. La entrada
+la marca ese ritmo, no el costo: en escritorio la simulación cuesta ~4 ms por cuadro y corre a
+tiempo real. Que se vea fluida depende de los cuadros por segundo: a 25 se veía a saltos.
 
 Para probar otra celda en escritorio sin tocar el código: `<html data-grid-cell="4:2">` (paso y punto,
 en px; lo pone la barra de `/lab`). Ignora `maxCells`: a 4 px el cuadro cuesta ~2,5 veces más.

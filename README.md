@@ -64,9 +64,8 @@ con un aviso).
   En `pnpm dev` se pintan al pedirlas.
 - `robots.txt`, `llms.txt` y `llms-full.txt` se generan con el contenido. Los agentes de IA pueden
   leer y citar el texto, pero no revisar ni copiar el estilo, las animaciones ni el código, y nadie
-  puede entrenar modelos con el sitio (`src/data/rights.ts`). El aviso de derechos va también en
-  el HTML (antes de `<html>` y al inicio de `<body>`), en la consola y al inicio de cada JS y CSS
-  propio.
+  puede entrenar modelos con el sitio (`src/data/rights.ts`). Un aviso corto va también antes de
+  `<html>`, en la consola y al inicio de cada JS y CSS propio.
 - `pnpm deploy:preview` construye con `noindex` y con las URL de `preview.johnmcan.dev`.
 
 ## Estructura

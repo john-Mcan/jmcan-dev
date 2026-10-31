@@ -4,7 +4,7 @@ import { ClientRouter } from 'astro:transitions'
 import GridField from '@/components/fx/GridField.astro'
 import SiteFooter from '@/components/layout/SiteFooter.astro'
 import SiteHeader from '@/components/layout/SiteHeader.astro'
-import { rightsNotice, shortNotice } from '@/data/rights'
+import { shortNotice } from '@/data/rights'
 import { SITE } from '@/data/site'
 import {
   alternates,
@@ -36,9 +36,8 @@ const ogImage = absolute(ogImagePath(locale, route))
 const jsonLd = schema && (await schemaGraph(locale, schema))
 
 /**
- * El aviso de derechos como comentarios HTML. El corto va antes de `<html>`: es lo
- * primero en «Elementos» y en el código fuente. El entero, al inicio de `<body>`: entra
- * en lo que se copia del documento o del body. El corto se repite en la consola.
+ * El aviso de derechos, corto, como comentario HTML antes de `<html>`: es lo primero en
+ * «Elementos» y en el código fuente. Se repite en la consola; el entero está en llms.txt.
  */
 const policy = absolute('/llms.txt')
 const comment = (lines: string[]) =>
@@ -158,7 +157,6 @@ const consoleNotice = shortNotice(policy)
     <ClientRouter />
   </head>
   <body>
-    <Fragment set:html={comment(rightsNotice(policy))} />
     <a class="skip-link" href="#main">
       {t.a11y.skip}
     </a>

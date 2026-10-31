@@ -67,7 +67,7 @@ export function shortNotice(policyUrl: string): string[] {
 
 /**
  * El aviso entero en los dos idiomas, en líneas de hasta `width` caracteres y con una
- * vacía entre párrafos: el comentario al inicio de `<body>` y la cabecera de robots.txt.
+ * vacía entre párrafos: la cabecera de robots.txt.
  */
 export function rightsNotice(policyUrl: string, width = 92): string[] {
   const paragraphs = [

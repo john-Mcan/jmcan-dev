@@ -19,8 +19,8 @@ export const EXPERIENCE: readonly ExperienceEntry[] = [
       en: 'Co-founder and full-stack developer',
     },
     summary: {
-      es: 'Producto y desarrollo de Revra, agentes para las cuentas por cobrar, y de NEX, una radio donde la audiencia elige qué suena.',
-      en: 'Product and development for Revra, agents for accounts receivable, and NEX, a radio station where the audience picks what plays next.',
+      es: 'Producto y desarrollo de Revra, agentes para las cuentas por cobrar, y de NEX, una experiencia en vivo donde la audiencia elige qué suena.',
+      en: 'Product and development for Revra, agents for accounts receivable, and NEX, a live experience where the audience picks what plays next.',
     },
   },
   {

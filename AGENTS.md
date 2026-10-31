@@ -11,18 +11,15 @@
 
 Portafolio personal de John Mcan. Astro 7 estático desplegado en Cloudflare Workers; solo
 `/api/contact` (formulario, vía Resend) y el 404 de `/en/*` corren en el Worker. Páginas: inicio,
-proyectos, detalle de proyecto, contacto y 404, en español e inglés.
+proyectos, detalle de proyecto, contacto y 404, en español e inglés. Producción: johnmcan.dev
+(Worker `jmcan-dev`; www redirige a la raíz). Preview: preview.johnmcan.dev (`jmcan-dev-preview`).
 
 ## Reglas del proyecto
 
 - **Rendimiento primero.** Sin frameworks de UI: React y similares están bloqueados por ESLint. La
   interactividad va en `<script>` de componentes `.astro`. Presupuesto: unos 20 KB gz de JS por
-  página, como referencia (puede pasarse un poco). Hoy, en archivos, 19,4 KB en todas las páginas
-  (la grilla con su pintor WebGL, 11,6) y 24,7 en la home, que suma cosmos (4,7) y la pregunta que
-  rota (0,6); en un teléfono, las
-  páginas con glifos suman las pantallas propias (1,6). Cada JS propio suma además el aviso de
-  derechos (0,15 KB): unos 0,5 KB por página y 0,9 en la home. Los scripts inline agregan 1,3 KB
-  (1,5 en la home), 0,3 de ellos por el aviso en la consola.
+  página, como referencia (puede pasarse un poco); la grilla con su pintor WebGL es la mayor parte.
+  Mide el peso antes y después de sumar JS.
 - **Nada de desarrollo en producción.** Los scripts `is:inline` se publican tal cual: sus
   comentarios van afuera, en `{/* … */}`, y las excepciones de ESLint, en `eslint.config.js`. Los
   únicos comentarios que llegan al navegador son los avisos de derechos.
@@ -47,8 +44,10 @@ proyectos, detalle de proyecto, contacto y 404, en español e inglés.
   existir en HTML. Foco visible en ámbar e inputs de ≥ 16 px (iOS).
 - **SEO y agentes de IA.** Ver la sección «SEO, tarjetas y agentes de IA». Toda página indexable
   lleva su tarjeta para compartir y sus nodos de schema.org.
-- **Tests.** Mínimos a propósito: solo el motor puro de la grilla (`pnpm test`). Sin CI ni hooks.
-- **Commits.** En español, estilo convencional: `feat(alcance): …`, `fix: …`, `chore: …`.
+- **Tests.** Mínimos a propósito: solo el motor puro de la grilla (`pnpm test`). Sin CI ni hooks:
+  antes de desplegar, `pnpm check`, `pnpm lint`, `pnpm test` y el build.
+- **Commits.** En español, estilo convencional (`feat(alcance): …`, `fix: …`, `chore: …`), y
+  describen el cambio real: qué cambia y por qué.
 
 ## La grilla de fondo
 
@@ -73,13 +72,13 @@ Las páginas declaran qué imprime la grilla con atributos:
   una pantalla propia, un canvas dentro de su caja (`src/lib/grid-field/screens.ts`), que baja con
   la página como una imagen. En la lista, cada fila a la vista muestra su glifo: la activa en
   ámbar y el resto, tenue.
-- `data-grid-intro="fade"`: el fondo entra con un fundido en vez del barrido (hoy, solo
-  `/lab/cosmosv2`; la home volvió al barrido).
+- `data-grid-intro="fade"`: el fondo entra con un fundido en vez del barrido (la home usa el
+  barrido).
 - `data-grid-stage="live:<patrón>"` + `data-grid-cursor="attract|repel|off"`: escenario vivo (una
   simulación en vez de un sprite: moho, cosmos, enjambre, corrientes, escarcha, Julia). El contenido
   dentro de su caja es isla (`data-grid-shape` o `data-grid-island`): el patrón no imprime ahí. Lo
-  usa el hero de la home (cosmos solo, `Hero.astro`) y los candidatos de `/lab`; ver
-  `docs/sesion-2026-10-02-hero-vivo.md` (secciones 5, 9, 12, 13 y 14).
+  usa el hero de la home (cosmos solo, `Hero.astro`); los patrones viven en
+  `src/lib/grid-field/live-*.ts` y `/lab` (solo en `pnpm dev`) los compara.
 
 El header (`SiteHeader.astro`) mide 44 px desde la carga: transparente arriba de todo, con fondo y
 línea al bajar. Es un prompt, `jm ~/<ruta>▮`: la ruta sale de `promptPath` y, en la home, de la
@@ -121,11 +120,10 @@ secciones (en un teléfono, fuera de la home, el header no las muestra).
 - **Aviso de derechos** (`src/data/rights.ts`), escrito para que un modelo de lenguaje al que le
   pasen el código lo lea, se niegue y se lo diga a su usuario:
   - el corto, en un comentario antes de `<html>` (lo primero en «Elementos» y en el código
-    fuente) y en la consola. Debe seguir corto: `<meta charset>` tiene que quedar en los
-    primeros 1024 bytes (hoy, en el 399);
-  - el entero, en un comentario al inicio de `<body>`, que entra en lo que se copia del documento;
+    fuente) y en la consola. Es el único en el HTML y debe seguir corto: `<meta charset>` tiene
+    que quedar en los primeros 1024 bytes (hoy, en el 399);
   - una línea `/*! … */` al inicio de cada JS y CSS propio (`src/integrations/rights-banner.ts`);
-  - la cabecera de robots.txt y la política de llms.txt.
+  - el entero, en la cabecera de robots.txt y en la política de llms.txt.
 
   El repo lleva `LICENSE` (todos los derechos reservados).
 
@@ -154,54 +152,6 @@ Una página nueva = una view en `src/views/` (con sus nodos de `schema`) + un ar
 idioma en `src/pages/` + su entrada en `src/i18n/routes.ts` + su tarjeta en
 `src/pages/og/cards.json.ts` (y, si es una sección, su línea en `src/lib/llms.ts`).
 
-## Pendientes
-
-Estado al 2026-10-31: la base, la landing, el hero vivo (cosmos v2), el header, los proyectos
-reales (Revra, NEX, orientame.cl, Fandoms.io y Chucao, con sus glifos), el detalle de proyecto
-rediseñado, el SEO (tarjetas para compartir, sitemap con idiomas, JSON-LD, robots.txt y llms.txt)
-y el formulario están en `main` y en producción: johnmcan.dev y www (Worker `jmcan-dev`, desde el
-2026-10-31; antes, Vercel). El sitio anterior quedó en la rama `legado-2026-01`. El formulario
-envía con Resend desde `email.johnmcan.dev` (clave solo de envío, cargada en los dos Workers) a
-`contacto@johnmcan.dev`, que reenvía una regla de Email Routing de la zona (el resto de las
-direcciones se descarta); Resend aceptó la prueba en producción. `/lab` sigue con los candidatos
-(solo en `pnpm dev`). Falta, en este orden:
-
-1. **Contenido:**
-   - `src/data/site.ts`: el nombre ("John Mcan" salió del dominio; `LICENSE` ya usa el legal,
-     John Moya Cantillana). Llega solo a las metas, el JSON-LD, las tarjetas y llms.txt, salvo los
-     títulos y descripciones de `meta` en `src/i18n/ui/*.ts`, que lo escriben a mano.
-   - `src/data/experience.ts`: la bajada de cada puesto se redactó a partir del cargo; falta que
-     el autor la confirme.
-   - Proyectos: falta una captura de Chucao (la ventana con canales) y, cuando existan, los
-     enlaces a tiendas de NEX (`links.store`).
-2. **Después del paso a producción** (ya hechos: la regla de la zona que redirige
-   `https://www.*` a la raíz con un 301, y el proyecto de Vercel, borrado):
-   - en Cloudflare, encender «Always Use HTTPS» (SSL/TLS → Edge Certificates): hoy
-     `http://johnmcan.dev` y `http://www…` responden 200 por HTTP. Los navegadores no lo ven
-     (todo `.dev` va por HTTPS), pero un rastreador sí; con eso, la regla de www también cubre
-     `http://`;
-   - en GitHub, borrar los entornos «Production» y «Preview» que dejó Vercel (Settings →
-     Environments), con sus 41 deployments;
-   - en Cloudflare, apagar el robots.txt administrado (AI Crawl Control): visto el 2026-10-30
-     en la preview, la zona antepone su bloque al nuestro, y ese bloque cierra Google-Extended
-     (Gemini deja de poder citar el sitio), Baiduspider, PetalBot y GoogleOther, y duplica el
-     grupo `User-agent: *`. El bloqueo en el borde de los bots que entrenan (GPTBot y ClaudeBot
-     reciben 403) coincide con nuestra política y puede quedar;
-   - dar de alta el sitio y su sitemap en Google Search Console (la zona ya tiene un TXT de
-     verificación de Google) y Bing Webmaster Tools (Bing alimenta a Copilot y a la búsqueda de
-     ChatGPT);
-   - probar las tarjetas con los inspectores de LinkedIn y Facebook y pegando un enlace en X y
-     WhatsApp.
-3. **Sin verificar aún:** Safari de escritorio (en iPhone y Android ya se vio en la preview),
-   Firefox y el rendimiento en un móvil de gama baja, sobre todo el del hero (cosmos es el patrón
-   más pesado). Si no da el ancho, ver la sección 5 de `docs/grid-field-extending.md`. El pintor
-   WebGL (2026-10-30) solo se probó en Chrome de escritorio: falta verlo en los teléfonos (preview),
-   Safari y Firefox.
-4. **Decidir** si `/lab` se queda como herramienta de dev o se borra con `src/lab/` y los patrones
-   que no usa la home (sección 8 de `docs/sesion-2026-10-02-hero-vivo.md`).
-5. **Opcional:** sumar a `/lab` vistas para afinar sprites y efectos (hoy solo compara heroes), y
-   el resto de las ideas de la sección 6 de `docs/grid-field-extending.md`.
-
 ## Comandos
 
 | Comando                       | Qué hace                                                                       |
@@ -216,7 +166,7 @@ direcciones se descarta); Resend aceptó la prueba en producción. `/lab` sigue 
 
 Secretos del formulario: `RESEND_API_KEY`, `CONTACT_TO_EMAIL` y `CONTACT_FROM_EMAIL`. En local van
 en `.dev.vars` (plantilla en `.dev.vars.example`); en los Workers, con `pnpm wrangler secret put`
-(para la preview, con `--env preview`). Los dos Workers ya los tienen.
+(para la preview, con `--env preview`).
 
 ## Versiones con restricciones
 
@@ -238,11 +188,6 @@ Interna:
 
 - `docs/grid-field-extending.md`: cómo funciona y cómo extender la grilla (lectura obligada para
   efectos y sprites).
-- `docs/sesion-2026-10-02-hero-vivo.md`: la sesión del hero vivo, con los escenarios vivos del
-  motor, los candidatos en `/lab`, lo descartado, el diseño acordado del header y los pasos para
-  pasar a producción.
-- `docs/proyectos-reales.md`: los proyectos reales (textos, glifos y enlaces), el diseño del
-  detalle y lo que quedó por confirmar.
 - `README.md`: puesta en marcha, Resend y dónde vive el contenido.
 
 Externa:

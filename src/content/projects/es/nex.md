@@ -1,6 +1,6 @@
 ---
 title: NEX
-summary: Radio en vivo donde la audiencia decide qué suena después
+summary: Experiencia en vivo donde la audiencia decide qué suena después
 year: 2026
 role: 'Todo: producto, backend, web y app móvil'
 stack: [Flutter, NestJS, Next.js, PostgreSQL, Redis, AzuraCast, Cloudflare, Firebase, Vercel]
