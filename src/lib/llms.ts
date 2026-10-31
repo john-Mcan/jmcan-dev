@@ -119,7 +119,7 @@ export async function llmsFull(): Promise<string[]> {
         '',
         ...EXPERIENCE.map(
           (entry) =>
-            `- ${entry.year} · ${entry.org} · ${entry.role[locale]}: ${entry.summary[locale]}`,
+            `- ${entry.year}–${entry.end ?? t.timeline.present} · ${entry.org} · ${entry.role[locale]}: ${entry.summary[locale]}`,
         ),
         '',
         `### ${t.projects.indexTitle}`,

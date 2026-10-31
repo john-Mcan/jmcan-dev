@@ -4,7 +4,14 @@ export const SITE = {
   url: 'https://johnmcan.dev',
   /** La preview de `main2` (`pnpm deploy:preview`): sus URL absolutas apuntan aquí y no se indexa. */
   previewUrl: 'https://preview.johnmcan.dev',
-  email: 'hola@johnmcan.dev', // ejemplo
-  jobTitle: { es: 'Desarrollador web full-stack', en: 'Full-stack web developer' }, // ejemplo
-  socials: [{ label: 'GitHub', href: 'https://github.com/john-Mcan' }],
+  /** Una regla de Email Routing de la zona lo reenvía al correo personal; el resto se descarta. */
+  email: 'contacto@johnmcan.dev',
+  jobTitle: {
+    es: 'Desarrollador full-stack y asistente comercial',
+    en: 'Full-stack developer and sales assistant',
+  },
+  socials: [
+    { label: 'GitHub', href: 'https://github.com/john-Mcan' },
+    { label: 'LinkedIn', href: 'https://www.linkedin.com/in/john-moya-cantillana-519469192' },
+  ],
 } as const

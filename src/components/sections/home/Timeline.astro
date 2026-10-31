@@ -22,8 +22,8 @@ const t = getDictionary(locale)
       </span>
     </h2>
     <ol class="timeline md:col-span-7">
-      {EXPERIENCE.map((entry, i) => (
-        <li class="timeline-item" data-current={i === 0 ? '' : undefined}>
+      {EXPERIENCE.map((entry) => (
+        <li class="timeline-item" data-current={entry.end === undefined ? '' : undefined}>
           <span class="font-pixel text-d1 text-muted tabular-nums">{entry.year}</span>
           <span class="timeline-node" aria-hidden="true" />
           <div>

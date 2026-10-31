@@ -70,7 +70,7 @@ export const es = {
     ] satisfies [HeroAsk, ...HeroAsk[]],
     askSubmit: 'Enviar',
     ctaProjects: 'Ver proyectos',
-    status: 'Disponible para proyectos desde noviembre',
+    status: 'Disponibilidad inmediata',
   },
   projects: {
     featuredTitle: 'Proyectos seleccionados',
@@ -105,10 +105,12 @@ export const es = {
     title: 'Trayectoria',
     /** Cómo la nombra el prompt del header: `~/trayectoria`. */
     path: 'trayectoria',
+    /** El fin de un rol actual en llms.txt: «2025–hoy». */
+    present: 'hoy',
   },
   contactCta: {
     title: '¿Tienes un proyecto en mente?',
-    body: 'Cuéntame qué necesitas y te respondo en menos de 48 horas.',
+    body: 'Cuéntame qué necesitas y te respondo en menos de 24 horas.',
     cta: 'Escríbeme',
   },
   email: {
@@ -117,7 +119,7 @@ export const es = {
   },
   contact: {
     title: 'Contacto',
-    lead: 'Cuéntame qué quieres construir. Leo cada mensaje y respondo en menos de 48 horas.',
+    lead: 'Cuéntame qué quieres construir. Leo cada mensaje y respondo en menos de 24 horas.',
     direct: 'También puedes escribirme directo:',
     name: 'Nombre',
     email: 'Correo',

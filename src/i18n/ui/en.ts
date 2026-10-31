@@ -47,7 +47,7 @@ export const en: Dictionary = {
     ],
     askSubmit: 'Send',
     ctaProjects: 'See projects',
-    status: 'Available for projects from November',
+    status: 'Available now',
   },
   projects: {
     featuredTitle: 'Selected projects',
@@ -77,10 +77,11 @@ export const en: Dictionary = {
   timeline: {
     title: 'Experience',
     path: 'experience',
+    present: 'present',
   },
   contactCta: {
     title: 'Have a project in mind?',
-    body: 'Tell me what you need and I will reply within 48 hours.',
+    body: 'Tell me what you need and I will reply within 24 hours.',
     cta: 'Write to me',
   },
   email: {
@@ -89,7 +90,7 @@ export const en: Dictionary = {
   },
   contact: {
     title: 'Contact',
-    lead: 'Tell me what you want to build. I read every message and reply within 48 hours.',
+    lead: 'Tell me what you want to build. I read every message and reply within 24 hours.',
     direct: 'You can also email me directly:',
     name: 'Name',
     email: 'Email',

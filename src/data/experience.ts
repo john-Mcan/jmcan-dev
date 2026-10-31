@@ -1,40 +1,48 @@
 import type { Locale } from '@/i18n/config'
 
 export interface ExperienceEntry {
-  /** Año de inicio; la primera entrada es el rol actual. */
+  /** Año de inicio; las entradas van de la más reciente a la más antigua. */
   year: number
+  /** Año de término; sin él, es un rol actual (puede haber más de uno). */
+  end?: number
   org: string
   role: Record<Locale, string>
   summary: Record<Locale, string>
 }
 
-/** Contenido de ejemplo: reemplazar por la trayectoria real. */
 export const EXPERIENCE: readonly ExperienceEntry[] = [
   {
-    year: 2024,
-    org: 'Empresa actual',
-    role: { es: 'Desarrollador full-stack sénior', en: 'Senior full-stack developer' },
+    year: 2025,
+    org: 'Revra · NEX',
+    role: {
+      es: 'Cofundador y desarrollador full-stack',
+      en: 'Co-founder and full-stack developer',
+    },
     summary: {
-      es: 'Producto y arquitectura de una plataforma con tráfico en tiempo real.',
-      en: 'Product and architecture for a real-time platform.',
+      es: 'Producto y desarrollo de Revra, agentes para las cuentas por cobrar, y de NEX, una radio donde la audiencia elige qué suena.',
+      en: 'Product and development for Revra, agents for accounts receivable, and NEX, a radio station where the audience picks what plays next.',
     },
   },
   {
-    year: 2021,
-    org: 'Empresa anterior',
-    role: { es: 'Desarrollador frontend', en: 'Frontend developer' },
+    year: 2024,
+    org: 'UPG',
+    role: {
+      es: 'Desarrollador full-stack y asistente comercial',
+      en: 'Full-stack developer and sales assistant',
+    },
     summary: {
-      es: 'Interfaces de alto tráfico y el sistema de diseño del equipo.',
-      en: 'High-traffic interfaces and the team design system.',
+      es: 'Desarrollo web full-stack y apoyo al área comercial.',
+      en: 'Full-stack web development and support for the sales team.',
     },
   },
   {
     year: 2019,
-    org: 'Primer trabajo',
-    role: { es: 'Desarrollador web', en: 'Web developer' },
+    end: 2024,
+    org: 'Hotel Monticello',
+    role: { es: 'Recepcionista', en: 'Front desk agent' },
     summary: {
-      es: 'Sitios y tiendas para clientes de distintos rubros.',
-      en: 'Sites and stores for clients across industries.',
+      es: 'Atención y registro de huéspedes en la recepción.',
+      en: 'Guest service and check-in at the front desk.',
     },
   },
 ]
