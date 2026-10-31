@@ -2,6 +2,6 @@
 # En producción: pnpm wrangler secret put RESEND_API_KEY (y lo mismo con las otras dos).
 RESEND_API_KEY=re_xxxxxxxxxxxxxxxx
 # A dónde llegan los mensajes del formulario.
-CONTACT_TO_EMAIL=tu-correo@ejemplo.com
-# Remitente verificado en Resend (dominio johnmcan.dev verificado).
-CONTACT_FROM_EMAIL=Portafolio <contacto@johnmcan.dev>
+CONTACT_TO_EMAIL=contacto@johnmcan.dev
+# Remitente: tiene que ser del dominio verificado en Resend, email.johnmcan.dev.
+CONTACT_FROM_EMAIL=Portafolio <contacto@email.johnmcan.dev>
