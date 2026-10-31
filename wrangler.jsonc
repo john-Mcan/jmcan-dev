@@ -5,6 +5,13 @@
   "compatibility_date": "2026-09-01",
   "compatibility_flags": ["nodejs_compat"],
   "observability": { "enabled": true },
+  // Producción. Al desplegar, wrangler crea los registros DNS de la zona (y pisa los que choquen).
+  // www sirve el mismo sitio con el canonical en la raíz; una regla de la zona lo redirige.
+  "routes": [
+    { "pattern": "johnmcan.dev", "custom_domain": true },
+    { "pattern": "www.johnmcan.dev", "custom_domain": true },
+  ],
+  "workers_dev": false,
   "env": {
     // preview.johnmcan.dev: otro Worker (jmcan-dev-preview) para revisar main2 antes de producción.
     // Se despliega con `pnpm deploy:preview`, que elige este entorno vía `.env.preview`.
