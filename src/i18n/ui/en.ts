@@ -95,7 +95,6 @@ export const en: Dictionary = {
     name: 'Name',
     email: 'Email',
     message: 'Message',
-    draftHint: 'Your message is already written: just add your name and email.',
     messageHint: 'What you need, by when and, if you have one, the budget.',
     submit: 'Send message',
     sending: 'Sending…',

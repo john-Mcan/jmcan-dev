@@ -4,9 +4,9 @@
  * `#enviado`, `#invalido` o `#error` y el CSS (`:target`) muestra el aviso. Con JS
  * se envía por fetch, el aviso aparece en línea y la grilla imprime «enviado».
  *
- * Si se llega desde el hero con el mensaje escrito (`?m=`), un aviso dice qué falta y
- * los campos vacíos quedan pendientes: la etiqueta con el cursor del prompt y un halo
- * ámbar de la grilla detrás, y la línea del campo en ámbar. Cada uno se apaga al llenarse.
+ * Si se llega desde el hero con el mensaje escrito (`?m=`), los campos vacíos quedan
+ * pendientes: un halo ámbar de la grilla detrás de la etiqueta y la línea del campo en
+ * ámbar. Cada uno se apaga al llenarse.
  */
 import { SITE } from '@/data/site'
 import { fill, getDictionary, type Locale } from '@/i18n'
@@ -37,10 +37,6 @@ const errorSend = fill(t.contact.errorSend, { email: SITE.email })
       Website <input type="text" name="website" tabindex="-1" autocomplete="off" />
     </label>
   </div>
-
-  <p class="draft-hint" role="status" data-draft-hint hidden>
-    {t.contact.draftHint}
-  </p>
 
   {/* Lado a lado solo con ancho: entre `md:` y `lg:` la columna del formulario es angosta. */}
   <div class="grid gap-6 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-2">
@@ -110,28 +106,8 @@ const errorSend = fill(t.contact.errorSend, { email: SITE.email })
     width: fit-content;
     font-weight: 500;
   }
-  .draft-hint {
-    border-left: 2px solid var(--signal);
-    padding-left: 0.75rem;
-  }
-  /* Pendiente: el cursor del prompt tras la etiqueta, que espera lo que falta escribir. */
-  [data-pending] .field-label::after {
-    content: '';
-    display: inline-block;
-    width: 0.5em;
-    height: 0.9em;
-    margin-left: 0.4em;
-    vertical-align: -0.1em;
-    background: var(--signal);
-    animation: signal-blink 1.6s steps(1, end) infinite;
-  }
   [data-pending] .field-line {
     border-bottom-color: var(--signal);
-  }
-  @media (prefers-reduced-motion: reduce) {
-    [data-pending] .field-label::after {
-      animation: none;
-    }
   }
   .form-flash {
     display: none;
@@ -214,9 +190,8 @@ const errorSend = fill(t.contact.errorSend, { email: SITE.email })
     })
   }
 
-  /** Los campos que faltan, pendientes hasta que se llenan; el aviso, hasta que no falta ninguno. */
+  /** Los campos que faltan, pendientes hasta que se llenan. */
   function markPending(form: HTMLFormElement): void {
-    const hint = form.querySelector<HTMLElement>('[data-draft-hint]')
     const fields = ['name', 'email'].flatMap((name) => {
       const field = form.querySelector<HTMLInputElement>(`input[name="${name}"]`)
       return field && !field.value ? [field] : []
@@ -232,12 +207,10 @@ const errorSend = fill(t.contact.errorSend, { email: SITE.email })
     }
     const update = () => {
       for (const field of fields) setPending(field, !field.validity.valid)
-      if (hint) hint.hidden = fields.every((field) => field.validity.valid)
     }
     for (const field of fields) field.addEventListener('input', update)
     form.addEventListener('reset', () => {
       for (const field of fields) setPending(field, false)
-      if (hint) hint.hidden = true
     })
     update()
     // En escritorio, el foco va al primero que falta; en un teléfono abriría el teclado.
