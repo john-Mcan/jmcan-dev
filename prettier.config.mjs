@@ -1,4 +1,4 @@
-/** Mismo estilo que el código de docs/grid-field.md. */
+/** Estilo del repo: sin punto y coma, comillas simples, comas finales y 100 columnas. */
 export default {
   semi: false,
   singleQuote: true,

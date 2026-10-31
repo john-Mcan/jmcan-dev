@@ -3,7 +3,8 @@
  * las celdas con el mismo reloj: eso es lo que hace que se lea como UNA
  * superficie y no como N cajas parpadeando desfasadas.
  *
- * Base: docs/grid-field.md §5.1. Cambios respecto de la guía:
+ * Base: §5.1 de la guía original del fondo (docs/grid-field.md, retirada; queda en el
+ * historial de git). Cambios respecto de la guía:
  *  - la máscara del sprite es LOCAL a su caja y se ubica con un desplazamiento,
  *    así un sprite anclado a un elemento sigue el scroll sin re-rasterizarse;
  *  - las formas pueden ser de «señal» y pintan con una segunda paleta (ámbar);

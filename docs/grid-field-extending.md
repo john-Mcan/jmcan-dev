@@ -1,8 +1,8 @@
 # La grilla de fondo: cómo funciona y cómo extenderla
 
-Guía práctica del motor que vive en `src/lib/grid-field/`. Parte de `docs/grid-field.md` (la guía
-original, escrita para Next.js/React), pero el código actual **ya divergió**: no copies código de
-esa guía sin contrastarlo con este documento.
+Guía práctica del motor que vive en `src/lib/grid-field/`. Nació de una guía anterior, escrita para
+Next.js/React (`docs/grid-field.md`, retirada; queda en el historial de git), pero el código actual
+**ya divergió**: este documento es la referencia.
 
 **Índice**
 

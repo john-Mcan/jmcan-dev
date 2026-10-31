@@ -92,4 +92,3 @@ src/
   agentes; `CLAUDE.md` la importa).
 - [`docs/grid-field-extending.md`](./docs/grid-field-extending.md): cómo funciona la grilla de
   fondo y cómo agregar sprites, escenarios y efectos.
-- [`docs/grid-field.md`](./docs/grid-field.md): la guía original del fondo (histórica).

@@ -236,13 +236,12 @@ Interna:
 
 - `docs/grid-field-extending.md`: cómo funciona y cómo extender la grilla (lectura obligada para
   efectos y sprites).
-- `docs/grid-field.md`: la guía original del fondo (histórica; el código ya divergió).
 - `docs/sesion-2026-10-02-hero-vivo.md`: la sesión del hero vivo, con los escenarios vivos del
   motor, los candidatos en `/lab`, lo descartado, el diseño acordado del header y los pasos para
   pasar a producción.
 - `docs/proyectos-reales.md`: los proyectos reales (textos, glifos y enlaces), el diseño del
   detalle y lo que quedó por confirmar.
-- `README.md`: puesta en marcha, Resend y contenido de ejemplo.
+- `README.md`: puesta en marcha, Resend y dónde vive el contenido.
 
 Externa:
 
