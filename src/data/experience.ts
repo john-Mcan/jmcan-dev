@@ -1,7 +1,7 @@
 import type { Locale } from '@/i18n/config'
 
 export interface ExperienceEntry {
-  /** Año de inicio; las entradas van de la más reciente a la más antigua. */
+  /** Año que muestra la línea de tiempo: el de inicio (en el rol más reciente, el año en curso). */
   year: number
   /** Año de término; sin él, es un rol actual (puede haber más de uno). */
   end?: number
@@ -12,7 +12,7 @@ export interface ExperienceEntry {
 
 export const EXPERIENCE: readonly ExperienceEntry[] = [
   {
-    year: 2025,
+    year: 2026,
     org: 'Revra · NEX',
     role: {
       es: 'Cofundador y desarrollador full-stack',
