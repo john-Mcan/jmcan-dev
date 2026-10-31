@@ -2,7 +2,7 @@
 title: Revra
 summary: Agentes que se hacen cargo de las cuentas por cobrar, de la factura al pago
 year: 2026
-role: 'Cofundador: integraciones y producto'
+role: 'Producto, diseño y desarrollo'
 stack: [TypeScript, Node.js, Next.js, PostgreSQL, Supabase, API, Microsoft Azure]
 status: building
 glyph: loop
@@ -36,8 +36,9 @@ trabajo completo y recibes el resultado.
 
 ## Qué hice
 
-Soy cofundador. Construimos desde cero el producto web y las integraciones que conectan a los
-agentes con los sistemas que cada empresa ya usa.
+La fundé con un socio. La idea, el plan y el diseño del producto son míos, y la construyo con su
+ayuda: la aplicación web, desde cero, y las integraciones que conectan a los agentes con los sistemas
+que cada empresa ya usa.
 
 ## Estado
 

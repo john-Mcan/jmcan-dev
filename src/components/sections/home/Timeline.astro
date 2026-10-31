@@ -1,5 +1,5 @@
 ---
-import { EXPERIENCE } from '@/data/experience'
+import { EXPERIENCE, orgName } from '@/data/experience'
 import { getDictionary, type Locale } from '@/i18n'
 
 interface Props {
@@ -28,7 +28,7 @@ const t = getDictionary(locale)
           <span class="timeline-node" aria-hidden="true" />
           <div>
             <h3 class="font-semibold">{entry.role[locale]}</h3>
-            <p class="text-muted">{entry.org}</p>
+            <p class="text-muted">{orgName(entry, locale)}</p>
             <p class="mt-2 max-w-[48ch]">{entry.summary[locale]}</p>
           </div>
         </li>

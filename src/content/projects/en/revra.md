@@ -2,7 +2,7 @@
 title: Revra
 summary: Agents that take over accounts receivable, from invoice to payment
 year: 2026
-role: 'Co-founder: integrations and product'
+role: 'Product, design and development'
 stack: [TypeScript, Node.js, Next.js, PostgreSQL, Supabase, API, Microsoft Azure]
 status: building
 glyph: loop
@@ -36,8 +36,9 @@ a whole job and get the result back.
 
 ## What I did
 
-I'm a co-founder. We built the web product from scratch, along with the integrations that connect
-the agents to the systems each company already uses.
+I founded it with a partner. The idea, the plan and the product design are mine, and I'm building
+it with my partner's help: the web app, from scratch, and the integrations that connect the agents to
+the systems each company already uses.
 
 ## Status
 

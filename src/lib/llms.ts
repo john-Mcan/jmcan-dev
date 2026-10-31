@@ -1,5 +1,5 @@
 import { RIGHTS } from '@/data/rights'
-import { EXPERIENCE } from '@/data/experience'
+import { EXPERIENCE, orgName } from '@/data/experience'
 import { SITE } from '@/data/site'
 import { fill, getDictionary, LOCALES, type Locale } from '@/i18n'
 import { getProjects, period, type Project } from '@/lib/projects'
@@ -119,7 +119,7 @@ export async function llmsFull(): Promise<string[]> {
         '',
         ...EXPERIENCE.map(
           (entry) =>
-            `- ${entry.year}–${entry.end ?? t.timeline.present} · ${entry.org} · ${entry.role[locale]}: ${entry.summary[locale]}`,
+            `- ${entry.year}–${entry.end ?? t.timeline.present} · ${orgName(entry, locale)} · ${entry.role[locale]}: ${entry.summary[locale]}`,
         ),
         '',
         `### ${t.projects.indexTitle}`,
