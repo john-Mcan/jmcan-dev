@@ -39,15 +39,16 @@ const schema = [
 >
   {/*
     En un teléfono, el formulario va enseguida y el correo directo queda abajo, como
-    alternativa. En escritorio, dos columnas: el texto, el correo y el sobre a la
-    izquierda; el formulario a la derecha, a todo el alto.
+    alternativa. Desde `md:`, dos columnas: el texto, el correo y el sobre a la
+    izquierda; el formulario a la derecha, a todo el alto. El título crece recién en
+    `lg:`: entre medio, en `text-d4` pasaba del ancho de su columna.
   */}
   <div class="container-site pt-4 md:pt-10">
     <UpLink href={pathFor(locale, 'home')} label={t.nav.home} name={t.nav.upHome} />
   </div>
   <section class="container-site grid gap-y-10 pt-4 md:grid-cols-12 md:grid-rows-[auto_1fr] md:gap-x-12 md:gap-y-0 md:pt-10">
     <div class="md:col-span-5">
-      <h1 class="font-pixel text-d3 md:text-d4">
+      <h1 class="font-pixel text-d3 lg:text-d4">
         <span class="inline-block" data-grid-shape>
           {t.contact.title}
         </span>

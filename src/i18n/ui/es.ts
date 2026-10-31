@@ -124,6 +124,8 @@ export const es = {
     name: 'Nombre',
     email: 'Correo',
     message: 'Mensaje',
+    /** Al llegar desde el hero con el mensaje escrito. */
+    draftHint: 'Tu mensaje ya está escrito: solo falta tu nombre y tu correo.',
     messageHint: 'Qué necesitas, para cuándo y, si lo tienes, el presupuesto.',
     submit: 'Enviar mensaje',
     sending: 'Enviando…',
