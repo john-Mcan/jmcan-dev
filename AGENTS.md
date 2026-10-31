@@ -156,48 +156,48 @@ idioma en `src/pages/` + su entrada en `src/i18n/routes.ts` + su tarjeta en
 
 ## Pendientes
 
-Estado al 2026-10-30: la base, la landing, el hero vivo (cosmos v2), el header, los proyectos
+Estado al 2026-10-31: la base, la landing, el hero vivo (cosmos v2), el header, los proyectos
 reales (Revra, NEX, orientame.cl, Fandoms.io y Chucao, con sus glifos), el detalle de proyecto
-rediseñado y el SEO (tarjetas para compartir, sitemap con idiomas, JSON-LD, robots.txt y llms.txt)
-están listos en `main2`; `/lab` sigue con los candidatos (solo en `pnpm dev`). Falta, en este
-orden:
+rediseñado, el SEO (tarjetas para compartir, sitemap con idiomas, JSON-LD, robots.txt y llms.txt)
+y el formulario están en `main` y en producción: johnmcan.dev y www (Worker `jmcan-dev`, desde el
+2026-10-31; antes, Vercel). El sitio anterior quedó en la rama `legado-2026-01`. El formulario
+envía con Resend desde `email.johnmcan.dev` (clave solo de envío, cargada en los dos Workers) a
+`contacto@johnmcan.dev`, que reenvía una regla de Email Routing de la zona (el resto de las
+direcciones se descarta); Resend aceptó la prueba en producción. `/lab` sigue con los candidatos
+(solo en `pnpm dev`). Falta, en este orden:
 
-1. **Contenido real** (hoy es de ejemplo):
-   - `src/data/site.ts`: nombre ("John Mcan" salió del dominio; `LICENSE` ya usa el legal, John
-     Moya Cantillana), correo (`hola@johnmcan.dev` es inventado), cargo y redes (falta
-     LinkedIn). El nombre y el correo llegan solos a las metas, el JSON-LD, las tarjetas y
-     llms.txt, salvo los títulos y descripciones de `meta` en `src/i18n/ui/*.ts`, que lo escriben
-     a mano.
-   - `src/data/experience.ts`: trayectoria.
-   - En `src/i18n/ui/*.ts`, los textos de disponibilidad ("desde noviembre") y de tiempo de
-     respuesta ("48 horas").
+1. **Contenido:**
+   - `src/data/site.ts`: el nombre ("John Mcan" salió del dominio; `LICENSE` ya usa el legal,
+     John Moya Cantillana). Llega solo a las metas, el JSON-LD, las tarjetas y llms.txt, salvo los
+     títulos y descripciones de `meta` en `src/i18n/ui/*.ts`, que lo escriben a mano.
+   - `src/data/experience.ts`: la bajada de cada puesto se redactó a partir del cargo; falta que
+     el autor la confirme.
    - Proyectos: falta una captura de Chucao (la ventana con canales) y, cuando existan, los
      enlaces a tiendas de NEX (`links.store`).
-2. **Resend:**
-   - verificar el dominio en Resend;
-   - cargar `RESEND_API_KEY`, `CONTACT_TO_EMAIL` y `CONTACT_FROM_EMAIL` (`.dev.vars` en local,
-     `wrangler secret put` en producción);
-   - probar un envío real, que nunca se probó.
-3. **Deploy:** la preview ya corre en `preview.johnmcan.dev` (Worker `jmcan-dev-preview`,
-   `pnpm deploy:preview`). Falta producción: primer `pnpm deploy` y el dominio `johnmcan.dev`
-   (hoy en Vercel) apuntando al Worker. Después:
-   - dar de alta el sitio y su sitemap en Google Search Console y Bing Webmaster Tools (Bing
-     alimenta a Copilot y a la búsqueda de ChatGPT);
+2. **Después del paso a producción:**
+   - en Cloudflare, una regla de la zona que redirija www a la raíz (Rules → Templates →
+     «Redirect from WWW to root»); mientras no exista, www sirve el mismo sitio con el canonical
+     en la raíz;
    - en Cloudflare, apagar el robots.txt administrado (AI Crawl Control): visto el 2026-10-30
      en la preview, la zona antepone su bloque al nuestro, y ese bloque cierra Google-Extended
      (Gemini deja de poder citar el sitio), Baiduspider, PetalBot y GoogleOther, y duplica el
      grupo `User-agent: *`. El bloqueo en el borde de los bots que entrenan (GPTBot y ClaudeBot
      reciben 403) coincide con nuestra política y puede quedar;
+   - en Vercel, quitar el dominio del proyecto viejo y desconectarle el repo, para que los push a
+     `main` no se construyan allá;
+   - dar de alta el sitio y su sitemap en Google Search Console (la zona ya tiene un TXT de
+     verificación de Google) y Bing Webmaster Tools (Bing alimenta a Copilot y a la búsqueda de
+     ChatGPT);
    - probar las tarjetas con los inspectores de LinkedIn y Facebook y pegando un enlace en X y
      WhatsApp.
-4. **Sin verificar aún:** Safari de escritorio (en iPhone y Android ya se vio en la preview),
+3. **Sin verificar aún:** Safari de escritorio (en iPhone y Android ya se vio en la preview),
    Firefox y el rendimiento en un móvil de gama baja, sobre todo el del hero (cosmos es el patrón
    más pesado). Si no da el ancho, ver la sección 5 de `docs/grid-field-extending.md`. El pintor
    WebGL (2026-10-30) solo se probó en Chrome de escritorio: falta verlo en los teléfonos (preview),
    Safari y Firefox.
-5. **Decidir** si `/lab` se queda como herramienta de dev o se borra con `src/lab/` y los patrones
+4. **Decidir** si `/lab` se queda como herramienta de dev o se borra con `src/lab/` y los patrones
    que no usa la home (sección 8 de `docs/sesion-2026-10-02-hero-vivo.md`).
-6. **Opcional:** sumar a `/lab` vistas para afinar sprites y efectos (hoy solo compara heroes), y
+5. **Opcional:** sumar a `/lab` vistas para afinar sprites y efectos (hoy solo compara heroes), y
    el resto de las ideas de la sección 6 de `docs/grid-field-extending.md`.
 
 ## Comandos
@@ -209,11 +209,12 @@ orden:
 | `pnpm check`                  | Tipos, incluidos los `.astro`                                                  |
 | `pnpm lint` / `pnpm format`   | ESLint / Prettier                                                              |
 | `pnpm test`                   | Tests del motor de la grilla                                                   |
-| `pnpm deploy`                 | Build + `wrangler deploy`                                                      |
+| `pnpm run deploy`             | Build + `wrangler deploy` (`pnpm deploy`, sin `run`, es otro comando de pnpm)  |
 | `pnpm deploy:preview`         | Lo mismo, al entorno `preview` de `wrangler.jsonc`: `preview.johnmcan.dev`     |
 
 Secretos del formulario: `RESEND_API_KEY`, `CONTACT_TO_EMAIL` y `CONTACT_FROM_EMAIL`. En local van
-en `.dev.vars` (plantilla en `.dev.vars.example`); en producción, con `pnpm wrangler secret put`.
+en `.dev.vars` (plantilla en `.dev.vars.example`); en los Workers, con `pnpm wrangler secret put`
+(para la preview, con `--env preview`). Los dos Workers ya los tienen.
 
 ## Versiones con restricciones
 

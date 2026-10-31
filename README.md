@@ -1,6 +1,13 @@
 # johnmcan.dev
 
-Portafolio de John Mcan. Astro 7 (estático) + Cloudflare Workers.
+[![Tarjeta de johnmcan.dev](https://johnmcan.dev/og/index.png)](https://johnmcan.dev)
+
+Mi portafolio, en español e inglés: proyectos, trayectoria y contacto. En línea en
+**[johnmcan.dev](https://johnmcan.dev)**.
+
+Astro 7 estático sobre Cloudflare Workers: solo el formulario de contacto corre en el Worker. El
+fondo es una grilla de puntos animada (motor propio en TypeScript, pintado con WebGL2) y el sitio
+no usa frameworks de UI.
 
 Todos los derechos reservados: el código, el diseño y las animaciones no tienen licencia de uso
 (ver [`LICENSE`](./LICENSE)). El texto del sitio puede citarse con un enlace a la página.
@@ -13,39 +20,40 @@ cp .dev.vars.example .dev.vars   # claves de Resend para probar el formulario
 pnpm dev                         # corre sobre workerd, igual que en producción
 ```
 
-| Comando                       | Qué hace                         |
-| ----------------------------- | -------------------------------- |
-| `pnpm build` / `pnpm preview` | Build y preview local en workerd |
-| `pnpm check`                  | Tipos (incluye `.astro`)         |
-| `pnpm lint` / `pnpm format`   | ESLint / Prettier                |
-| `pnpm test`                   | Tests del motor de la grilla     |
-| `pnpm deploy`                 | Build + `wrangler deploy`        |
-| `pnpm deploy:preview`         | Deploy a `preview.johnmcan.dev`  |
+| Comando                       | Qué hace                                       |
+| ----------------------------- | ---------------------------------------------- |
+| `pnpm build` / `pnpm preview` | Build y preview local en workerd               |
+| `pnpm check`                  | Tipos (incluye `.astro`)                       |
+| `pnpm lint` / `pnpm format`   | ESLint / Prettier                              |
+| `pnpm test`                   | Tests del motor de la grilla                   |
+| `pnpm run deploy`             | Build + `wrangler deploy` a johnmcan.dev y www |
+| `pnpm deploy:preview`         | Deploy a `preview.johnmcan.dev`                |
+
+`pnpm deploy`, sin `run`, es un comando propio de pnpm (para workspaces): no despliega el sitio.
 
 ## Formulario de contacto (Resend)
 
-`/api/contact` envía con la API REST de Resend. Necesita tres secretos:
+`/api/contact` envía con la API REST de Resend desde el dominio verificado `email.johnmcan.dev`.
+Necesita tres secretos:
 
 ```bash
-pnpm wrangler secret put RESEND_API_KEY
+pnpm wrangler secret put RESEND_API_KEY       # clave solo de envío
 pnpm wrangler secret put CONTACT_TO_EMAIL     # dónde llegan los mensajes
-pnpm wrangler secret put CONTACT_FROM_EMAIL   # remitente con dominio verificado en Resend
+pnpm wrangler secret put CONTACT_FROM_EMAIL   # remitente en email.johnmcan.dev
 ```
 
-Sin ellos, el formulario responde «no se pudo enviar» y deja un error en los logs del Worker.
-Funciona también sin JavaScript (redirige de vuelta con un aviso).
+Para la preview, lo mismo con `--env preview`. Sin ellos, el formulario responde «no se pudo
+enviar» y deja un error en los logs del Worker. Funciona también sin JavaScript (redirige de vuelta
+con un aviso).
 
-## Contenido de ejemplo
-
-Reemplazar antes de publicar:
+## Contenido
 
 - `src/data/site.ts`: nombre, correo, cargo y redes.
 - `src/data/experience.ts`: trayectoria.
-- Textos marcados en `src/i18n/ui/*.ts` (disponibilidad, tiempos de respuesta).
-
-Los proyectos ya son reales: `src/content/projects/{es,en}/<slug>.md` (un archivo por idioma, mismo
-nombre) y sus capturas en `src/content/projects/shots/<slug>/`. El schema, con estado, período,
-enlaces y capturas, está en `src/content.config.ts`.
+- `src/content/projects/{es,en}/<slug>.md`: los proyectos (un archivo por idioma, mismo nombre),
+  con sus capturas en `src/content/projects/shots/<slug>/`. El schema, con estado, período,
+  enlaces y capturas, está en `src/content.config.ts`.
+- `src/i18n/ui/{es,en}.ts`: los textos de la interfaz.
 
 ## SEO, tarjetas para compartir y agentes de IA
 

@@ -2,7 +2,7 @@
 export const SITE = {
   name: 'John Mcan', // ejemplo: tomado del dominio
   url: 'https://johnmcan.dev',
-  /** La preview de `main2` (`pnpm deploy:preview`): sus URL absolutas apuntan aquí y no se indexa. */
+  /** La preview (`pnpm deploy:preview`): sus URL absolutas apuntan aquí y no se indexa. */
   previewUrl: 'https://preview.johnmcan.dev',
   /** Una regla de Email Routing de la zona lo reenvía al correo personal; el resto se descarta. */
   email: 'contacto@johnmcan.dev',
