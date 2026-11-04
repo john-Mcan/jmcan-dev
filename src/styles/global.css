@@ -12,6 +12,8 @@
   color-scheme: dark;
   --bg: #000000;
   --fg: #ededea;
+  /* Entre el texto y el apagado: el que acompaña a un titular. */
+  --fg-soft: #c6c6c2;
   --muted: #8c8c88;
   --line: #232323;
   --line-strong: #4a4a48;
@@ -28,6 +30,7 @@
   color-scheme: light;
   --bg: #e6e7e9;
   --fg: #0e0e0e;
+  --fg-soft: #2f3033;
   --muted: #55575b;
   --line: #c9cacd;
   --line-strong: #8e9095;
@@ -49,6 +52,7 @@
 @theme inline {
   --color-bg: var(--bg);
   --color-fg: var(--fg);
+  --color-fg-soft: var(--fg-soft);
   --color-muted: var(--muted);
   --color-line: var(--line);
   --color-line-strong: var(--line-strong);

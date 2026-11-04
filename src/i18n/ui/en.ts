@@ -30,8 +30,8 @@ export const en: Dictionary = {
     upProjects: 'Back to projects',
   },
   hero: {
-    title: "I'm John",
-    titleTail: '{surname}, full-stack web developer',
+    kicker: '{name}, full-stack developer',
+    title: ["Let's build", 'your idea'],
     lead: 'I build complete web products and apps, from the data model to the interface.',
     asks: [
       { text: 'what do you want to build?', placeholder: 'an app for…' },

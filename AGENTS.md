@@ -101,9 +101,10 @@ secciones (en un teléfono, fuera de la home, el header no las muestra).
   (`WebSite`) y la persona (`Person`, con `knowsAbout` sacado del stack de los proyectos) se suman
   solos; cada view pasa los suyos en `schema` (`ProfilePage`, `CollectionPage`, `ContactPage`,
   `WebPage` con el proyecto como `CreativeWork`, y migas). El 404 no lleva schema y es `noindex`.
-- **El H1 de la home** muestra «Soy John»; un `sr-only` le suma el apellido y el oficio
-  (`hero.titleTail`), así que buscadores y lectores de pantalla leen «Soy John Mcan, desarrollador
-  web full-stack».
+- **El H1 de la home** lleva, chicos, el nombre y el oficio (`hero.kicker`) y, en grande, el
+  titular (`hero.title`, en dos líneas): buscadores y lectores de pantalla leen «John Mcan,
+  full-stack developer. Desarrollemos tu idea» (el oficio va en inglés también en español:
+  «desarrollador» encima de «Desarrollemos» se repetía).
 - **Tarjetas para compartir** (`/og/<ruta>.png`; la home, `/og/index.png`): los datos salen de
   `src/pages/og/cards.json.ts` y `src/integrations/og-images.ts` las pinta en Node al terminar el
   build (con `@napi-rs/canvas`, solo de desarrollo: el prerender corre en workerd), usando los

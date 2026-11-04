@@ -44,12 +44,13 @@ export const es = {
     upProjects: 'Volver a proyectos',
   },
   hero: {
-    title: 'Soy John',
     /**
-     * El resto del H1, que no se ve: buscadores y lectores de pantalla leen «Soy John
-     * Mcan, desarrollador web full-stack». `{surname}` sale de `SITE.name`.
+     * Arriba del titular, chico y dentro del H1: quién y qué. `{name}` sale de `SITE.name`.
+     * En inglés también aquí: «desarrollador» encima de «Desarrollemos» se repetía.
      */
-    titleTail: '{surname}, desarrollador web full-stack',
+    kicker: '{name}, full-stack developer',
+    /** El titular, en dos líneas. */
+    title: ['Desarrollemos', 'tu idea'] satisfies [string, string],
     lead: 'Construyo productos web y aplicaciones completas, del modelo de datos a la interfaz.',
     /**
      * La pregunta sobre el input rota entre estas, tecla a tecla; cada una trae su

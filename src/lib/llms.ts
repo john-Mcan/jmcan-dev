@@ -109,7 +109,7 @@ export async function llmsFull(): Promise<string[]> {
         '',
         urlFor(locale, { key: 'home' }),
         '',
-        `${t.hero.title}. ${t.hero.lead}`,
+        `${fill(t.hero.kicker, { name: SITE.name })}. ${t.hero.lead}`,
         '',
         `- ${SITE.jobTitle[locale]}`,
         `- ${t.contact.email}: ${SITE.email}`,

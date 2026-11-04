@@ -1,11 +1,11 @@
 ---
 /**
- * El llamado del hero: una pregunta con un campo que lleva a /contacto con el
- * mensaje ya escrito (`?m=`, lo lee `ContactForm`), más «Ver proyectos» y la
- * disponibilidad. La pregunta rota tecla a tecla (`hero.asks`), como el prompt del
- * header, y cada una cambia el ejemplo del input; la última trae un enlace a la
- * radio. Todo es isla, y los recuadros son transparentes (`.live-open` en
- * `global.css`): el fondo vivo pasa por debajo.
+ * El llamado del hero: primero «Ver proyectos», el principal, con la disponibilidad;
+ * debajo, una pregunta con un campo que lleva a /contacto con el mensaje ya escrito
+ * (`?m=`, lo lee `ContactForm`). La pregunta rota tecla a tecla (`hero.asks`), como
+ * el prompt del header, y cada una cambia el ejemplo del input; la última trae un
+ * enlace a la radio. Todo es isla, y los recuadros son transparentes (`.live-open`
+ * en `global.css`): el fondo vivo pasa por debajo.
  */
 import Button from '@/components/ui/Button.astro'
 import { getDictionary, pathFor, type Locale } from '@/i18n'
@@ -20,7 +20,16 @@ const asks = t.hero.asks
 const [first] = asks
 ---
 
-<div class="live-open flex flex-col items-start gap-6">
+<div class="live-open flex flex-col items-start gap-10 sm:gap-12">
+  <div class="flex flex-wrap items-center gap-x-6 gap-y-3">
+    <Button href={pathFor(locale, 'projects')} variant="primary">
+      {t.hero.ctaProjects}
+    </Button>
+    <p class="text-muted flex items-center gap-3 text-sm" data-grid-island>
+      <span class="signal-dot" aria-hidden="true"></span>
+      {t.hero.status}
+    </p>
+  </div>
   <form class="w-full" action={pathFor(locale, 'contact')} method="get" data-hero-ask>
     <label for="hero-ask" class="ask font-pixel text-d1" data-grid-island>
       {/* Todas las preguntas, invisibles en la misma celda: reservan el alto de la más larga. */}
@@ -52,18 +61,11 @@ const [first] = asks
         aria-label={first.text}
         placeholder={first.placeholder}
       ></textarea>
-      <button class="btn btn-primary" type="submit">
+      <button class="btn ask-send" type="submit">
         {t.hero.askSubmit}
       </button>
     </div>
   </form>
-  <div class="flex flex-wrap items-center gap-x-6 gap-y-3">
-    <Button href={pathFor(locale, 'projects')}>{t.hero.ctaProjects}</Button>
-    <p class="text-muted flex items-center gap-3 text-sm" data-grid-island>
-      <span class="signal-dot" aria-hidden="true"></span>
-      {t.hero.status}
-    </p>
-  </div>
 </div>
 
 <style>
@@ -125,6 +127,13 @@ const [first] = asks
    * 16 px siempre (en iOS, menos hace zoom al enfocar). Con una fila mide lo mismo que el
    * botón (48 px); el script lo estira hasta dos filas y desde ahí se desplaza.
    */
+  /* «Enviar», con el borde del campo: los dos son el llamado secundario; el principal es «Ver proyectos». */
+  .ask-send {
+    border-color: var(--line-strong);
+  }
+  .ask-send:hover {
+    border-color: var(--fg);
+  }
   .ask-field {
     display: block;
     resize: none;
