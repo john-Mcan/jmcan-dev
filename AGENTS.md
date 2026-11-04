@@ -88,7 +88,8 @@ home, la ruta son migas: cada tramo lleva a su nivel (`~` al inicio, `proyectos`
 teléfono, los tramos de arriba se abrevian a su inicial (`~/p/revra`). En un
 teléfono (bajo 640 px) la ruta no entra junto a la navegación: en la home, al bajar, el
 header es solo el prompt; al subir, vuelve la navegación. En las demás páginas, la ruta queda fija
-con el idioma y el tema, sin la navegación. Nunca se esconde.
+con el idioma y el tema, sin la navegación. Nunca se esconde. La navegación termina en el ícono de
+GitHub; en un teléfono no lleva «Proyectos», que en la home es el llamado principal del hero.
 
 Navegación: cada página interna tiene arriba del título un enlace que sube un nivel
 (`UpLink.astro`: «← Inicio», «← Proyectos»), no que vuelve en el historial. El footer repite las

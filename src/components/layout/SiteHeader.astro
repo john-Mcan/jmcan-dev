@@ -47,14 +47,20 @@ if (route.key !== 'home') {
   crumbs.push({ text: parent ? path.slice(parent.length + 1) : path })
 }
 
-const items: { key: RouteKey; label: string; active: boolean }[] = [
+/**
+ * En un teléfono, «Proyectos» no va: en la home es el llamado principal del hero, y
+ * en las demás páginas el header no muestra la navegación.
+ */
+const items: { key: RouteKey; label: string; active: boolean; wide?: boolean }[] = [
   {
     key: 'projects',
     label: t.nav.projects,
     active: route.key === 'projects' || route.key === 'project',
+    wide: true,
   },
   { key: 'contact', label: t.nav.contact, active: route.key === 'contact' },
 ]
+const github = SITE.socials.find((social) => social.label === 'GitHub')
 ---
 
 <header
@@ -74,11 +80,11 @@ const items: { key: RouteKey; label: string; active: boolean }[] = [
         </span>
         <span class="prompt-cursor" aria-hidden="true"></span>
       </div>
-      <div class="header-tools flex flex-none items-center gap-5 sm:gap-8">
+      <div class="header-tools flex flex-none items-center gap-7 sm:gap-10">
         <nav aria-label={t.a11y.mainNav}>
-          <ul class="flex gap-4 text-[0.9375rem] sm:gap-6">
+          <ul class="flex items-center gap-4 text-[0.9375rem] sm:gap-6">
             {items.map((item) => (
-              <li>
+              <li class:list={[item.wide && 'max-sm:hidden']}>
                 <a
                   href={pathFor(locale, item.key)}
                   aria-current={item.active ? 'page' : undefined}
@@ -91,6 +97,24 @@ const items: { key: RouteKey; label: string; active: boolean }[] = [
                 </a>
               </li>
             ))}
+            {github && (
+              <li>
+                <a
+                  href={github.href}
+                  class="nav-icon text-muted hover:text-fg"
+                  rel="me noopener"
+                  target="_blank"
+                  aria-label={`${github.label} ${t.projects.newTab}`}
+                >
+                  <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
+                    <path
+                      fill="currentColor"
+                      d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"
+                    ></path>
+                  </svg>
+                </a>
+              </li>
+            )}
           </ul>
         </nav>
         <div class="flex items-center gap-3">
@@ -192,6 +216,22 @@ const items: { key: RouteKey; label: string; active: boolean }[] = [
     50% {
       opacity: 0;
     }
+  }
+
+  /*
+   * Dos grupos: la navegación (con GitHub) y el idioma con el tema. Los íconos tienen caja de
+   * 36 px para tocarlos fácil; el margen negativo la saca de los espacios, así se separan como
+   * texto, y el del tema queda al ras del borde, como `jm` al otro lado.
+   */
+  .nav-icon {
+    display: grid;
+    width: 2.25rem;
+    height: 2.25rem;
+    margin-inline: -0.625rem;
+    place-items: center;
+  }
+  .header-tools :global(.theme-toggle) {
+    margin-inline: -0.625rem;
   }
 
   .nav-link[aria-current='page'] {
