@@ -45,7 +45,7 @@ export const RIGHTS = {
 } as const satisfies Record<Locale, unknown>
 
 function copyright(): string {
-  return `© ${new Date().getFullYear()} ${SITE.name}`
+  return `© ${new Date().getFullYear()} ${SITE.legalName}`
 }
 
 /** Una línea al inicio de cada JS y CSS propio: mínima, porque se repite en cada archivo. */

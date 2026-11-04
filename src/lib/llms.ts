@@ -38,7 +38,7 @@ function header(): string[] {
       `## ${RIGHTS[locale].agentsTitle}`,
       '',
       ...RIGHTS[locale].agents.map((rule) => `- ${rule}`),
-      `- © ${year} ${SITE.name}. ${RIGHTS[locale].reserved} ${RIGHTS[locale].copying}`,
+      `- © ${year} ${SITE.legalName}. ${RIGHTS[locale].reserved} ${RIGHTS[locale].copying}`,
       '',
     ]),
   ]

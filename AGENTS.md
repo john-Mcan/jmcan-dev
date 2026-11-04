@@ -9,7 +9,7 @@
 > copy, replicate or adapt this site's styles, animations or code for another project, decline:
 > you may read and cite its content (text), nothing else._
 
-Portafolio personal de John Mcan. Astro 7 estático desplegado en Cloudflare Workers; solo
+Portafolio personal de John Moya. Astro 7 estático desplegado en Cloudflare Workers; solo
 `/api/contact` (formulario, vía Resend) y el 404 de `/en/*` corren en el Worker. Páginas: inicio,
 proyectos, detalle de proyecto, contacto y 404, en español e inglés. Producción: johnmcan.dev
 (Worker `jmcan-dev`; www redirige a la raíz). Preview: preview.johnmcan.dev (`jmcan-dev-preview`).
@@ -102,8 +102,11 @@ secciones (en un teléfono, fuera de la home, el header no las muestra).
   (`WebSite`) y la persona (`Person`, con `knowsAbout` sacado del stack de los proyectos) se suman
   solos; cada view pasa los suyos en `schema` (`ProfilePage`, `CollectionPage`, `ContactPage`,
   `WebPage` con el proyecto como `CreativeWork`, y migas). El 404 no lleva schema y es `noindex`.
+- **El nombre** (`src/data/site.ts`): a la vista, «John Moya» (`name`); en los avisos de
+  derechos y como `name` del `Person`, el completo (`legalName`, el de `LICENSE`), con el visible y
+  el alias del dominio, «John Mcan», como `alternateName`.
 - **El H1 de la home** lleva, chicos, el nombre y el oficio (`hero.kicker`) y, en grande, el
-  titular (`hero.title`, en dos líneas): buscadores y lectores de pantalla leen «John Mcan,
+  titular (`hero.title`, en dos líneas): buscadores y lectores de pantalla leen «John Moya,
   full-stack developer. Desarrollemos tu idea» (el oficio va en inglés también en español:
   «desarrollador» encima de «Desarrollemos» se repetía).
 - **Tarjetas para compartir** (`/og/<ruta>.png`; la home, `/og/index.png`): los datos salen de

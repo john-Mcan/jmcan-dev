@@ -2,12 +2,12 @@ import type { Dictionary } from './es'
 
 export const en: Dictionary = {
   meta: {
-    homeTitle: 'John Mcan | Full-stack web development',
+    homeTitle: 'John Moya | Full-stack web development',
     homeDescription:
-      'Portfolio of John Mcan, full-stack developer: complete web products and apps, from the data model to the interface.',
+      'Portfolio of John Moya, full-stack developer: complete web products and apps, from the data model to the interface.',
     projectsTitle: 'Projects',
     projectsDescription:
-      'Projects by John Mcan: web products, apps and platforms, with the context, the stack and my part in each one.',
+      'Projects by John Moya: web products, apps and platforms, with the context, the stack and my part in each one.',
     projectDescription: '{summary}. A project by {name} ({period}), built with {stack}.',
     contactTitle: 'Contact',
     contactDescription:

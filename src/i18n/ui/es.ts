@@ -14,12 +14,12 @@ interface HeroAsk {
 
 export const es = {
   meta: {
-    homeTitle: 'John Mcan | Desarrollo web full-stack',
+    homeTitle: 'John Moya | Desarrollo web full-stack',
     homeDescription:
-      'Portafolio de John Mcan, desarrollador full-stack: productos web y aplicaciones completas, del modelo de datos a la interfaz.',
+      'Portafolio de John Moya, desarrollador full-stack: productos web y aplicaciones completas, del modelo de datos a la interfaz.',
     projectsTitle: 'Proyectos',
     projectsDescription:
-      'Los proyectos de John Mcan: productos web, aplicaciones y plataformas, con el contexto, el stack y mi parte en cada uno.',
+      'Los proyectos de John Moya: productos web, aplicaciones y plataformas, con el contexto, el stack y mi parte en cada uno.',
     /** La de cada proyecto: su resumen, de quién, cuándo y con qué (`stack`, ya enumerado). */
     projectDescription: '{summary}. Proyecto de {name} ({period}), con {stack}.',
     contactTitle: 'Contacto',

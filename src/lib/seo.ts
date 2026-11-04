@@ -70,7 +70,8 @@ export async function personNode(locale: Locale): Promise<SchemaNode> {
   return {
     '@type': 'Person',
     '@id': PERSON_ID,
-    name: SITE.name,
+    name: SITE.legalName,
+    alternateName: [SITE.name, SITE.alias],
     url: absolute('/'),
     email: `mailto:${SITE.email}`,
     jobTitle: SITE.jobTitle[locale],

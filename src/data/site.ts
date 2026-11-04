@@ -1,6 +1,11 @@
-/** Datos personales del sitio en un solo lugar. Los marcados con «ejemplo» son provisionales. */
+/** Datos personales del sitio en un solo lugar. */
 export const SITE = {
-  name: 'John Mcan', // ejemplo: tomado del dominio
+  /** El nombre que se ve. */
+  name: 'John Moya',
+  /** El completo: en los avisos de derechos (como en `LICENSE`) y en los datos estructurados. */
+  legalName: 'John Moya Cantillana',
+  /** El alias del dominio y de GitHub: los datos estructurados lo enlazan con la persona. */
+  alias: 'John Mcan',
   url: 'https://johnmcan.dev',
   /** La preview (`pnpm deploy:preview`): sus URL absolutas apuntan aquí y no se indexa. */
   previewUrl: 'https://preview.johnmcan.dev',
