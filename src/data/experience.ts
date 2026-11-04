@@ -20,8 +20,8 @@ export const EXPERIENCE: readonly ExperienceEntry[] = [
       en: 'Full-stack developer',
     },
     summary: {
-      es: 'Construyo dos productos de punta a punta: Revra, agentes para las cuentas por cobrar (con un socio), y NEX, una experiencia en vivo donde la audiencia elige qué suena, con web y app para iOS y Android.',
-      en: 'I build two products end to end: Revra, agents for accounts receivable (with a partner), and NEX, a live experience where the audience picks what plays next, on the web and on iOS and Android.',
+      es: 'Revra, operaciones financieras autónomas con agentes de IA (aplicación web). NEX, una experiencia en vivo donde la audiencia elige qué suena (web, apps nativas iOS y Android).',
+      en: 'Revra, autonomous financial operations with AI agents (web app). NEX, a live experience where the audience picks what plays next (web, native iOS and Android apps).',
     },
   },
   {
@@ -39,11 +39,11 @@ export const EXPERIENCE: readonly ExperienceEntry[] = [
   {
     year: 2019,
     end: 2024,
-    org: 'Hotel Monticello',
-    role: { es: 'Recepcionista', en: 'Front desk agent' },
+    org: 'Freelance',
+    role: { es: 'Desarrollador front-end', en: 'Front-end developer' },
     summary: {
-      es: 'Atención y registro de huéspedes en la recepción.',
-      en: 'Guest service and check-in at the front desk.',
+      es: 'Desarrollo de interfaces web y móviles en Figma y código front-end.',
+      en: 'Web and mobile interface development in Figma and front-end code.',
     },
   },
 ]
