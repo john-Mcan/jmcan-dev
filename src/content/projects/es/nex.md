@@ -3,11 +3,12 @@ title: NEX
 summary: Experiencia en vivo donde la audiencia decide qué suena después
 year: 2026
 role: 'Todo: producto, backend, web y app móvil'
-stack: [Flutter, NestJS, Next.js, PostgreSQL, Redis, AzuraCast, Cloudflare, Firebase, Vercel]
+stack:
+  [Flutter, NestJS, Next.js, PostgreSQL, Redis, Socket.IO, AzuraCast, Cloudflare, Firebase, Vercel]
 status: prelaunch
 glyph: eq
 featured: true
-order: 2
+order: 3
 links:
   live: https://nex-radio.com
 shots:
@@ -23,18 +24,25 @@ suene. La radio tradicional no les da espacio para eso.
 
 ## Qué es
 
-Es una radio interactiva en tiempo real, donde no es un editor quien decide la programación, sino
-la audiencia. Mientras escuchas, usas tu influencia para elegir qué suena después, participas en el
-chat y en eventos, y ves el resultado al instante.
+Es una radio interactiva en tiempo real donde la audiencia decide la programación. Mientras
+escuchas, usas tu influencia para elegir qué suena después, participas en el chat y en eventos, y
+ves el resultado al instante.
 
-La idea es que sea un punto de encuentro para los fandoms y una nueva forma de vivir la radio.
+La idea es que sea un punto de encuentro para los fandoms, donde escuchan juntos y compiten para que
+suene su grupo.
 
 <!-- capturas -->
 
 ## Qué hice
 
-Lo hice todo: el producto, la arquitectura, la base de datos, la integración con el servidor de
-streaming, la API de medios y audio, la web y la app nativa para iOS y Android.
+Lo construí solo, de punta a punta: el producto, la API en NestJS, la base de datos, la web en
+Next.js y la app nativa en Flutter para iOS y Android.
+
+La decisión central fue que el backend dirija la radio. Elige cada canción, la empuja a la cola de
+Liquidsoap y avisa del cambio en el instante exacto, con el AutoDJ de AzuraCast como respaldo: así,
+la canción que gana la votación suena justo a continuación. El estado en vivo (votos, oyentes, cola)
+vive en Redis y llega a todos por Socket.IO, y la influencia se calcula en el servidor y se acredita
+al consultarla, sin escribir en la base cada minuto por cada oyente.
 
 ## Estado
 

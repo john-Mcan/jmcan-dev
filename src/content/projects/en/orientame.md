@@ -2,13 +2,12 @@
 title: orientame.cl
 summary: A first step toward mental health support, with no accounts and no tracking
 year: 2026
-role: 'Everything: product, content and development'
+role: 'Product, content and development'
 stack: [Astro, TypeScript, Preact, Pagefind, Cloudflare]
 status: live
 contributions: true
 glyph: path
-featured: true
-order: 3
+order: 5
 links:
   live: https://orientame.cl
   repo: https://github.com/john-Mcan/orientame.cl
@@ -44,7 +43,10 @@ you write never leaves your device.
 
 ## What I did
 
-I did everything: the product, the content and the development.
+I did it on my own: the product, the content and the site. It's static, built with Astro; Preact is
+used only where the browser needs state, as in the self-assessments, and the Pagefind search is
+generated when the site is built. That way there's no server receiving what you type, and automated
+tests check that the self-assessments store nothing and make no network calls.
 
 ## Contribute
 

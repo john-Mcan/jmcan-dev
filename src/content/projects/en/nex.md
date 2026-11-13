@@ -3,11 +3,12 @@ title: NEX
 summary: Live experience where the audience decides what plays next
 year: 2026
 role: 'Everything: product, backend, web and mobile app'
-stack: [Flutter, NestJS, Next.js, PostgreSQL, Redis, AzuraCast, Cloudflare, Firebase, Vercel]
+stack:
+  [Flutter, NestJS, Next.js, PostgreSQL, Redis, Socket.IO, AzuraCast, Cloudflare, Firebase, Vercel]
 status: prelaunch
 glyph: eq
 featured: true
-order: 2
+order: 3
 links:
   live: https://nex-radio.com
 shots:
@@ -23,18 +24,25 @@ Traditional radio leaves no room for that.
 
 ## What it is
 
-It's an interactive radio station in real time, where the audience, not an editor, decides what
-plays. While you listen, you use your influence to choose what plays next, join the chat and events,
-and see the result right away.
+It's an interactive radio station in real time where the audience decides the programming. While
+you listen, you use your influence to choose what plays next, join the chat and events, and see the
+result right away.
 
-The idea is for it to be a meeting point for fandoms and a new way to experience radio.
+The idea is for it to be a meeting point for fandoms, where they listen together and compete to get
+their group on air.
 
 <!-- capturas -->
 
 ## What I did
 
-I did everything: the product, the architecture, the database, the integration with the streaming
-server, the media and audio API, the website and the native app for iOS and Android.
+I built it on my own, end to end: the product, the NestJS API, the database, the Next.js website and
+the native Flutter app for iOS and Android.
+
+The key decision was to have the backend run the station. It picks each song, pushes it to the
+Liquidsoap queue and announces the change at the exact moment, with AzuraCast's AutoDJ as a
+fallback: that way, the song that wins the vote plays right next. Live state (votes, listeners,
+queue) lives in Redis and reaches everyone over Socket.IO, and influence is computed on the server
+and credited when it's read, without writing to the database every minute for every listener.
 
 ## Status
 

@@ -2,13 +2,12 @@
 title: orientame.cl
 summary: Un primer paso para buscar apoyo en salud mental, sin cuentas ni rastreo
 year: 2026
-role: 'Todo: producto, contenido y desarrollo'
+role: 'Producto, contenido y desarrollo'
 stack: [Astro, TypeScript, Preact, Pagefind, Cloudflare]
 status: live
 contributions: true
 glyph: path
-featured: true
-order: 3
+order: 5
 links:
   live: https://orientame.cl
   repo: https://github.com/john-Mcan/orientame.cl
@@ -45,7 +44,10 @@ Lo que escribes no sale de tu dispositivo.
 
 ## Qué hice
 
-Lo hice todo: el producto, el contenido y el desarrollo.
+Lo hice solo: el producto, el contenido y el sitio. Es estático, hecho con Astro; Preact se usa
+solo donde hace falta estado en el navegador, como en las autoevaluaciones, y la búsqueda con
+Pagefind se genera al construir el sitio. Así no hay un servidor que reciba lo que escribes, y unas
+pruebas automáticas revisan que las autoevaluaciones no guarden nada ni hagan llamadas de red.
 
 ## Aporta
 

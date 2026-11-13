@@ -7,7 +7,7 @@ role: 'Everything: design, development, database and security'
 stack: [Next.js, React, TypeScript, Supabase, Tailwind CSS]
 status: paused
 glyph: orbit
-order: 4
+order: 6
 links:
   live: https://fandoms.io
 shots:
