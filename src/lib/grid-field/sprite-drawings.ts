@@ -295,6 +295,147 @@ function channelZap(ctx: CanvasRenderingContext2D, box: Box, turn: number): void
   }
 }
 
+/**
+ * Una burbuja de chat: un rectángulo redondeado con la cola abajo, a la izquierda
+ * (`side` -1) o a la derecha (1). Es un solo camino: dos rellenos con alfa se sumarían
+ * donde se tocan y la cola quedaría con una costura más clara.
+ */
+function bubble(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  side: -1 | 1,
+  unit: number,
+): void {
+  const r = Math.min(unit * 0.07, width / 2, height / 2)
+  const tail = unit * 0.05
+  ctx.save()
+  if (side === 1) {
+    ctx.translate(x * 2 + width, 0)
+    ctx.scale(-1, 1)
+  }
+  ctx.beginPath()
+  ctx.moveTo(x + r, y)
+  ctx.arcTo(x + width, y, x + width, y + r, r)
+  ctx.arcTo(x + width, y + height, x + width - r, y + height, r)
+  ctx.lineTo(x - tail, y + height)
+  ctx.lineTo(x, y + height - tail)
+  ctx.arcTo(x, y, x + r, y, r)
+  ctx.closePath()
+  ctx.fill()
+  ctx.restore()
+}
+
+/** Fases de la conversación: queda a la vista, sube y se va, llega otra y el agente escribe y responde. */
+const CHAT_HOLD = 0.14
+const CHAT_GONE = 0.28
+const CHAT_ASK = 0.3
+const CHAT_TYPE = 0.46
+const CHAT_REPLY = 0.72
+
+/**
+ * Conversación (vriza): el mensaje del cliente, tenue, a la izquierda; el agente
+ * escribe (tres puntos) y su respuesta crece desde ahí. El loop cierra con la
+ * conversación completa: en turn = 0 se ve entera, y es el cuadro quieto.
+ */
+function conversation(ctx: CanvasRenderingContext2D, box: Box, turn: number): void {
+  const { cx, cy, unit } = squareIn(box)
+  const askBubble = (alpha: number, dy: number): void => {
+    ctx.fillStyle = shade(0.6 * alpha)
+    bubble(ctx, cx - unit * 0.4, cy - unit * 0.36 + dy, unit * 0.54, unit * 0.26, -1, unit)
+  }
+  /** Crece desde los puntos de escribir hasta la respuesta, anclada abajo a la derecha. */
+  const reply = (alpha: number, grow: number, dy: number): void => {
+    const width = unit * (0.42 + 0.16 * grow)
+    const height = unit * (0.2 + 0.12 * grow)
+    const right = cx + unit * 0.4
+    const bottom = cy + unit * 0.32 + dy
+    ctx.fillStyle = shade((0.4 + 0.55 * grow) * alpha)
+    bubble(ctx, right - width, bottom - height, width, height, 1, unit)
+    if (grow >= 1) return
+    // Los tres puntos; separados por al menos dos celdas, también en la fila de un teléfono.
+    const radius = Math.max(unit * 0.03, 3)
+    const step = Math.max(unit * 0.1, radius * 2 + 6)
+    ctx.fillStyle = shade(0.95 * alpha * (1 - grow))
+    for (let k = -1; k <= 1; k++) {
+      const hop = Math.max(0, Math.sin(TAU * (turn * 8 - (k + 1) * 0.12))) * unit * 0.025
+      ctx.beginPath()
+      ctx.arc(right - width / 2 + k * step, bottom - height / 2 - hop, radius, 0, TAU)
+      ctx.fill()
+    }
+  }
+
+  if (turn < CHAT_GONE) {
+    // La conversación anterior sube, como en un chat, y se apaga.
+    const leave = ease((turn - CHAT_HOLD) / (CHAT_GONE - CHAT_HOLD))
+    askBubble(1 - leave, -leave * unit * 0.14)
+    reply(1 - leave, 1, -leave * unit * 0.14)
+    return
+  }
+  const ask = ease((turn - CHAT_ASK) / 0.08)
+  if (ask > 0) askBubble(ask, (1 - ask) * unit * 0.06)
+  const typing = ease((turn - CHAT_TYPE) / 0.05)
+  if (typing > 0) reply(typing, ease((turn - CHAT_REPLY) / 0.1), 0)
+}
+
+const ESCROW_MILESTONES = 3
+/** Cuándo baja cada hito a la barra; antes, el depósito espera completo entre los corchetes. */
+const ESCROW_RELEASE: readonly number[] = [0.12, 0.32, 0.52]
+const ESCROW_DROP = 0.16
+/** Desde aquí la barra se apaga y cae el depósito siguiente. */
+const ESCROW_REFILL = 0.82
+
+/**
+ * Hitos en garantía (extan): tres bloques, el depósito, guardados entre corchetes como
+ * en su marca `[▪]`. Cada hito baja y se aplana en su tramo de la barra de pago; con la
+ * barra llena, se apaga y cae el depósito del acuerdo siguiente.
+ */
+function milestoneEscrow(ctx: CanvasRenderingContext2D, box: Box, turn: number): void {
+  const { cx, cy, unit } = squareIn(box)
+  const top = cy - unit * 0.32
+  const bottom = cy + unit * 0.06
+  const reach = unit * 0.36
+  const serif = unit * 0.08
+  ctx.lineWidth = stroke(unit, 0.05)
+  ctx.strokeStyle = shade(0.85)
+  ctx.beginPath()
+  for (const side of [-1, 1]) {
+    ctx.moveTo(cx + side * (reach - serif), top)
+    ctx.lineTo(cx + side * reach, top)
+    ctx.lineTo(cx + side * reach, bottom)
+    ctx.lineTo(cx + side * (reach - serif), bottom)
+  }
+  ctx.stroke()
+
+  const size = unit * 0.14
+  const gap = unit * 0.05
+  const left = cx - (ESCROW_MILESTONES * size + (ESCROW_MILESTONES - 1) * gap) / 2
+  const rest = (top + bottom) / 2 - size / 2
+  const barTop = cy + unit * 0.24
+  const barHeight = stroke(unit, 0.08)
+  const refill = turn >= ESCROW_REFILL
+  for (let k = 0; k < ESCROW_MILESTONES; k++) {
+    const x = left + k * (size + gap)
+    ctx.fillStyle = shade(0.22)
+    ctx.fillRect(x, barTop, size, barHeight)
+    if (refill) {
+      // La barra se apaga mientras el depósito nuevo cae, escalonado, desde arriba.
+      const fade = ease((turn - ESCROW_REFILL) / 0.1)
+      ctx.fillStyle = shade(0.95 * (1 - fade))
+      ctx.fillRect(x, barTop, size, barHeight)
+      const fall = ease((turn - ESCROW_REFILL - k * 0.03) / (1 - ESCROW_REFILL - 0.06))
+      ctx.fillStyle = shade(0.75 * fall)
+      ctx.fillRect(x, cy - unit * 0.5 + (rest - cy + unit * 0.5) * fall, size, size)
+      continue
+    }
+    const drop = ease((turn - (ESCROW_RELEASE[k] ?? 0)) / ESCROW_DROP)
+    ctx.fillStyle = shade(0.75 + 0.2 * drop)
+    ctx.fillRect(x, rest + (barTop - rest) * drop, size, size + (barHeight - size) * drop)
+  }
+}
+
 // ─── Del resto del sitio ─────────────────────────────────────────────────────
 
 /** Sobre cuya solapa se abre y se cierra. */
@@ -368,4 +509,6 @@ export const CLOSING_LOOP = drawnFrames(40, closingLoop)
 export const EQUALIZER = drawnFrames(48, equalizer)
 export const STEPPING_PATH = drawnFrames(36, steppingPath)
 export const CHANNEL_ZAP = drawnFrames(ZAP_FRAMES, channelZap)
+export const CONVERSATION = drawnFrames(56, conversation)
+export const MILESTONE_ESCROW = drawnFrames(60, milestoneEscrow)
 export const ENVELOPE = drawnFrames(32, envelope)

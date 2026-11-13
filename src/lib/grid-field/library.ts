@@ -8,18 +8,22 @@ import type { GlyphKey } from './glyph-keys'
 import {
   CHANNEL_ZAP,
   CLOSING_LOOP,
+  CONVERSATION,
   ENVELOPE,
   EQUALIZER,
   glitchText,
+  MILESTONE_ESCROW,
   ORBITING_DISCS,
   STEPPING_PATH,
 } from './sprite-drawings'
 import { WORD_MS, type Sprite } from './sprites'
 
-/** Uno por proyecto: Revra, NEX, orientame.cl, Fandoms.io y Chucao. */
+/** Uno por proyecto: Revra, vriza, NEX, extan, orientame.cl, Fandoms.io y Chucao. */
 export const GLYPHS: Record<GlyphKey, Sprite> = {
   loop: { frames: CLOSING_LOOP, frameMs: 60 },
+  chat: { frames: CONVERSATION, frameMs: 70 },
   eq: { frames: EQUALIZER, frameMs: 70 },
+  escrow: { frames: MILESTONE_ESCROW, frameMs: 70 },
   path: { frames: STEPPING_PATH, frameMs: 80 },
   orbit: { frames: ORBITING_DISCS, frameMs: 60 },
   zap: { frames: CHANNEL_ZAP, frameMs: 70 },

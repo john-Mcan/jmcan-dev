@@ -55,7 +55,9 @@ const MIDDLE = STAGE_PX.y + STAGE_PX.size / 2
 /** El cuadro de cada sprite que mejor se lee quieto (elegidos mirándolos todos). */
 const POSTER: Record<GlyphKey | 'contact', number> = {
   loop: 20,
+  chat: 0,
   eq: 26,
+  escrow: 18,
   path: 26,
   orbit: 26,
   zap: 30,
@@ -297,7 +299,8 @@ function paintText(ctx: Context, card: OgCard): void {
 
 /** El índice de proyectos: los nombres numerados en el escenario, con una línea entre filas. */
 function paintList(ctx: Context, items: string[]): void {
-  const row = 66
+  // Con muchos proyectos las filas se acortan: la lista no sale de las marcas del escenario.
+  const row = Math.min(66, Math.floor((STAGE_PX.size - 72) / items.length))
   const x = STAGE_PX.x + 44
   const width = STAGE_PX.size - 88
   let y = MIDDLE - (items.length * row) / 2

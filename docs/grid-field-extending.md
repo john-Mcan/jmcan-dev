@@ -184,9 +184,13 @@ const MI_TEXTO: Sprite = { frames: ['hola', 'hola_'], frameMs: WORD_MS, textScal
 2. Asóciale un `Sprite` en `GLYPHS` (`library.ts`); TypeScript exige que estén todas.
 3. Úsala en el frontmatter: `glyph: <clave>`. El schema (`content.config.ts`) la valida.
 
-Hoy hay uno por proyecto: `loop` (Revra, una flecha circular que se cierra), `eq` (NEX, un
-ecualizador donde una barra gana la ronda), `path` (orientame.cl, pasos hacia una meta), `orbit`
-(Fandoms.io, discos en órbita) y `zap` (Chucao, un televisor que cambia de canal). Los de ejemplo
+Hoy hay uno por proyecto: `loop` (Revra, una flecha circular que se cierra), `chat` (vriza, un
+mensaje, los tres puntos de «escribiendo» y la respuesta), `eq` (NEX, un ecualizador donde una
+barra gana la ronda), `escrow` (extan, tres hitos entre corchetes que bajan uno a uno a la barra de
+pago), `path` (orientame.cl, pasos hacia una meta), `orbit` (Fandoms.io, discos en órbita) y `zap`
+(Chucao, un televisor que cambia de canal). El cuadro quieto (movimiento reducido) es el primero:
+`chat` y `escrow` empiezan con la imagen completa, la conversación entera y el depósito guardado.
+La tarjeta para compartir usa otro, elegido a mano (`POSTER` en `src/integrations/og-images.ts`). Los de ejemplo
 (cubo, globo, osciloscopio, radar, red y anillo) se borraron con los proyectos de ejemplo. Un glifo
 debe leerse en tres tamaños: el panel o el detalle (~440 px, celdas de 6 px), la caja del
 siguiente proyecto (160 px) y la fila de la lista en un teléfono (96 px, celdas de 3 px). Ninguno
