@@ -35,6 +35,7 @@ const [before = '', after = ''] = (project.entry.rendered?.html ?? '').split(SHO
 const status = t.projects.statuses[data.status]
 const links = [
   { href: data.links.live, label: t.projects.live },
+  { href: data.links.demo, label: t.projects.demo },
   { href: data.links.store, label: t.projects.store },
   { href: data.links.repo, label: t.projects.repo },
 ].filter((link): link is { href: string; label: string } => link.href !== undefined)
@@ -50,7 +51,9 @@ const description = fill(t.meta.projectDescription, {
   period: period(data),
   stack: new Intl.ListFormat(locale, { type: 'conjunction' }).format(data.stack.slice(0, 4)),
 })
-const elsewhere = [data.links.live, data.links.store, data.links.repo].filter(Boolean)
+const elsewhere = [data.links.live, data.links.demo, data.links.store, data.links.repo].filter(
+  Boolean,
+)
 const schema = [
   pageNode('WebPage', locale, route, {
     name: title,

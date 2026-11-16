@@ -91,6 +91,7 @@ export async function llmsFull(): Promise<string[]> {
         const { data } = project.entry
         const links = [
           [t.projects.live, data.links.live],
+          [t.projects.demo, data.links.demo],
           [t.projects.store, data.links.store],
           [t.projects.repo, data.links.repo],
         ].filter(([, href]) => href !== undefined)

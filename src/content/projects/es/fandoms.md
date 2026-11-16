@@ -1,8 +1,8 @@
 ---
 title: Fandoms.io
 summary: 'Red social para fans de América Latina: 34.000 registrados'
-year: 2025
-yearEnd: 2026
+year: 2024
+yearEnd: 2025
 role: 'Todo: diseño, desarrollo, base de datos y seguridad'
 stack: [Next.js, React, TypeScript, Supabase, Tailwind CSS]
 status: paused
@@ -24,8 +24,8 @@ entre todo lo demás.
 ## Qué es
 
 Es un prototipo de red social pensada para fandoms, donde cada comunidad tiene su propio espacio,
-publicaciones, votaciones, insignias y moderación. Empezó en marzo de 2025 como 7Kpop y llegó a
-34.000 usuarios registrados.
+publicaciones, votaciones, insignias y moderación. Empezó como 7Kpop y llegó a 34.000 usuarios
+registrados.
 
 <!-- capturas -->
 

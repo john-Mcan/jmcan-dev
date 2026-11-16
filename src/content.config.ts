@@ -32,6 +32,8 @@ const projects = defineCollection({
         links: z
           .object({
             live: z.url().optional(),
+            /** Una demo que funciona, aparte del sitio público (una landing, una lista de espera). */
+            demo: z.url().optional(),
             repo: z.url().optional(),
             /** La app en una tienda (App Store, Google Play). */
             store: z.url().optional(),

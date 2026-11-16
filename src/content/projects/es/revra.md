@@ -1,6 +1,6 @@
 ---
 title: Revra
-summary: Agentes que se hacen cargo de las cuentas por cobrar, de la factura al pago
+summary: Flujos agénticos autónomos que se hacen cargo de operaciones financieras B2B
 year: 2026
 role: 'Producto, diseño y desarrollo'
 stack: [TypeScript, Node.js, Fastify, Temporal, Next.js, PostgreSQL, Supabase, API, Microsoft Azure]
@@ -25,11 +25,12 @@ manual.
 
 ## Qué es
 
-Revra se conecta al sistema de facturación, al correo de cobranza y al banco de la empresa, y se
-encarga de ese trabajo: sigue cada factura, contacta a los clientes desde el correo de la empresa,
-resuelve lo que traba un pago y lo concilia cuando llega. La empresa define sus políticas, como el
-horario de contacto o los plazos que acepta, y lo que queda fuera de ellas pasa a una persona, con
-el contexto y una propuesta.
+Revra pone flujos de agentes autónomos a cargo de operaciones financieras B2B, y parte por las
+cuentas por cobrar. Se conecta al sistema de facturación, al correo de cobranza y al banco de la
+empresa, y se encarga de ese trabajo: sigue cada factura, contacta a los clientes desde el correo de
+la empresa, resuelve lo que traba un pago y lo concilia cuando llega. La empresa define sus
+políticas, como el horario de contacto o los plazos que acepta, y lo que queda fuera de ellas pasa a
+una persona, con el contexto y una propuesta.
 
 La autonomía se gana por etapas: Revra parte proponiendo lo que haría sin contactar a nadie,
 después opera sobre un grupo acotado de cuentas y amplía su alcance a medida que la empresa lo

@@ -1,6 +1,6 @@
 ---
 title: Revra
-summary: Agents that take over accounts receivable, from invoice to payment
+summary: Autonomous agentic workflows that take over B2B financial operations
 year: 2026
 role: 'Product, design and development'
 stack: [TypeScript, Node.js, Fastify, Temporal, Next.js, PostgreSQL, Supabase, API, Microsoft Azure]
@@ -24,11 +24,12 @@ reconciles it when it arrives. It's repetitive work that takes a lot of manual c
 
 ## What it is
 
-Revra connects to the company's billing system, collections inbox and bank, and takes on that work:
-it follows up on every invoice, contacts customers from the company's own email, resolves whatever
-is holding up a payment and reconciles it when it arrives. The company sets its policies, such as
-contact hours or the payment terms it accepts, and anything outside them goes to a person, with the
-context and a proposal.
+Revra puts autonomous agent workflows in charge of B2B financial operations, starting with accounts
+receivable. It connects to the company's billing system, collections inbox and bank, and takes on
+that work: it follows up on every invoice, contacts customers from the company's own email, resolves
+whatever is holding up a payment and reconciles it when it arrives. The company sets its policies,
+such as contact hours or the payment terms it accepts, and anything outside them goes to a person,
+with the context and a proposal.
 
 Autonomy is earned in stages: Revra starts by proposing what it would do without contacting anyone,
 then works on a limited set of accounts, and widens its scope as the company approves it.

@@ -1,6 +1,6 @@
 ---
 title: vriza
-summary: AI agents that handle a business's customers on WhatsApp
+summary: "AI agents that serve a business's customers: they remember, learn and act on their own"
 year: 2026
 role: 'Product, AI and full-stack development'
 stack:
@@ -30,19 +30,22 @@ shots:
 
 ## Context
 
-Many small businesses serve their customers on WhatsApp, and the same questions come in all day:
-prices, opening hours, stock, how to place an order. Answering them on time takes hours from the
-owner or the team, and messages that arrive at night wait until the next day.
+Many small businesses and independent professionals serve their customers on WhatsApp, and the same
+questions come in all day: prices, opening hours, stock, how to place an order. Answering them on
+time takes hours from the owner or the team, and messages that arrive at night wait until the next
+day.
 
 ## What it is
 
-With vriza, an AI agent handles a business's WhatsApp. You set it up in four steps from the
-browser: tell it what your business does and what tone to use, teach it what you know with your
-website, a file or a text, try it out and connect your number.
+With vriza, an AI agent serves customers on WhatsApp on behalf of a business or a professional who
+works alone. You set it up in four steps from the browser: tell it what your business does and what
+tone to use, teach it what you know with your website, a file or a text, try it out and connect your
+number.
 
-The agent answers with what you taught it. When the answer isn't there, it tells the customer and
-lets you know, and you take over the conversation from the dashboard or from your phone. If someone
-on the team replies, the agent steps aside.
+The agent answers with what you taught it and remembers each customer: it keeps their details and a
+summary of every conversation, and has them at hand when that person writes again. When it can't
+find an answer, it tells the customer and lets you know, and you take over the conversation from the
+dashboard or from your phone. If someone on the team replies, the agent steps aside.
 
 <!-- capturas -->
 
@@ -57,8 +60,12 @@ retry from repeating it.
 
 To answer, it uses RAG: what each business teaches it is indexed in PostgreSQL with pgvector, and on
 each message the agent searches by meaning and by keywords, reranks the results and answers with
-what it found. If it finds nothing, a set of rules keeps it from making something up. It all runs on
-a single platform for many businesses, with each one's data isolated in the database.
+what it found. If it finds nothing, a set of rules keeps it from making something up.
+
+Memory is per contact: the agent records each customer's stable details, with their source and age,
+and saves a summary when a conversation closes. It also learns from the team: the answer to a
+question it asked can be saved as knowledge, and next time it replies on its own. It all runs on a
+single platform for many businesses, with each one's data isolated in the database.
 
 ## Status
 

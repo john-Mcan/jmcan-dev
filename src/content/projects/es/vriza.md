@@ -1,6 +1,6 @@
 ---
 title: vriza
-summary: Agentes de IA que atienden a los clientes de un negocio por WhatsApp
+summary: 'Agentes de IA que atienden a clientes de un negocio: recuerdan, aprenden y actúan solos'
 year: 2026
 role: 'Producto, IA y desarrollo full-stack'
 stack:
@@ -30,19 +30,22 @@ shots:
 
 ## Contexto
 
-Muchos negocios pequeños atienden a sus clientes por WhatsApp, y las mismas preguntas llegan todo el
-día: precios, horarios, stock, cómo hacer un pedido. Contestarlas a tiempo le quita horas al dueño o
-a su equipo, y los mensajes que llegan de noche esperan hasta el día siguiente.
+Muchos negocios pequeños y profesionales independientes atienden a sus clientes por WhatsApp, y las
+mismas preguntas llegan todo el día: precios, horarios, stock, cómo hacer un pedido. Contestarlas a
+tiempo le quita horas al dueño o a su equipo, y los mensajes que llegan de noche esperan hasta el
+día siguiente.
 
 ## Qué es
 
-Con vriza, un agente de IA atiende el WhatsApp del negocio. Se configura en cuatro pasos desde el
-navegador: le cuentas a qué se dedica tu negocio y en qué tono hablar, le enseñas lo que sabes
-con tu sitio web, un archivo o un texto, lo pruebas y conectas tu número.
+Con vriza, un agente de IA atiende a los clientes por WhatsApp en nombre de un negocio o de un
+profesional que trabaja solo. Se configura en cuatro pasos desde el navegador: le cuentas a qué se
+dedica tu negocio y en qué tono hablar, le enseñas lo que sabes con tu sitio web, un archivo o un
+texto, lo pruebas y conectas tu número.
 
-El agente responde con lo que le enseñaste. Cuando no encuentra la respuesta ahí, se lo dice al
-cliente y te avisa, y tú tomas la conversación desde el panel o desde tu teléfono. Si alguien del
-equipo responde, el agente se hace a un lado.
+El agente responde con lo que le enseñaste y recuerda a cada cliente: guarda sus datos y un resumen
+de cada conversación, y los tiene presentes cuando esa persona vuelve a escribir. Cuando no
+encuentra una respuesta, se lo dice al cliente y te avisa, y tú tomas la conversación desde el panel
+o desde tu teléfono. Si alguien del equipo responde, el agente se hace a un lado.
 
 <!-- capturas -->
 
@@ -56,8 +59,12 @@ autoriza, les fija un presupuesto diario, las registra y evita que un reintento 
 
 Para responder usa RAG: lo que cada negocio le enseña se indexa en PostgreSQL con pgvector, y en
 cada mensaje el agente busca por significado y por palabras, reordena los resultados y responde con
-lo que encontró. Si no encuentra nada, unas reglas le impiden inventar. Todo corre en una sola
-plataforma para muchos negocios, con los datos de cada uno aislados en la base de datos.
+lo que encontró. Si no encuentra nada, unas reglas le impiden inventar.
+
+La memoria es por contacto: el agente anota los datos estables de cada cliente, con su origen y su
+antigüedad, y al cerrar una conversación guarda un resumen. También aprende del equipo: la respuesta
+a una consulta puede quedar guardada como conocimiento, y la próxima vez contesta solo. Todo corre
+en una sola plataforma para muchos negocios, con los datos de cada uno aislados en la base de datos.
 
 ## Estado
 

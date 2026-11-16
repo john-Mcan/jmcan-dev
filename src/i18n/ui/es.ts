@@ -93,6 +93,7 @@ export const es = {
     /** El estado de un proyecto con el código publicado: «En línea, abierto a aportes». */
     contributions: '{status}, abierto a aportes',
     live: 'Ver sitio',
+    demo: 'Probar la demo',
     repo: 'Ver código',
     store: 'Descargar la app',
     /** Lo que se lee al final de un enlace que abre otra pestaña. */

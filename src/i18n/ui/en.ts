@@ -67,6 +67,7 @@ export const en: Dictionary = {
     },
     contributions: '{status}, open to contributions',
     live: 'Visit site',
+    demo: 'Try the demo',
     repo: 'View code',
     store: 'Get the app',
     newTab: '(opens in a new tab)',

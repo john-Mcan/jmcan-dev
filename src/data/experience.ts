@@ -20,8 +20,8 @@ export const EXPERIENCE: readonly ExperienceEntry[] = [
       en: 'Full-stack developer',
     },
     summary: {
-      es: 'Revra, operaciones financieras autónomas con agentes de IA (aplicación web). NEX, una experiencia en vivo donde la audiencia elige qué suena (web, apps nativas iOS y Android).',
-      en: 'Revra, autonomous financial operations with AI agents (web app). NEX, a live experience where the audience picks what plays next (web, native iOS and Android apps).',
+      es: 'Revra, operaciones financieras autónomas con agentes de IA (aplicación web). NEX, una experiencia en vivo donde los fandoms compiten por mantener a sus favoritos en la cima (web, apps nativas iOS y Android).',
+      en: 'Revra, autonomous financial operations with AI agents (web app). NEX, a live experience where fandoms compete to keep their favorites on top (web, native iOS and Android apps).',
     },
   },
   {
