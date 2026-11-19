@@ -253,6 +253,7 @@ const github = SITE.socials.find((social) => social.label === 'GitHub')
 
 <script>
   import { createTypewriter, type Typewriter } from '@/lib/typewriter'
+  import { watchUpLinks } from '@/lib/up-links'
 
   /** Mismo corte que `sm:` de Tailwind: desde aquí la ruta entra junto a la navegación. */
   const ROOMY = window.matchMedia('(min-width: 40rem)')
@@ -312,6 +313,7 @@ const github = SITE.socials.find((social) => social.label === 'GitHub')
       if (node instanceof HTMLAnchorElement && crumb.href) {
         node.href = crumb.href
         node.className = 'crumb'
+        node.dataset['up'] = ''
         if (node.textContent !== crumb.text) node.setAttribute('aria-label', crumb.text)
       } else {
         node.setAttribute('aria-current', 'page')
@@ -383,6 +385,9 @@ const github = SITE.socials.find((social) => social.label === 'GitHub')
     update()
     write()
   })
+
+  // Las migas y «← Proyectos» vuelven a la página de arriba donde se la dejó.
+  watchUpLinks()
 
   /** Si la página llegó navegando (con la ruta de la anterior) o se cargó de cero. */
   let arrived = false

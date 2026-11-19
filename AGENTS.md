@@ -92,8 +92,11 @@ con el idioma y el tema, sin la navegación. Nunca se esconde. La navegación te
 GitHub; en un teléfono no lleva «Proyectos», que en la home es el llamado principal del hero.
 
 Navegación: cada página interna tiene arriba del título un enlace que sube un nivel
-(`UpLink.astro`: «← Inicio», «← Proyectos»), no que vuelve en el historial. El footer repite las
-secciones (en un teléfono, fuera de la home, el header no las muestra).
+(`UpLink.astro`: «← Inicio», «← Proyectos»): es un enlace, no un «atrás», para que quien llega
+directo no salga del sitio. Si la página de arriba está atrás en el historial (se vino de ella, aun
+pasando por otros proyectos), ese enlace y las migas del header (`data-up`, `src/lib/up-links.ts`)
+vuelven a esa entrada y la página queda donde se la dejó. El footer repite las secciones (en un
+teléfono, fuera de la home, el header no las muestra).
 
 ## SEO, tarjetas y agentes de IA
 

@@ -1,9 +1,11 @@
 ---
 /**
- * Subir un nivel: del detalle a proyectos, de proyectos o contacto al inicio. Sube,
- * no vuelve en el historial: quien llega directo a una página (desde un buscador o
- * un enlace compartido) saldría del sitio. Va arriba del título, a la izquierda,
- * donde se la busca, con el tamaño del texto y un área de toque de 44 px.
+ * Subir un nivel: del detalle a proyectos, de proyectos o contacto al inicio. Es un
+ * enlace a la página de arriba, no un «atrás»: quien llega directo a una página
+ * (desde un buscador o un enlace compartido) saldría del sitio. Si esa página sí está
+ * atrás en el historial, se vuelve a ella donde se la dejó (`data-up`,
+ * `src/lib/up-links.ts`). Va arriba del título, a la izquierda, donde se la busca,
+ * con el tamaño del texto y un área de toque de 44 px.
  */
 interface Props {
   href: string
@@ -16,7 +18,7 @@ interface Props {
 const { href, label, name } = Astro.props
 ---
 
-<a class="up-link" href={href} aria-label={name}>
+<a class="up-link" href={href} aria-label={name} data-up>
   <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
     <path d="M14 8H3M7.5 3.5 3 8l4.5 4.5" />
   </svg>
