@@ -54,6 +54,7 @@ const MIDDLE = STAGE_PX.y + STAGE_PX.size / 2
 
 /** El cuadro de cada sprite que mejor se lee quieto (elegidos mirándolos todos). */
 const POSTER: Record<GlyphKey | 'contact', number> = {
+  orb: 0,
   loop: 20,
   chat: 0,
   eq: 26,

@@ -46,20 +46,26 @@ const schema = [
   description={t.meta.projectsDescription}
   schema={schema}
 >
-  {/* Un índice: el título cerca del header, una bajada corta y cuántos hay, para orientarse. */}
-  <section class="container-site pt-4 pb-10 md:pt-10 md:pb-16">
-    <UpLink href={pathFor(locale, 'home')} label={t.nav.home} name={t.nav.upHome} />
-    <h1 class="font-pixel text-d3 md:text-d4 mt-4 md:mt-10">
-      <span class="inline-block" data-grid-shape>
-        {t.projects.indexTitle}
-      </span>
-    </h1>
-    <p class="sm:text-lead text-muted mt-4 max-w-[36ch] text-lg sm:mt-6 sm:max-w-[40ch]">
-      {t.projects.indexLead}
-    </p>
-    <p class="text-muted mt-5 text-sm tabular-nums sm:mt-6">{count}</p>
-  </section>
-  <section class="container-site" aria-label={t.projects.indexTitle}>
+  {/*
+    Encabezado separado de la lista con una línea fuerte y la bajada en --fg-soft:
+    en un teléfono, el título queda como bloque propio y no se mezcla con las filas.
+    El conteo encabeza la lista, justo sobre su borde fino.
+  */}
+  <header class="container-site pt-4 md:pt-10">
+    <div class="border-line-strong border-b pb-8 md:pb-12">
+      <UpLink href={pathFor(locale, 'home')} label={t.nav.home} name={t.nav.upHome} />
+      <h1 class="font-pixel text-d3 md:text-d4 mt-6 md:mt-10">
+        <span class="inline-block" data-grid-shape>
+          {t.projects.indexTitle}
+        </span>
+      </h1>
+      <p class="sm:text-lead text-fg-soft mt-4 max-w-[36ch] text-lg sm:mt-6 sm:max-w-[40ch]">
+        {t.projects.indexLead}
+      </p>
+    </div>
+  </header>
+  <section class="container-site pt-8 md:pt-12" aria-label={t.projects.indexTitle}>
+    <p class="text-muted mb-3 text-sm tabular-nums md:mb-6">{count}</p>
     <ProjectList locale={locale} projects={projects} headingLevel="h2" />
   </section>
 </BaseLayout>

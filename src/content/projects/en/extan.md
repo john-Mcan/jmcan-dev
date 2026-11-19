@@ -6,7 +6,7 @@ role: 'Smart contract and web app'
 stack: [Solidity, Foundry, OpenZeppelin, Base, Next.js, TypeScript, Supabase, Privy, viem, ERC-4337]
 status: building
 glyph: escrow
-order: 4
+order: 5
 links:
   live: https://extan.johnmcan.dev
   repo: https://github.com/john-Mcan/escrow

@@ -436,6 +436,111 @@ function milestoneEscrow(ctx: CanvasRenderingContext2D, box: Box, turn: number):
   }
 }
 
+/** Una cápsula centrada en (x, y), para los ojos del orbe de Apolo. */
+function pill(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+): void {
+  const left = x - width / 2
+  const top = y - height / 2
+  const r = Math.min(width, height) / 2
+  ctx.beginPath()
+  ctx.moveTo(left + r, top)
+  ctx.arcTo(left + width, top, left + width, top + height, r)
+  ctx.arcTo(left + width, top + height, left, top + height, r)
+  ctx.arcTo(left, top + height, left, top, r)
+  ctx.arcTo(left, top, left + width, top, r)
+  ctx.closePath()
+  ctx.fill()
+}
+
+/** Pulso suavizado en [start, end]: sube a 1 en el tramo central y vuelve a 0. */
+function windowPulse(turn: number, start: number, end: number, ramp = 0.28): number {
+  if (turn <= start || turn >= end) return 0
+  const p = (turn - start) / (end - start)
+  if (p < ramp) return ease(p / ramp)
+  if (p > 1 - ramp) return ease((1 - p) / ramp)
+  return 1
+}
+
+/** Un parpadeo en [start, end]: devuelve cuánto se cierra el ojo (0 abierto, 1 cerrado). */
+function blinkAt(turn: number, start: number, end: number): number {
+  if (turn <= start || turn >= end) return 0
+  const p = (turn - start) / (end - start)
+  return Math.sin(p * Math.PI)
+}
+
+/**
+ * Orbe (Apolo): la esfera central con sus ojos en cápsula y gestos en espera
+ * (respiración lenta, parpadeo, mirada a un lado, doble parpadeo y mirada al otro).
+ * En turn = 0 mira de frente con los ojos abiertos, que es el cuadro quieto.
+ */
+function apoloOrb(ctx: CanvasRenderingContext2D, box: Box, turn: number): void {
+  const { cx, cy, unit } = squareIn(box)
+  const breathe = (1 - Math.cos(turn * TAU)) / 2
+  const radius = unit * 0.36 * (1 + 0.025 * breathe)
+  const diameter = radius * 2
+  const orbY = cy - unit * 0.018 * breathe
+
+  // Cuerpo de la esfera: luz interior suave con brillo que deriva despacio y borde nítido.
+  const driftX = cx + Math.cos(turn * TAU) * radius * 0.22 - radius * 0.14
+  const driftY = orbY + Math.sin(turn * TAU) * radius * 0.16 - radius * 0.2
+  const fill = ctx.createRadialGradient(driftX, driftY, radius * 0.08, cx, orbY, radius)
+  fill.addColorStop(0, shade(0.4))
+  fill.addColorStop(0.62, shade(0.24))
+  fill.addColorStop(1, shade(0.48))
+  ctx.fillStyle = fill
+  ctx.beginPath()
+  ctx.arc(cx, orbY, radius, 0, TAU)
+  ctx.fill()
+
+  ctx.lineWidth = stroke(unit, 0.045)
+  ctx.strokeStyle = shade(0.92)
+  ctx.beginPath()
+  ctx.arc(cx, orbY, radius, 0, TAU)
+  ctx.stroke()
+
+  // Gestos de la mirada en reposo: mirar a la izquierda, doble parpadeo, mirar a la derecha.
+  const lookLeft = windowPulse(turn, 0.24, 0.44)
+  const lookRight = windowPulse(turn, 0.64, 0.84)
+  const gazeX = (lookRight - lookLeft) * diameter * 0.11
+  const gazeY = -diameter * 0.03 - (lookLeft * 0.02 + lookRight * 0.03) * diameter
+  const tilt = (lookRight - lookLeft) * 0.055
+
+  const blink = Math.max(
+    blinkAt(turn, 0.13, 0.19),
+    blinkAt(turn, 0.48, 0.535),
+    blinkAt(turn, 0.545, 0.6),
+  )
+
+  const eyeW = Math.max(diameter * 0.125, 6)
+  const eyeHFull = diameter * 0.25
+  const eyeH = Math.max(eyeHFull * (1 - 0.86 * blink), stroke(unit, 0.035))
+  const eyeOffset = diameter * 0.155
+  const cutout = Math.max(unit * 0.035, 3)
+
+  ctx.save()
+  ctx.translate(cx + gazeX, orbY + gazeY)
+  ctx.rotate(tilt)
+
+  // Recorte fino alrededor de cada ojo para que destaquen sobre la luz interior del orbe.
+  ctx.globalCompositeOperation = 'destination-out'
+  ctx.fillStyle = '#fff'
+  for (const side of [-1, 1]) {
+    pill(ctx, side * eyeOffset, 0, eyeW + cutout * 2, eyeH + cutout * 2)
+  }
+
+  ctx.globalCompositeOperation = 'source-over'
+  ctx.fillStyle = shade(0.98)
+  for (const side of [-1, 1]) {
+    pill(ctx, side * eyeOffset, 0, eyeW, eyeH)
+  }
+  ctx.restore()
+}
+
 // ─── Del resto del sitio ─────────────────────────────────────────────────────
 
 /** Sobre cuya solapa se abre y se cierra. */
@@ -504,6 +609,7 @@ export function glitchText(text: string, count: number, scale = 0.62): readonly 
   })
 }
 
+export const APOLO_ORB = drawnFrames(64, apoloOrb)
 export const ORBITING_DISCS = drawnFrames(30, orbitingDiscs)
 export const CLOSING_LOOP = drawnFrames(40, closingLoop)
 export const EQUALIZER = drawnFrames(48, equalizer)

@@ -7,7 +7,7 @@ stack: [TypeScript, Node.js, Fastify, Temporal, Next.js, PostgreSQL, Supabase, A
 status: building
 glyph: loop
 featured: true
-order: 1
+order: 2
 links:
   live: https://revra.io
 shots:

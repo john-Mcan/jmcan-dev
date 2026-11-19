@@ -7,7 +7,7 @@ stack: [Astro, TypeScript, Preact, Pagefind, Cloudflare]
 status: live
 contributions: true
 glyph: path
-order: 5
+order: 6
 links:
   live: https://orientame.cl
   repo: https://github.com/john-Mcan/orientame.cl

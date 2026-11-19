@@ -6,6 +6,7 @@
 import type { Locale } from '@/i18n/config'
 import type { GlyphKey } from './glyph-keys'
 import {
+  APOLO_ORB,
   CHANNEL_ZAP,
   CLOSING_LOOP,
   CONVERSATION,
@@ -18,8 +19,9 @@ import {
 } from './sprite-drawings'
 import { WORD_MS, type Sprite } from './sprites'
 
-/** Uno por proyecto: Revra, vriza, NEX, extan, orientame.cl, Fandoms.io y Chucao. */
+/** Uno por proyecto: Apolo, Revra, vriza, NEX, extan, orientame.cl, Fandoms.io y Chucao. */
 export const GLYPHS: Record<GlyphKey, Sprite> = {
+  orb: { frames: APOLO_ORB, frameMs: 80 },
   loop: { frames: CLOSING_LOOP, frameMs: 60 },
   chat: { frames: CONVERSATION, frameMs: 70 },
   eq: { frames: EQUALIZER, frameMs: 70 },

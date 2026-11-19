@@ -8,7 +8,7 @@ stack:
 status: prelaunch
 glyph: eq
 featured: true
-order: 3
+order: 4
 links:
   live: https://nex-radio.com
   demo: https://dev.nex-radio.com

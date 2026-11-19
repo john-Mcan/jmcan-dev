@@ -7,7 +7,7 @@ stack: [C#, .NET 10, WPF, LibVLC]
 status: building
 contributions: true
 glyph: zap
-order: 7
+order: 8
 links:
   repo: https://github.com/john-Mcan/iptv-player
 ---

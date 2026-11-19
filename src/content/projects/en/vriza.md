@@ -19,7 +19,7 @@ stack:
 status: prelaunch
 glyph: chat
 featured: true
-order: 2
+order: 3
 links:
   live: https://vriza.cl
 shots:
